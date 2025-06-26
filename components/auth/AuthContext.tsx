@@ -138,16 +138,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await AuthService.setUser(user);
       await AuthService.setAuthToken(`demo_token_${user.id}`);
 
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      if (mountedRef.current) {
+        setAuthState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+      }
 
       return { success: true, message: "Login successful" };
     } catch (error) {
       console.error("Login error:", error);
-      setAuthState((prev) => ({ ...prev, isLoading: false }));
+      if (mountedRef.current) {
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
+      }
       return { success: false, message: "Login failed. Please try again." };
     }
   };
