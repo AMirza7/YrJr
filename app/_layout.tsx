@@ -23,6 +23,7 @@ function RootLayoutNav() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
+  const [appHealthChecked, setAppHealthChecked] = React.useState(false);
 
   // Set RTL layout if user's language requires it
   React.useEffect(() => {
