@@ -270,3 +270,35 @@ export interface QuizSession {
   mode: "learn" | "quiz";
   category: string;
 }
+
+// Authentication types
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface DemoAccount {
+  email: string;
+  password: string;
+  role: UserRole;
+  name: string;
+  displayTitle: string;
+}
+
+export interface RolePermissions {
+  canEditCases: boolean;
+  canViewClientFolders: boolean;
+  canAccessSecureVault: boolean;
+  canUsePinboard: boolean;
+  canViewTimeline: boolean;
+  canUseFlashcards: boolean;
+  canCompareSections: boolean;
+  maxClients: number;
+  maxCases: number;
+}
