@@ -36,6 +36,22 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
+  const [showBiometric, setShowBiometric] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+
+  useEffect(() => {
+    checkBiometricAvailability();
+  }, []);
+
+  const checkBiometricAvailability = async () => {
+    try {
+      const isAvailable = await BiometricService.isBiometricAvailable();
+      const isEnabled = await BiometricService.isBiometricEnabled();
+      setBiometricAvailable(isAvailable && isEnabled);
+    } catch (error) {
+      console.error("Error checking biometric availability:", error);
+    }
+  };
 
   const handleLogin = async () => {
     if (!formData.email || !formData.password) {
