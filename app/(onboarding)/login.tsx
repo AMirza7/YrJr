@@ -513,6 +513,21 @@ const styles = StyleSheet.create({
     fontWeight: FontWeights.medium,
     marginLeft: Spacing.sm,
   },
+  biometricButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  biometricButtonText: {
+    fontSize: FontSizes.md,
+    fontWeight: FontWeights.medium,
+    marginLeft: Spacing.sm,
+  },
   demoContainer: {
     borderRadius: 16,
     padding: Spacing.lg,
