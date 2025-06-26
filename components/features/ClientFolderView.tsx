@@ -457,16 +457,16 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 <Card key={caseItem.id} style={styles.caseCard}>
                   <View style={styles.caseHeader}>
                     <Text style={[styles.caseTitle, { color: theme.text }]}>
-                      {case_.title}
+                      {caseItem.title}
                     </Text>
                     <View
                       style={[
                         styles.caseStatusBadge,
                         {
                           backgroundColor:
-                            case_.status === "ongoing"
+                            caseItem.status === "ongoing"
                               ? `${theme.warning}20`
-                              : case_.status === "completed"
+                              : caseItem.status === "completed"
                                 ? `${theme.success}20`
                                 : `${theme.textTertiary}20`,
                         },
@@ -477,15 +477,15 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                           styles.caseStatusText,
                           {
                             color:
-                              case_.status === "ongoing"
+                              caseItem.status === "ongoing"
                                 ? theme.warning
-                                : case_.status === "completed"
+                                : caseItem.status === "completed"
                                   ? theme.success
                                   : theme.textTertiary,
                           },
                         ]}
                       >
-                        {case_.status}
+                        {caseItem.status}
                       </Text>
                     </View>
                   </View>
@@ -503,7 +503,7 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                       <Text
                         style={[styles.caseDetailValue, { color: theme.text }]}
                       >
-                        {case_.caseNumber}
+                        {caseItem.caseNumber}
                       </Text>
                     </View>
 
@@ -519,7 +519,7 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                       <Text
                         style={[styles.caseDetailValue, { color: theme.text }]}
                       >
-                        {case_.courtName}
+                        {caseItem.courtName}
                       </Text>
                     </View>
 
@@ -538,16 +538,16 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                           { color: theme.primary },
                         ]}
                       >
-                        {case_.nextHearing.toLocaleDateString()}
+                        {caseItem.nextHearing.toLocaleDateString()}
                       </Text>
                     </View>
                   </View>
 
-                  {case_.notes && (
+                  {caseItem.notes && (
                     <Text
                       style={[styles.caseNotes, { color: theme.textSecondary }]}
                     >
-                      Notes: {case_.notes}
+                      Notes: {caseItem.notes}
                     </Text>
                   )}
                 </Card>
