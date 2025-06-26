@@ -15,6 +15,11 @@ import { StatusBar } from "expo-status-bar";
 
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { RoleSwitch } from "@/components/profile/RoleSwitch";
+import { DocumentScanner } from "@/components/documents/DocumentScanner";
+import { BiometricAuth } from "@/components/auth/BiometricAuth";
+import { NotificationService } from "@/services/notifications";
+import { BiometricService } from "@/services/biometric";
 import {
   LegalTheme,
   FontSizes,
@@ -34,6 +39,9 @@ export default function ProfileScreen() {
   const [darkModeEnabled, setDarkModeEnabled] = useState(
     colorScheme === "dark",
   );
+  const [showDocumentScanner, setShowDocumentScanner] = useState(false);
+  const [showBiometricAuth, setShowBiometricAuth] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -43,6 +51,10 @@ export default function ProfileScreen() {
     try {
       const userData = await AuthService.getUser();
       setUser(userData);
+
+      // Load biometric status
+      const biometricStatus = await BiometricService.isBiometricEnabled();
+      setBiometricEnabled(biometricStatus);
     } catch (error) {
       console.error("Error loading user data:", error);
     }
@@ -78,6 +90,55 @@ export default function ProfileScreen() {
       "Manage Subscription",
       "Subscription management will be available soon!",
     );
+  };
+
+  const handleRoleChange = (newRole: string) => {
+    setUser((prev) => (prev ? { ...prev, role: newRole as any } : null));
+  };
+
+  const handleDocumentScanned = (document: any) => {
+    Alert.alert("Document Scanned", `Successfully scanned: ${document.name}`);
+  };
+
+  const handleBiometricToggle = async () => {
+    try {
+      if (biometricEnabled) {
+        // Disable biometric
+        await BiometricService.setBiometricEnabled(false);
+        setBiometricEnabled(false);
+        Alert.alert(
+          "Biometric Disabled",
+          "Biometric authentication has been disabled.",
+        );
+      } else {
+        // Enable biometric
+        setShowBiometricAuth(true);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to update biometric settings.");
+    }
+  };
+
+  const handleBiometricSuccess = async () => {
+    try {
+      await BiometricService.setBiometricEnabled(true);
+      setBiometricEnabled(true);
+      setShowBiometricAuth(false);
+      Alert.alert(
+        "Biometric Enabled",
+        "Biometric authentication has been enabled.",
+      );
+    } catch (error) {
+      Alert.alert("Error", "Failed to enable biometric authentication.");
+    }
+  };
+
+  const handleNotificationSettings = async () => {
+    try {
+      router.push("/(main)/notification-center");
+    } catch (error) {
+      Alert.alert("Error", "Failed to open notification settings.");
+    }
   };
 
   const getRoleColor = (role: string) => {
@@ -223,6 +284,11 @@ export default function ProfileScreen() {
           />
         </Card>
 
+        {/* Role Switch */}
+        {user && (
+          <RoleSwitch currentUser={user} onRoleChange={handleRoleChange} />
+        )}
+
         {/* Account Settings */}
         <MenuSection title="Account">
           <MenuItem
@@ -267,20 +333,7 @@ export default function ProfileScreen() {
             icon="notifications"
             title="Notifications"
             subtitle="Push notifications and alerts"
-            rightElement={
-              <Switch
-                value={notificationsEnabled}
-                onValueChange={setNotificationsEnabled}
-                trackColor={{
-                  false: theme.textTertiary,
-                  true: theme.primary + "50",
-                }}
-                thumbColor={
-                  notificationsEnabled ? theme.primary : theme.textTertiary
-                }
-              />
-            }
-            showArrow={false}
+            onPress={handleNotificationSettings}
           />
           <MenuItem
             icon="moon"
@@ -314,11 +367,28 @@ export default function ProfileScreen() {
           />
           <MenuItem
             icon="lock-closed"
-            title="Privacy & Security"
-            subtitle="Password, biometric settings"
-            onPress={() =>
-              Alert.alert("Privacy", "Privacy settings will be available soon.")
+            title="Biometric Authentication"
+            subtitle={biometricEnabled ? "Enabled" : "Disabled"}
+            rightElement={
+              <Switch
+                value={biometricEnabled}
+                onValueChange={handleBiometricToggle}
+                trackColor={{
+                  false: theme.textTertiary,
+                  true: theme.primary + "50",
+                }}
+                thumbColor={
+                  biometricEnabled ? theme.primary : theme.textTertiary
+                }
+              />
             }
+            showArrow={false}
+          />
+          <MenuItem
+            icon="document-attach"
+            title="Document Scanner"
+            subtitle="Scan legal documents with OCR"
+            onPress={() => setShowDocumentScanner(true)}
           />
         </MenuSection>
 
@@ -381,6 +451,22 @@ export default function ProfileScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Document Scanner Modal */}
+      <DocumentScanner
+        visible={showDocumentScanner}
+        onClose={() => setShowDocumentScanner(false)}
+        onDocumentScanned={handleDocumentScanned}
+      />
+
+      {/* Biometric Auth Modal */}
+      <BiometricAuth
+        visible={showBiometricAuth}
+        onSuccess={handleBiometricSuccess}
+        onCancel={() => setShowBiometricAuth(false)}
+        title="Enable Biometric Authentication"
+        subtitle="Set up biometric authentication for secure app access"
+      />
     </SafeAreaView>
   );
 }
