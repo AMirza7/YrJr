@@ -18,43 +18,64 @@ import { isRTL } from "@/constants/Translations";
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  if (!loaded || isLoading) {
-    const theme = LegalTheme[colorScheme ?? "light"];
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: theme.background,
-        }}
-      >
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
-  }
+  // Set RTL layout if user's language requires it
+  React.useEffect(() => {
+    if (user?.language && isRTL(user.language)) {
+      I18nManager.allowRTL(true);
+      I18nManager.forceRTL(true);
+    } else {
+      I18nManager.allowRTL(false);
+      I18nManager.forceRTL(false);
+    }
+  }, [user?.language]);
+
+  const isAppLoading = !loaded || isLoading;
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <>
-            <Stack.Screen name="(main)" />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="(onboarding)" />
-          </>
-        )}
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <SessionManager>
+      <ScreenTransition loading={isAppLoading} slideDirection="up">
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: "slide_from_right",
+              animationDuration: 250,
+            }}
+          >
+            {isAuthenticated ? (
+              <>
+                <Stack.Screen
+                  name="(main)"
+                  options={{
+                    animation: "fade",
+                    animationDuration: 300,
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                <Stack.Screen
+                  name="(onboarding)"
+                  options={{
+                    animation: "slide_from_bottom",
+                    animationDuration: 400,
+                  }}
+                />
+              </>
+            )}
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </ScreenTransition>
+    </SessionManager>
   );
 }
 
