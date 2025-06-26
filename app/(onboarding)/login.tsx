@@ -400,6 +400,15 @@ export default function LoginScreen() {
           )}
         </ScrollView>
       </LinearGradient>
+
+      {/* Biometric Authentication Modal */}
+      <BiometricAuth
+        visible={showBiometric}
+        onSuccess={handleBiometricSuccess}
+        onCancel={handleBiometricCancel}
+        title="Secure Login"
+        subtitle="Use your biometric authentication to login securely"
+      />
     </SafeAreaView>
   );
 }
