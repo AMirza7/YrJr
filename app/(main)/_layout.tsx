@@ -12,6 +12,9 @@ export default function MainLayout() {
       <Stack.Screen name="quiz" />
       <Stack.Screen name="chat/[id]" />
       <Stack.Screen name="lawyer-profile/[id]" />
+      <Stack.Screen name="notification-center" />
+      <Stack.Screen name="legal-templates" />
+      <Stack.Screen name="ai-assistant" />
     </Stack>
   );
 }

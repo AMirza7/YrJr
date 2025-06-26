@@ -25,6 +25,8 @@ import {
 } from "@/constants/Theme";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { HOME_SECTIONS } from "@/constants/LegalConstants";
+import { NotificationService } from "@/services/notifications";
+import { BiometricService } from "@/services/biometric";
 import { AuthService } from "@/services/auth";
 import { User } from "@/types";
 
@@ -34,6 +36,8 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [showBiometricAuth, setShowBiometricAuth] = useState(false);
 
   useEffect(() => {
     loadUserData();
@@ -43,6 +47,16 @@ export default function HomeScreen() {
     try {
       const userData = await AuthService.getUser();
       setUser(userData);
+
+      // Load notification count
+      const count = await NotificationService.getUnreadCount();
+      setUnreadNotifications(count);
+
+      // Check if biometric authentication is enabled and required
+      const biometricEnabled = await BiometricService.isBiometricEnabled();
+      if (biometricEnabled) {
+        setShowBiometricAuth(true);
+      }
     } catch (error) {
       console.error("Error loading user data:", error);
     }
@@ -78,6 +92,10 @@ export default function HomeScreen() {
         `${section.title} feature will be available soon!`,
       );
     }
+  };
+
+  const handleVoicePress = () => {
+    router.push("/(main)/ai-assistant");
   };
 
   const getRoleColor = (role: string) => {
@@ -135,12 +153,32 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
-          <TouchableOpacity style={styles.notificationButton}>
+          <TouchableOpacity
+            style={styles.notificationButton}
+            onPress={() => router.push("/(main)/notification-center")}
+          >
             <Ionicons
               name="notifications-outline"
               size={24}
               color={theme.text}
             />
+            {unreadNotifications > 0 && (
+              <View
+                style={[
+                  styles.notificationBadge,
+                  { backgroundColor: theme.error },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.notificationBadgeText,
+                    { color: theme.textInverse },
+                  ]}
+                >
+                  {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -202,6 +240,70 @@ export default function HomeScreen() {
                 </Card>
               </TouchableOpacity>
             ))}
+
+            {/* AI Assistant */}
+            <TouchableOpacity
+              onPress={() => router.push("/(main)/ai-assistant")}
+              style={styles.sectionItem}
+            >
+              <Card style={styles.sectionCard} padding="medium">
+                <View
+                  style={[
+                    styles.sectionIcon,
+                    { backgroundColor: theme.accent + "20" },
+                  ]}
+                >
+                  <Ionicons
+                    name="chatbubble-ellipses"
+                    size={24}
+                    color={theme.accent}
+                  />
+                </View>
+                <Text style={[styles.sectionCardTitle, { color: theme.text }]}>
+                  AI Assistant
+                </Text>
+                <Text
+                  style={[
+                    styles.sectionCardDesc,
+                    { color: theme.textSecondary },
+                  ]}
+                >
+                  Get instant legal guidance
+                </Text>
+              </Card>
+            </TouchableOpacity>
+
+            {/* Legal Templates */}
+            <TouchableOpacity
+              onPress={() => router.push("/(main)/legal-templates")}
+              style={styles.sectionItem}
+            >
+              <Card style={styles.sectionCard} padding="medium">
+                <View
+                  style={[
+                    styles.sectionIcon,
+                    { backgroundColor: theme.secondary + "20" },
+                  ]}
+                >
+                  <Ionicons
+                    name="document-text"
+                    size={24}
+                    color={theme.secondary}
+                  />
+                </View>
+                <Text style={[styles.sectionCardTitle, { color: theme.text }]}>
+                  Legal Templates
+                </Text>
+                <Text
+                  style={[
+                    styles.sectionCardDesc,
+                    { color: theme.textSecondary },
+                  ]}
+                >
+                  Ready-to-use legal forms
+                </Text>
+              </Card>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -331,6 +433,22 @@ const styles = StyleSheet.create({
   },
   notificationButton: {
     padding: Spacing.sm,
+    position: "relative",
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
+  },
+  notificationBadgeText: {
+    fontSize: 10,
+    fontWeight: FontWeights.bold,
   },
   searchBar: {
     marginTop: Spacing.sm,
