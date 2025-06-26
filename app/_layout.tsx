@@ -6,12 +6,15 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, I18nManager } from "react-native";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { AuthProvider, useAuth } from "@/components/auth/AuthContext";
+import { SessionManager } from "@/components/auth/SessionManager";
+import { ScreenTransition } from "@/components/ui/ScreenTransition";
 import { LegalTheme } from "@/constants/Theme";
+import { isRTL } from "@/constants/Translations";
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
