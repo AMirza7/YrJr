@@ -86,23 +86,7 @@ export default function HomeScreen() {
     router.push("/(main)/ai-assistant");
   };
 
-  const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await logout();
-            router.replace("/(onboarding)/");
-          } catch (error) {
-            Alert.alert("Error", "Failed to logout. Please try again.");
-          }
-        },
-      },
-    ]);
-  };
+  // Logout handler now uses enhanced confirmation from SessionManager
 
   const getRoleColor = (role: string) => {
     switch (role) {
