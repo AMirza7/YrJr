@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/Card";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 import { RoleDashboard } from "@/components/auth/RoleDashboard";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useLogoutConfirm } from "@/components/auth/SessionManager";
 import {
   LegalTheme,
   FontSizes,
