@@ -68,12 +68,14 @@ function RootLayoutNav() {
 
   // Set RTL layout if user's language requires it
   React.useEffect(() => {
-    if (user?.language && isRTL(user.language)) {
-      I18nManager.allowRTL(true);
-      I18nManager.forceRTL(true);
-    } else {
-      I18nManager.allowRTL(false);
-      I18nManager.forceRTL(false);
+    if (mountedRef.current) {
+      if (user?.language && isRTL(user.language)) {
+        I18nManager.allowRTL(true);
+        I18nManager.forceRTL(true);
+      } else {
+        I18nManager.allowRTL(false);
+        I18nManager.forceRTL(false);
+      }
     }
   }, [user?.language]);
 
