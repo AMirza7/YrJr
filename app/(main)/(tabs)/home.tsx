@@ -374,6 +374,9 @@ export default function HomeScreen() {
           </Card>
         </View>
       </ScrollView>
+
+      {/* Floating Action Button */}
+      <FloatingActionButton />
     </SafeAreaView>
   );
 }
