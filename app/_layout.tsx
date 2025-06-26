@@ -25,6 +25,7 @@ function RootLayoutNav() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
   const [appHealthChecked, setAppHealthChecked] = React.useState(false);
+  const mountedRef = React.useRef(true);
 
   // Initialize app and run health checks
   React.useEffect(() => {
@@ -44,14 +45,25 @@ function RootLayoutNav() {
           Logger.warn("App initialization completed with warnings");
         }
 
-        setAppHealthChecked(true);
+        // Only update state if component is still mounted
+        if (mountedRef.current) {
+          setAppHealthChecked(true);
+        }
       } catch (error) {
         Logger.error("App initialization failed:", error);
-        setAppHealthChecked(true); // Still allow app to start
+        // Only update state if component is still mounted
+        if (mountedRef.current) {
+          setAppHealthChecked(true); // Still allow app to start
+        }
       }
     };
 
     initializeApp();
+
+    // Cleanup function
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   // Set RTL layout if user's language requires it
