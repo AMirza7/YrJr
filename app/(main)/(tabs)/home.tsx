@@ -178,6 +178,17 @@ export default function HomeScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
+                style={styles.helpButton}
+                onPress={() => router.push("/(main)/help-support")}
+              >
+                <Ionicons
+                  name="help-circle-outline"
+                  size={24}
+                  color={theme.textSecondary}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
                 style={styles.logoutButton}
                 onPress={handleLogoutConfirm}
               >
