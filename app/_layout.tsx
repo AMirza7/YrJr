@@ -25,6 +25,34 @@ function RootLayoutNav() {
   });
   const [appHealthChecked, setAppHealthChecked] = React.useState(false);
 
+  // Initialize app and run health checks
+  React.useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        Logger.info("Initializing YrJr Legal Assistant...");
+
+        // Clean up console logs in production
+        Cleanup.removeConsoleLogs();
+
+        // Run health checks
+        const healthChecksPassed = await AppHealth.runHealthChecks();
+
+        if (healthChecksPassed) {
+          Logger.info("App initialization completed successfully");
+        } else {
+          Logger.warn("App initialization completed with warnings");
+        }
+
+        setAppHealthChecked(true);
+      } catch (error) {
+        Logger.error("App initialization failed:", error);
+        setAppHealthChecked(true); // Still allow app to start
+      }
+    };
+
+    initializeApp();
+  }, []);
+
   // Set RTL layout if user's language requires it
   React.useEffect(() => {
     if (user?.language && isRTL(user.language)) {
