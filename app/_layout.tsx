@@ -15,6 +15,7 @@ import { SessionManager } from "@/components/auth/SessionManager";
 import { ScreenTransition } from "@/components/ui/ScreenTransition";
 import { LegalTheme } from "@/constants/Theme";
 import { isRTL } from "@/constants/Translations";
+import { AppHealth, Cleanup, Logger } from "@/utils/production";
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
