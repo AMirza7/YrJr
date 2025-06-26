@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 
 import { Button } from "@/components/ui/Button";
+import { BiometricAuth } from "@/components/auth/BiometricAuth";
 import { useAuth } from "@/components/auth/AuthContext";
+import { BiometricService } from "@/services/biometric";
 import { DEMO_ACCOUNTS, ROLE_DISPLAY_INFO } from "@/constants/AuthConstants";
 import { LegalTheme, FontSizes, FontWeights, Spacing } from "@/constants/Theme";
 import { useColorScheme } from "@/hooks/useColorScheme";
