@@ -75,14 +75,6 @@ export default function HomeScreen() {
     }
   };
 
-  const handleVoicePress = () => {
-    Alert.alert(
-      "Voice Assistant",
-      "Voice search will be available soon. Ask questions in any Indian language!",
-      [{ text: "OK" }],
-    );
-  };
-
   const handleSectionPress = (section: (typeof HOME_SECTIONS)[0]) => {
     if (section.route.startsWith("/")) {
       router.push(section.route as any);
