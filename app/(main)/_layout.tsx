@@ -15,6 +15,12 @@ export default function MainLayout() {
       <Stack.Screen name="notification-center" />
       <Stack.Screen name="legal-templates" />
       <Stack.Screen name="ai-assistant" />
+      <Stack.Screen name="legal-pinboard" />
+      <Stack.Screen name="case-timeline" />
+      <Stack.Screen name="secure-vault" />
+      <Stack.Screen name="section-comparator" />
+      <Stack.Screen name="flashcards" />
+      <Stack.Screen name="client-folders" />
     </Stack>
   );
 }
