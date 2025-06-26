@@ -1,5 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User, UserRole, SubscriptionPlan } from "@/types";
+import { httpClient } from "./httpClient";
+import AuthApiService from "./api/authApi";
+import { Logger } from "@/utils/production";
 
 export class AuthService {
   private static readonly USER_KEY = "user_data";
