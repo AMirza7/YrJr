@@ -33,7 +33,8 @@ import { NotificationService } from "@/services/notifications";
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const theme = LegalTheme[colorScheme ?? "light"];
-  const { user, hasFeatureAccess, logout } = useAuth();
+  const { user, hasFeatureAccess } = useAuth();
+  const handleLogoutConfirm = useLogoutConfirm();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
