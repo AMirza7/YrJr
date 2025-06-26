@@ -12,10 +12,12 @@ import {
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import * as Speech from "expo-speech";
 
 import { SearchBar } from "@/components/ui/SearchBar";
 import { Card } from "@/components/ui/Card";
+import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
+import { RoleDashboard } from "@/components/auth/RoleDashboard";
+import { useAuth } from "@/components/auth/AuthContext";
 import {
   LegalTheme,
   FontSizes,
@@ -26,45 +28,37 @@ import {
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { HOME_SECTIONS } from "@/constants/LegalConstants";
 import { NotificationService } from "@/services/notifications";
-import { BiometricService } from "@/services/biometric";
-import { AuthService } from "@/services/auth";
-import { User } from "@/types";
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const theme = LegalTheme[colorScheme ?? "light"];
+  const { user, hasFeatureAccess, logout } = useAuth();
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [user, setUser] = useState<User | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const [showBiometricAuth, setShowBiometricAuth] = useState(false);
+
+  // Filter sections based on user role
+  const availableSections = HOME_SECTIONS.filter((section) =>
+    hasFeatureAccess(section.id),
+  );
 
   useEffect(() => {
-    loadUserData();
+    loadNotificationData();
   }, []);
 
-  const loadUserData = async () => {
+  const loadNotificationData = async () => {
     try {
-      const userData = await AuthService.getUser();
-      setUser(userData);
-
-      // Load notification count
       const count = await NotificationService.getUnreadCount();
       setUnreadNotifications(count);
-
-      // Check if biometric authentication is enabled and required
-      const biometricEnabled = await BiometricService.isBiometricEnabled();
-      if (biometricEnabled) {
-        setShowBiometricAuth(true);
-      }
     } catch (error) {
-      console.error("Error loading user data:", error);
+      console.error("Error loading notification data:", error);
     }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadUserData();
+    await loadNotificationData();
     setRefreshing(false);
   };
 
@@ -73,14 +67,6 @@ export default function HomeScreen() {
       Alert.alert("Search", `Searching for: ${query}`);
       // Implement search functionality here
     }
-  };
-
-  const handleVoicePress = () => {
-    Alert.alert(
-      "Voice Assistant",
-      "Voice search will be available soon. Ask questions in any Indian language!",
-      [{ text: "OK" }],
-    );
   };
 
   const handleSectionPress = (section: (typeof HOME_SECTIONS)[0]) => {
@@ -98,18 +84,36 @@ export default function HomeScreen() {
     router.push("/(main)/ai-assistant");
   };
 
+  const handleLogout = async () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await logout();
+            router.replace("/(onboarding)/");
+          } catch (error) {
+            Alert.alert("Error", "Failed to logout. Please try again.");
+          }
+        },
+      },
+    ]);
+  };
+
   const getRoleColor = (role: string) => {
     switch (role) {
       case "lawyer":
-        return theme.lawyer;
+        return "#8B5CF6";
       case "junior_lawyer":
-        return theme.juniorLawyer;
+        return "#06B6D4";
       case "lawyer_assistant":
-        return theme.lawyerAssistant;
+        return "#10B981";
       case "law_office_helper":
-        return theme.lawOfficeHelper;
+        return "#F59E0B";
       case "law_student":
-        return theme.lawStudent;
+        return "#EF4444";
       default:
         return theme.primary;
     }
@@ -123,265 +127,307 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-
-      {/* Header */}
-      <View style={[styles.header, { backgroundColor: theme.surface }]}>
-        <View style={styles.headerTop}>
-          <View style={styles.userInfo}>
-            <Text style={[styles.greeting, { color: theme.textSecondary }]}>
-              Good {getTimeOfDay()}
-            </Text>
-            <Text style={[styles.userName, { color: theme.text }]}>
-              {user?.name || "User"}
-            </Text>
-            {user?.role && (
-              <View
-                style={[
-                  styles.roleBadge,
-                  { backgroundColor: getRoleColor(user.role) + "20" },
-                ]}
-              >
-                <Text
-                  style={[styles.roleText, { color: getRoleColor(user.role) }]}
-                >
-                  {formatRoleName(user.role)}
-                </Text>
-              </View>
-            )}
-          </View>
-          <TouchableOpacity
-            style={styles.notificationButton}
-            onPress={() => router.push("/(main)/notification-center")}
-          >
-            <Ionicons
-              name="notifications-outline"
-              size={24}
-              color={theme.text}
-            />
-            {unreadNotifications > 0 && (
-              <View
-                style={[
-                  styles.notificationBadge,
-                  { backgroundColor: theme.error },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.notificationBadgeText,
-                    { color: theme.textInverse },
-                  ]}
-                >
-                  {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSearch={handleSearch}
-          onVoicePress={handleVoicePress}
-          style={styles.searchBar}
-        />
-      </View>
-
-      {/* Content */}
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+    <RoleDashboard>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.background }]}
       >
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Quick Actions
-          </Text>
-          <View style={styles.sectionsGrid}>
-            {HOME_SECTIONS.map((section) => (
-              <TouchableOpacity
-                key={section.id}
-                onPress={() => handleSectionPress(section)}
-                style={styles.sectionItem}
-              >
-                <Card style={styles.sectionCard} padding="medium">
-                  <View
-                    style={[
-                      styles.sectionIcon,
-                      { backgroundColor: section.color + "20" },
-                    ]}
-                  >
-                    <Ionicons
-                      name={section.icon as any}
-                      size={24}
-                      color={section.color}
-                    />
-                  </View>
-                  <Text
-                    style={[styles.sectionCardTitle, { color: theme.text }]}
-                  >
-                    {section.title}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.sectionCardDesc,
-                      { color: theme.textSecondary },
-                    ]}
-                  >
-                    {section.description}
-                  </Text>
-                </Card>
-              </TouchableOpacity>
-            ))}
+        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
 
-            {/* AI Assistant */}
-            <TouchableOpacity
-              onPress={() => router.push("/(main)/ai-assistant")}
-              style={styles.sectionItem}
-            >
-              <Card style={styles.sectionCard} padding="medium">
-                <View
-                  style={[
-                    styles.sectionIcon,
-                    { backgroundColor: theme.accent + "20" },
-                  ]}
-                >
-                  <Ionicons
-                    name="chatbubble-ellipses"
-                    size={24}
-                    color={theme.accent}
-                  />
-                </View>
-                <Text style={[styles.sectionCardTitle, { color: theme.text }]}>
-                  AI Assistant
-                </Text>
-                <Text
-                  style={[
-                    styles.sectionCardDesc,
-                    { color: theme.textSecondary },
-                  ]}
-                >
-                  Get instant legal guidance
-                </Text>
-              </Card>
-            </TouchableOpacity>
-
-            {/* Legal Templates */}
-            <TouchableOpacity
-              onPress={() => router.push("/(main)/legal-templates")}
-              style={styles.sectionItem}
-            >
-              <Card style={styles.sectionCard} padding="medium">
-                <View
-                  style={[
-                    styles.sectionIcon,
-                    { backgroundColor: theme.secondary + "20" },
-                  ]}
-                >
-                  <Ionicons
-                    name="document-text"
-                    size={24}
-                    color={theme.secondary}
-                  />
-                </View>
-                <Text style={[styles.sectionCardTitle, { color: theme.text }]}>
-                  Legal Templates
-                </Text>
-                <Text
-                  style={[
-                    styles.sectionCardDesc,
-                    { color: theme.textSecondary },
-                  ]}
-                >
-                  Ready-to-use legal forms
-                </Text>
-              </Card>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Recent Updates */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Recent Updates
-            </Text>
-            <TouchableOpacity>
-              <Text style={[styles.seeAllText, { color: theme.primary }]}>
-                See All
+        {/* Header */}
+        <View style={[styles.header, { backgroundColor: theme.surface }]}>
+          <View style={styles.headerTop}>
+            <View style={styles.userInfo}>
+              <Text style={[styles.greeting, { color: theme.textSecondary }]}>
+                Good {getTimeOfDay()}
               </Text>
-            </TouchableOpacity>
-          </View>
-
-          <Card style={styles.updateCard} padding="medium">
-            <View style={styles.updateItem}>
-              <View
-                style={[
-                  styles.updateIcon,
-                  { backgroundColor: theme.info + "20" },
-                ]}
-              >
-                <Ionicons name="document-text" size={20} color={theme.info} />
-              </View>
-              <View style={styles.updateContent}>
-                <Text style={[styles.updateTitle, { color: theme.text }]}>
-                  New BNS Section 363 Amendment
-                </Text>
-                <Text
-                  style={[styles.updateDesc, { color: theme.textSecondary }]}
+              <Text style={[styles.userName, { color: theme.text }]}>
+                {user?.name || "User"}
+              </Text>
+              {user?.role && (
+                <View
+                  style={[
+                    styles.roleBadge,
+                    { backgroundColor: getRoleColor(user.role) + "20" },
+                  ]}
                 >
-                  Latest updates on criminal law procedures
-                </Text>
-                <Text
-                  style={[styles.updateTime, { color: theme.textTertiary }]}
-                >
-                  2 hours ago
-                </Text>
-              </View>
+                  <Text
+                    style={[
+                      styles.roleText,
+                      { color: getRoleColor(user.role) },
+                    ]}
+                  >
+                    {formatRoleName(user.role)}
+                  </Text>
+                </View>
+              )}
             </View>
-          </Card>
 
-          <Card style={styles.updateCard} padding="medium">
-            <View style={styles.updateItem}>
-              <View
-                style={[
-                  styles.updateIcon,
-                  { backgroundColor: theme.success + "20" },
-                ]}
+            <View style={styles.headerActions}>
+              <TouchableOpacity
+                style={styles.notificationButton}
+                onPress={() => router.push("/(main)/notification-center")}
               >
                 <Ionicons
-                  name="checkmark-circle"
-                  size={20}
-                  color={theme.success}
+                  name="notifications-outline"
+                  size={24}
+                  color={theme.text}
                 />
-              </View>
-              <View style={styles.updateContent}>
-                <Text style={[styles.updateTitle, { color: theme.text }]}>
-                  Supreme Court Landmark Judgment
-                </Text>
-                <Text
-                  style={[styles.updateDesc, { color: theme.textSecondary }]}
-                >
-                  Important ruling on fundamental rights
-                </Text>
-                <Text
-                  style={[styles.updateTime, { color: theme.textTertiary }]}
-                >
-                  5 hours ago
-                </Text>
-              </View>
+                {unreadNotifications > 0 && (
+                  <View
+                    style={[
+                      styles.notificationBadge,
+                      { backgroundColor: theme.error },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.notificationBadgeText,
+                        { color: theme.textInverse },
+                      ]}
+                    >
+                      {unreadNotifications > 99 ? "99+" : unreadNotifications}
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={handleLogout}
+              >
+                <Ionicons
+                  name="log-out-outline"
+                  size={24}
+                  color={theme.textSecondary}
+                />
+              </TouchableOpacity>
             </View>
-          </Card>
+          </View>
+
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSearch={handleSearch}
+            onVoicePress={handleVoicePress}
+            style={styles.searchBar}
+          />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        {/* Content */}
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          {/* Available Features */}
+          <View style={styles.section}>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>
+              Your Legal Dashboard ({availableSections.length} features)
+            </Text>
+
+            {availableSections.length > 0 ? (
+              <View style={styles.sectionsGrid}>
+                {availableSections.map((section) => (
+                  <TouchableOpacity
+                    key={section.id}
+                    onPress={() => handleSectionPress(section)}
+                    style={styles.sectionItem}
+                  >
+                    <Card style={styles.sectionCard} padding="medium">
+                      <View
+                        style={[
+                          styles.sectionIcon,
+                          { backgroundColor: section.color + "20" },
+                        ]}
+                      >
+                        <Ionicons
+                          name={section.icon as any}
+                          size={24}
+                          color={section.color}
+                        />
+                      </View>
+                      <Text
+                        style={[styles.sectionCardTitle, { color: theme.text }]}
+                      >
+                        {section.title}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.sectionCardDesc,
+                          { color: theme.textSecondary },
+                        ]}
+                      >
+                        {section.description}
+                      </Text>
+                    </Card>
+                  </TouchableOpacity>
+                ))}
+
+                {/* AI Assistant - Always Available */}
+                <TouchableOpacity
+                  onPress={() => router.push("/(main)/ai-assistant")}
+                  style={styles.sectionItem}
+                >
+                  <Card style={styles.sectionCard} padding="medium">
+                    <View
+                      style={[
+                        styles.sectionIcon,
+                        { backgroundColor: theme.accent + "20" },
+                      ]}
+                    >
+                      <Ionicons
+                        name="chatbubble-ellipses"
+                        size={24}
+                        color={theme.accent}
+                      />
+                    </View>
+                    <Text
+                      style={[styles.sectionCardTitle, { color: theme.text }]}
+                    >
+                      AI Assistant
+                    </Text>
+                    <Text
+                      style={[
+                        styles.sectionCardDesc,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      Get instant legal guidance
+                    </Text>
+                  </Card>
+                </TouchableOpacity>
+
+                {/* Legal Templates - Always Available */}
+                <TouchableOpacity
+                  onPress={() => router.push("/(main)/legal-templates")}
+                  style={styles.sectionItem}
+                >
+                  <Card style={styles.sectionCard} padding="medium">
+                    <View
+                      style={[
+                        styles.sectionIcon,
+                        { backgroundColor: theme.secondary + "20" },
+                      ]}
+                    >
+                      <Ionicons
+                        name="document-text"
+                        size={24}
+                        color={theme.secondary}
+                      />
+                    </View>
+                    <Text
+                      style={[styles.sectionCardTitle, { color: theme.text }]}
+                    >
+                      Legal Templates
+                    </Text>
+                    <Text
+                      style={[
+                        styles.sectionCardDesc,
+                        { color: theme.textSecondary },
+                      ]}
+                    >
+                      Ready-to-use legal forms
+                    </Text>
+                  </Card>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name="lock-closed"
+                  size={48}
+                  color={theme.textSecondary}
+                />
+                <Text
+                  style={[styles.emptyText, { color: theme.textSecondary }]}
+                >
+                  No features available for your role
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* Recent Updates */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                Recent Updates
+              </Text>
+              <TouchableOpacity>
+                <Text style={[styles.seeAllText, { color: theme.primary }]}>
+                  See All
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <Card style={styles.updateCard} padding="medium">
+              <View style={styles.updateItem}>
+                <View
+                  style={[
+                    styles.updateIcon,
+                    { backgroundColor: theme.info + "20" },
+                  ]}
+                >
+                  <Ionicons name="document-text" size={20} color={theme.info} />
+                </View>
+                <View style={styles.updateContent}>
+                  <Text style={[styles.updateTitle, { color: theme.text }]}>
+                    New BNS Section 363 Amendment
+                  </Text>
+                  <Text
+                    style={[styles.updateDesc, { color: theme.textSecondary }]}
+                  >
+                    Latest updates on criminal law procedures
+                  </Text>
+                  <Text
+                    style={[styles.updateTime, { color: theme.textTertiary }]}
+                  >
+                    2 hours ago
+                  </Text>
+                </View>
+              </View>
+            </Card>
+
+            <Card style={styles.updateCard} padding="medium">
+              <View style={styles.updateItem}>
+                <View
+                  style={[
+                    styles.updateIcon,
+                    { backgroundColor: theme.success + "20" },
+                  ]}
+                >
+                  <Ionicons
+                    name="checkmark-circle"
+                    size={20}
+                    color={theme.success}
+                  />
+                </View>
+                <View style={styles.updateContent}>
+                  <Text style={[styles.updateTitle, { color: theme.text }]}>
+                    Supreme Court Landmark Judgment
+                  </Text>
+                  <Text
+                    style={[styles.updateDesc, { color: theme.textSecondary }]}
+                  >
+                    Important ruling on fundamental rights
+                  </Text>
+                  <Text
+                    style={[styles.updateTime, { color: theme.textTertiary }]}
+                  >
+                    5 hours ago
+                  </Text>
+                </View>
+              </View>
+            </Card>
+          </View>
+        </ScrollView>
+
+        {/* Floating Action Button */}
+        <FloatingActionButton />
+      </SafeAreaView>
+    </RoleDashboard>
   );
 }
 
@@ -431,6 +477,11 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.xs,
     fontWeight: FontWeights.medium,
   },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+  },
   notificationButton: {
     padding: Spacing.sm,
     position: "relative",
@@ -449,6 +500,9 @@ const styles = StyleSheet.create({
   notificationBadgeText: {
     fontSize: 10,
     fontWeight: FontWeights.bold,
+  },
+  logoutButton: {
+    padding: Spacing.sm,
   },
   searchBar: {
     marginTop: Spacing.sm,
@@ -505,6 +559,17 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.xs,
     textAlign: "center",
     lineHeight: 16,
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: Spacing.xxxl,
+  },
+  emptyText: {
+    fontSize: FontSizes.md,
+    marginTop: Spacing.md,
+    textAlign: "center",
   },
   updateCard: {
     marginBottom: Spacing.sm,
