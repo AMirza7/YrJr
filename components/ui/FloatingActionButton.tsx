@@ -49,7 +49,7 @@ export function FloatingActionButton({
       label: "Scan Document",
       icon: "scan",
       onPress: () => {
-        router.push("/(main)/legal-pinboard");
+        router.push("/(main)/document-scanner");
         toggleFAB();
       },
       color: theme.success,
