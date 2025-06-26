@@ -27,11 +27,21 @@ export class AuthService {
     }
   }
 
-  static async setAuthToken(token: string): Promise<void> {
+  static async setAuthToken(
+    token: string,
+    refreshToken?: string,
+  ): Promise<void> {
     try {
       await AsyncStorage.setItem(this.AUTH_TOKEN_KEY, token);
+
+      // Also update HTTP client tokens
+      if (refreshToken) {
+        await httpClient.setAuthTokens(token, refreshToken);
+      }
+
+      Logger.debug("Auth tokens updated successfully");
     } catch (error) {
-      console.error("Error saving auth token:", error);
+      Logger.error("Error saving auth token:", error);
       throw new Error("Failed to save auth token");
     }
   }
@@ -40,15 +50,14 @@ export class AuthService {
     try {
       return await AsyncStorage.getItem(this.AUTH_TOKEN_KEY);
     } catch (error) {
-      console.error("Error retrieving auth token:", error);
+      Logger.error("Error retrieving auth token:", error);
       return null;
     }
   }
 
   static async isAuthenticated(): Promise<boolean> {
-    const token = await this.getAuthToken();
-    const user = await this.getUser();
-    return !!(token && user);
+    // Use HTTP client's authentication check which includes token expiry
+    return await httpClient.isAuthenticated();
   }
 
   static async logout(): Promise<void> {
