@@ -498,6 +498,9 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: FontWeights.bold,
   },
+  helpButton: {
+    padding: Spacing.sm,
+  },
   logoutButton: {
     padding: Spacing.sm,
   },
