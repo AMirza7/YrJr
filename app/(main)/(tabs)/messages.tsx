@@ -15,6 +15,8 @@ import { StatusBar } from "expo-status-bar";
 
 import { SearchBar } from "@/components/ui/SearchBar";
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Rating } from "@/components/ui/Rating";
 import {
   LegalTheme,
   FontSizes,
@@ -265,19 +267,13 @@ export default function MessagesScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons
-              name="chatbubbles-outline"
-              size={64}
-              color={theme.textTertiary}
-            />
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-              No conversations yet
-            </Text>
-            <Text style={[styles.emptySubtext, { color: theme.textTertiary }]}>
-              Start a conversation with verified lawyers
-            </Text>
-          </View>
+          <EmptyState
+            type="no_messages"
+            title="No Conversations Yet"
+            subtitle="Start connecting with legal professionals and get the help you need."
+            actionTitle="Find Lawyers"
+            onActionPress={() => router.push("/(main)/(tabs)/directory")}
+          />
         }
       />
     </SafeAreaView>
@@ -386,19 +382,5 @@ const styles = StyleSheet.create({
   },
   role: {
     fontSize: FontSizes.xs,
-  },
-  emptyContainer: {
-    alignItems: "center",
-    paddingVertical: Spacing.xxxl,
-  },
-  emptyText: {
-    fontSize: FontSizes.lg,
-    fontWeight: FontWeights.medium,
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.sm,
-  },
-  emptySubtext: {
-    fontSize: FontSizes.sm,
-    textAlign: "center",
   },
 });
