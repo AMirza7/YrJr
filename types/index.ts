@@ -163,3 +163,110 @@ export interface VoiceCommand {
   confidence: number;
   intent?: string;
 }
+
+// New types for advanced features
+export interface PinnedItem {
+  id: string;
+  title: string;
+  content: string;
+  type: "note" | "case_link" | "update" | "reminder";
+  color: string;
+  priority: "low" | "medium" | "high";
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  linkedCaseId?: string;
+}
+
+export interface CaseTimeline {
+  id: string;
+  caseId: string;
+  title: string;
+  description: string;
+  status: "pending" | "in_progress" | "completed" | "cancelled";
+  milestone: "fir" | "investigation" | "hearing" | "orders" | "judgment";
+  date: Date;
+  documents: Document[];
+  notes: string;
+  assignedTo?: string;
+}
+
+export interface SecureNote {
+  id: string;
+  title: string;
+  content: string;
+  caseId?: string;
+  tags: string[];
+  priority: "low" | "medium" | "high";
+  isEncrypted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  lastAccessedAt: Date;
+}
+
+export interface LegalSection {
+  number: string;
+  title: string;
+  description: string;
+  punishment?: string;
+  bail?: string;
+  cognizable: boolean;
+  compoundable: boolean;
+  category: string;
+}
+
+export interface SectionComparison {
+  ipcSection: LegalSection;
+  bnsSection: LegalSection;
+  differences: string[];
+  similarities: string[];
+  migrationNotes: string;
+}
+
+export interface Flashcard {
+  id: string;
+  question: string;
+  answer: string;
+  category: "ipc" | "crpc" | "landmark_cases" | "constitution" | "evidence_act";
+  difficulty: "easy" | "medium" | "hard";
+  tags: string[];
+  imageUrl?: string;
+  examples?: string[];
+  relatedSections?: string[];
+}
+
+export interface FlashcardProgress {
+  cardId: string;
+  correct: number;
+  incorrect: number;
+  lastReviewed: Date;
+  confidence: number;
+  nextReview: Date;
+}
+
+export interface ClientFolder {
+  id: string;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  cases: Case[];
+  totalValue: number;
+  status: "active" | "inactive" | "completed";
+  createdAt: Date;
+  lastActivity: Date;
+  notes: string;
+  color: string;
+}
+
+export interface QuizSession {
+  id: string;
+  userId: string;
+  cards: Flashcard[];
+  currentIndex: number;
+  score: number;
+  totalQuestions: number;
+  startTime: Date;
+  endTime?: Date;
+  mode: "learn" | "quiz";
+  category: string;
+}
