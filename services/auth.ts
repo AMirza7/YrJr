@@ -62,9 +62,23 @@ export class AuthService {
 
   static async logout(): Promise<void> {
     try {
+      // Call API logout endpoint
+      await AuthApiService.logout();
+
+      // Clear all local storage
       await AsyncStorage.multiRemove([this.USER_KEY, this.AUTH_TOKEN_KEY]);
+
+      // Clear HTTP client tokens
+      await httpClient.clearAuthTokens();
+
+      Logger.debug("Logout completed successfully");
     } catch (error) {
-      console.error("Error during logout:", error);
+      Logger.error("Error during logout:", error);
+
+      // Even if API call fails, clear local data
+      await AsyncStorage.multiRemove([this.USER_KEY, this.AUTH_TOKEN_KEY]);
+      await httpClient.clearAuthTokens();
+
       throw new Error("Failed to logout");
     }
   }
