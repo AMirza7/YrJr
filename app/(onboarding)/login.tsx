@@ -90,6 +90,22 @@ export default function LoginScreen() {
     }
   };
 
+  const handleBiometricAuth = async () => {
+    setShowBiometric(true);
+  };
+
+  const handleBiometricSuccess = async () => {
+    setShowBiometric(false);
+    // Auto-login with the last used account or prompt for selection
+    if (DEMO_ACCOUNTS.length > 0) {
+      await handleDemoLogin(DEMO_ACCOUNTS[0].role);
+    }
+  };
+
+  const handleBiometricCancel = () => {
+    setShowBiometric(false);
+  };
+
   const handleBackToWelcome = () => {
     router.back();
   };
