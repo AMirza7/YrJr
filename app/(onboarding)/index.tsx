@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, SafeAreaView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  SafeAreaView,
+  TouchableOpacity,
+} from "react-native";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
@@ -20,6 +27,10 @@ export default function WelcomeScreen() {
 
   const handleGetStarted = () => {
     router.push("/(onboarding)/language-selection");
+  };
+
+  const handleLogin = () => {
+    router.push("/(onboarding)/login");
   };
 
   return (
@@ -78,7 +89,7 @@ export default function WelcomeScreen() {
             />
           </View>
 
-          {/* Get Started Button */}
+          {/* Action Buttons */}
           <View style={styles.buttonContainer}>
             <Button
               title="Get Started"
@@ -87,7 +98,17 @@ export default function WelcomeScreen() {
               size="large"
               fullWidth
               gradient
+              style={styles.primaryButton}
             />
+
+            <TouchableOpacity
+              style={[styles.loginButton, { borderColor: theme.primary }]}
+              onPress={handleLogin}
+            >
+              <Text style={[styles.loginButtonText, { color: theme.primary }]}>
+                Already have an account? Login
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </LinearGradient>
@@ -187,5 +208,18 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingTop: Spacing.lg,
+  },
+  primaryButton: {
+    marginBottom: Spacing.md,
+  },
+  loginButton: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: Spacing.sm,
+    alignItems: "center",
+  },
+  loginButtonText: {
+    fontSize: FontSizes.md,
+    fontWeight: FontWeights.medium,
   },
 });

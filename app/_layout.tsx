@@ -6,37 +6,22 @@ import {
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { AuthService } from "@/services/auth";
+import { AuthProvider, useAuth } from "@/components/auth/AuthContext";
 import { LegalTheme } from "@/constants/Theme";
 
-export default function RootLayout() {
+function RootLayoutNav() {
   const colorScheme = useColorScheme();
-  const theme = LegalTheme[colorScheme ?? "light"];
+  const { isAuthenticated, isLoading } = useAuth();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      const authenticated = await AuthService.isAuthenticated();
-      setIsAuthenticated(authenticated);
-    } catch (error) {
-      console.error("Error checking auth status:", error);
-      setIsAuthenticated(false);
-    }
-  };
-
-  if (!loaded || isAuthenticated === null) {
+  if (!loaded || isLoading) {
+    const theme = LegalTheme[colorScheme ?? "light"];
     return (
       <View
         style={{
@@ -67,5 +52,13 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }
