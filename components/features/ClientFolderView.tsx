@@ -453,8 +453,8 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 </Text>
               </View>
             ) : (
-              selectedFolder.cases.map((case_) => (
-                <Card key={case_.id} style={styles.caseCard}>
+              selectedFolder.cases.map((caseItem) => (
+                <Card key={caseItem.id} style={styles.caseCard}>
                   <View style={styles.caseHeader}>
                     <Text style={[styles.caseTitle, { color: theme.text }]}>
                       {case_.title}
