@@ -39,34 +39,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading: true,
   });
 
+  const mountedRef = useRef(true);
+
   useEffect(() => {
     checkAuthStatus();
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   const checkAuthStatus = async () => {
     try {
       const isAuthenticated = await AuthService.isAuthenticated();
+
+      if (!mountedRef.current) return;
+
       if (isAuthenticated) {
         const user = await AuthService.getUser();
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
+        if (mountedRef.current) {
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        }
       } else {
+        if (mountedRef.current) {
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error checking auth status:", error);
+      if (mountedRef.current) {
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
       }
-    } catch (error) {
-      console.error("Error checking auth status:", error);
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
     }
   };
 
