@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import { AuthState, User, UserRole, LoginCredentials } from "@/types";
 import { AuthService } from "@/services/auth";
 import { DEMO_ACCOUNTS } from "@/constants/AuthConstants";
