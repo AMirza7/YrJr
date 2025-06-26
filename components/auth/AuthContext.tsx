@@ -173,11 +173,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async (): Promise<void> => {
     try {
       await AuthService.logout();
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
+      if (mountedRef.current) {
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      }
     } catch (error) {
       console.error("Logout error:", error);
       throw error;
@@ -193,10 +195,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const updatedUser = { ...authState.user, ...updates };
       await AuthService.updateUser(updates);
 
-      setAuthState((prev) => ({
-        ...prev,
-        user: updatedUser,
-      }));
+      if (mountedRef.current) {
+        setAuthState((prev) => ({
+          ...prev,
+          user: updatedUser,
+        }));
+      }
     } catch (error) {
       console.error("Update user error:", error);
       throw error;
