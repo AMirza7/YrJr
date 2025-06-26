@@ -15,6 +15,8 @@ import { StatusBar } from "expo-status-bar";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Rating } from "@/components/ui/Rating";
 import {
   LegalTheme,
   FontSizes,
@@ -318,19 +320,23 @@ export default function CourtOrdersScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons
-              name="document-text-outline"
-              size={64}
-              color={theme.textTertiary}
+          searchQuery ? (
+            <EmptyState
+              type="no_search_results"
+              title="No Results Found"
+              subtitle="Try different search terms or filters"
+              actionTitle="Clear Search"
+              onActionPress={() => setSearchQuery("")}
             />
-            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>
-              No court orders found
-            </Text>
-            <Text style={[styles.emptySubtext, { color: theme.textTertiary }]}>
-              Try adjusting your search or filters
-            </Text>
-          </View>
+          ) : (
+            <EmptyState
+              type="no_court_orders"
+              title="No Court Orders"
+              subtitle="Stay updated with the latest court orders and judgments"
+              actionTitle="Refresh"
+              onActionPress={onRefresh}
+            />
+          )
         }
       />
     </SafeAreaView>
@@ -460,19 +466,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: Spacing.sm,
-  },
-  emptyContainer: {
-    alignItems: "center",
-    paddingVertical: Spacing.xxxl,
-  },
-  emptyText: {
-    fontSize: FontSizes.lg,
-    fontWeight: FontWeights.medium,
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.sm,
-  },
-  emptySubtext: {
-    fontSize: FontSizes.sm,
-    textAlign: "center",
   },
 });
