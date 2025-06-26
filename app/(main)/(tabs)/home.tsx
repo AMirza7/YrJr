@@ -16,6 +16,7 @@ import * as Speech from "expo-speech";
 
 import { SearchBar } from "@/components/ui/SearchBar";
 import { Card } from "@/components/ui/Card";
+import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 import {
   LegalTheme,
   FontSizes,
