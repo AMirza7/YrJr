@@ -1,6 +1,6 @@
 import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
-import Voice from "@react-native-voice/voice";
+import Voice from "react-native-voice";
 import { INDIAN_LANGUAGES } from "@/constants/LegalConstants";
 
 export interface VoiceCommand {
