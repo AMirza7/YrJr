@@ -1,22 +1,24 @@
 {
   "expo": {
-    "name": "YrJr",
-    "slug": "YrJr",
+    "name": "LegalTax Assistant",
+    "slug": "legaltax-assistant",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "yrjr",
+    "scheme": "legaltax",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.legaltax.assistant"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#8B5CF6"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.legaltax.assistant"
     },
     "web": {
       "bundler": "metro",
@@ -25,13 +27,15 @@
     },
     "plugins": [
       "expo-router",
+      "expo-document-picker",
+      "expo-av",
       [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#8B5CF6"
         }
       ]
     ],
