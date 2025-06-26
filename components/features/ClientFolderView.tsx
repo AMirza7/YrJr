@@ -119,10 +119,14 @@ const MOCK_FOLDERS: ClientFolder[] = [
 export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
   const colorScheme = useColorScheme();
   const theme = LegalTheme[colorScheme ?? "light"];
-  
+
   const [folders, setFolders] = useState<ClientFolder[]>(MOCK_FOLDERS);
-  const [selectedFolder, setSelectedFolder] = useState<ClientFolder | null>(null);
-  const [activeTab, setActiveTab] = useState<"cases" | "messages" | "documents" | "notes">("cases");
+  const [selectedFolder, setSelectedFolder] = useState<ClientFolder | null>(
+    null,
+  );
+  const [activeTab, setActiveTab] = useState<
+    "cases" | "messages" | "documents" | "notes"
+  >("cases");
   const [showModal, setShowModal] = useState(false);
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [editingFolder, setEditingFolder] = useState<ClientFolder | null>(null);
@@ -135,7 +139,9 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
     color: FOLDER_COLORS[0],
   });
 
-  const canEdit = ["lawyer", "junior_lawyer", "lawyer_assistant"].includes(userRole);
+  const canEdit = ["lawyer", "junior_lawyer", "lawyer_assistant"].includes(
+    userRole,
+  );
 
   useEffect(() => {
     loadFolders();
@@ -147,11 +153,11 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
       if (stored) {
         const parsedFolders = JSON.parse(stored).map((folder: any) => ({
           ...folder,
-          cases: folder.cases.map((case: any) => ({
-            ...case,
-            nextHearing: new Date(case.nextHearing),
-            createdAt: new Date(case.createdAt),
-            updatedAt: new Date(case.updatedAt),
+          cases: folder.cases.map((caseItem: any) => ({
+            ...caseItem,
+            nextHearing: new Date(caseItem.nextHearing),
+            createdAt: new Date(caseItem.createdAt),
+            updatedAt: new Date(caseItem.updatedAt),
           })),
           createdAt: new Date(folder.createdAt),
           lastActivity: new Date(folder.lastActivity),
@@ -215,13 +221,13 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
     };
 
     const newFolders = folders.map((folder) =>
-      folder.id === editingFolder.id ? updatedFolder : folder
+      folder.id === editingFolder.id ? updatedFolder : folder,
     );
     saveFolders(newFolders);
     resetForm();
     setEditingFolder(null);
     setShowFolderModal(false);
-    
+
     if (selectedFolder?.id === editingFolder.id) {
       setSelectedFolder(updatedFolder);
     }
@@ -244,7 +250,7 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -289,16 +295,23 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
             Alert.alert("Success", "Folder exported successfully!");
           },
         },
-      ]
+      ],
     );
   };
 
-  const filteredFolders = folders.filter((folder) =>
-    folder.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    folder.clientEmail.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredFolders = folders.filter(
+    (folder) =>
+      folder.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      folder.clientEmail.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const renderFolderCard = ({ item: folder, index }: { item: ClientFolder; index: number }) => (
+  const renderFolderCard = ({
+    item: folder,
+    index,
+  }: {
+    item: ClientFolder;
+    index: number;
+  }) => (
     <Animated.View
       entering={FadeInDown.delay(index * 100)}
       exiting={FadeOutUp}
@@ -309,17 +322,30 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
         onPress={() => setSelectedFolder(folder)}
         activeOpacity={0.8}
       >
-        <Card style={[styles.folderCardContent, { borderLeftColor: folder.color, borderLeftWidth: 4 }]}>
+        <Card
+          style={[
+            styles.folderCardContent,
+            { borderLeftColor: folder.color, borderLeftWidth: 4 },
+          ]}
+        >
           <View style={styles.folderHeader}>
             <View style={styles.folderHeaderLeft}>
-              <View style={[styles.folderIcon, { backgroundColor: folder.color }]}>
+              <View
+                style={[styles.folderIcon, { backgroundColor: folder.color }]}
+              >
                 <Ionicons name="folder" size={24} color="white" />
               </View>
               <View style={styles.folderInfo}>
-                <Text style={[styles.folderName, { color: theme.text }]} numberOfLines={1}>
+                <Text
+                  style={[styles.folderName, { color: theme.text }]}
+                  numberOfLines={1}
+                >
                   {folder.clientName}
                 </Text>
-                <Text style={[styles.folderEmail, { color: theme.textSecondary }]} numberOfLines={1}>
+                <Text
+                  style={[styles.folderEmail, { color: theme.textSecondary }]}
+                  numberOfLines={1}
+                >
                   {folder.clientEmail}
                 </Text>
               </View>
@@ -341,14 +367,22 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                   ]);
                 }}
               >
-                <Ionicons name="ellipsis-vertical" size={20} color={theme.textSecondary} />
+                <Ionicons
+                  name="ellipsis-vertical"
+                  size={20}
+                  color={theme.textSecondary}
+                />
               </TouchableOpacity>
             )}
           </View>
 
           <View style={styles.folderStats}>
             <View style={styles.statItem}>
-              <Ionicons name="briefcase" size={16} color={theme.textSecondary} />
+              <Ionicons
+                name="briefcase"
+                size={16}
+                color={theme.textSecondary}
+              />
               <Text style={[styles.statText, { color: theme.textSecondary }]}>
                 {folder.cases.length} cases
               </Text>
@@ -366,7 +400,9 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 styles.statusBadge,
                 {
                   backgroundColor:
-                    folder.status === "active" ? `${theme.success}20` : `${theme.textTertiary}20`,
+                    folder.status === "active"
+                      ? `${theme.success}20`
+                      : `${theme.textTertiary}20`,
                 },
               ]}
             >
@@ -374,7 +410,10 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 style={[
                   styles.statusText,
                   {
-                    color: folder.status === "active" ? theme.success : theme.textTertiary,
+                    color:
+                      folder.status === "active"
+                        ? theme.success
+                        : theme.textTertiary,
                   },
                 ]}
               >
@@ -402,8 +441,14 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
           <View style={styles.tabContent}>
             {selectedFolder.cases.length === 0 ? (
               <View style={styles.emptyTabContent}>
-                <Ionicons name="briefcase" size={48} color={theme.textTertiary} />
-                <Text style={[styles.emptyTabText, { color: theme.textSecondary }]}>
+                <Ionicons
+                  name="briefcase"
+                  size={48}
+                  color={theme.textTertiary}
+                />
+                <Text
+                  style={[styles.emptyTabText, { color: theme.textSecondary }]}
+                >
                   No cases yet
                 </Text>
               </View>
@@ -422,8 +467,8 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                             case_.status === "ongoing"
                               ? `${theme.warning}20`
                               : case_.status === "completed"
-                              ? `${theme.success}20`
-                              : `${theme.textTertiary}20`,
+                                ? `${theme.success}20`
+                                : `${theme.textTertiary}20`,
                         },
                       ]}
                     >
@@ -435,8 +480,8 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                               case_.status === "ongoing"
                                 ? theme.warning
                                 : case_.status === "completed"
-                                ? theme.success
-                                : theme.textTertiary,
+                                  ? theme.success
+                                  : theme.textTertiary,
                           },
                         ]}
                       >
@@ -447,35 +492,61 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
 
                   <View style={styles.caseDetails}>
                     <View style={styles.caseDetailRow}>
-                      <Text style={[styles.caseDetailLabel, { color: theme.textTertiary }]}>
+                      <Text
+                        style={[
+                          styles.caseDetailLabel,
+                          { color: theme.textTertiary },
+                        ]}
+                      >
                         Case No:
                       </Text>
-                      <Text style={[styles.caseDetailValue, { color: theme.text }]}>
+                      <Text
+                        style={[styles.caseDetailValue, { color: theme.text }]}
+                      >
                         {case_.caseNumber}
                       </Text>
                     </View>
 
                     <View style={styles.caseDetailRow}>
-                      <Text style={[styles.caseDetailLabel, { color: theme.textTertiary }]}>
+                      <Text
+                        style={[
+                          styles.caseDetailLabel,
+                          { color: theme.textTertiary },
+                        ]}
+                      >
                         Court:
                       </Text>
-                      <Text style={[styles.caseDetailValue, { color: theme.text }]}>
+                      <Text
+                        style={[styles.caseDetailValue, { color: theme.text }]}
+                      >
                         {case_.courtName}
                       </Text>
                     </View>
 
                     <View style={styles.caseDetailRow}>
-                      <Text style={[styles.caseDetailLabel, { color: theme.textTertiary }]}>
+                      <Text
+                        style={[
+                          styles.caseDetailLabel,
+                          { color: theme.textTertiary },
+                        ]}
+                      >
                         Next Hearing:
                       </Text>
-                      <Text style={[styles.caseDetailValue, { color: theme.primary }]}>
+                      <Text
+                        style={[
+                          styles.caseDetailValue,
+                          { color: theme.primary },
+                        ]}
+                      >
                         {case_.nextHearing.toLocaleDateString()}
                       </Text>
                     </View>
                   </View>
 
                   {case_.notes && (
-                    <Text style={[styles.caseNotes, { color: theme.textSecondary }]}>
+                    <Text
+                      style={[styles.caseNotes, { color: theme.textSecondary }]}
+                    >
                       Notes: {case_.notes}
                     </Text>
                   )}
@@ -490,10 +561,14 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
           <View style={styles.tabContent}>
             <View style={styles.emptyTabContent}>
               <Ionicons name="mail" size={48} color={theme.textTertiary} />
-              <Text style={[styles.emptyTabText, { color: theme.textSecondary }]}>
+              <Text
+                style={[styles.emptyTabText, { color: theme.textSecondary }]}
+              >
                 No messages yet
               </Text>
-              <Text style={[styles.emptyTabSubtext, { color: theme.textTertiary }]}>
+              <Text
+                style={[styles.emptyTabSubtext, { color: theme.textTertiary }]}
+              >
                 Messages with {selectedFolder.clientName} will appear here
               </Text>
             </View>
@@ -505,10 +580,14 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
           <View style={styles.tabContent}>
             <View style={styles.emptyTabContent}>
               <Ionicons name="document" size={48} color={theme.textTertiary} />
-              <Text style={[styles.emptyTabText, { color: theme.textSecondary }]}>
+              <Text
+                style={[styles.emptyTabText, { color: theme.textSecondary }]}
+              >
                 No documents yet
               </Text>
-              <Text style={[styles.emptyTabSubtext, { color: theme.textTertiary }]}>
+              <Text
+                style={[styles.emptyTabSubtext, { color: theme.textTertiary }]}
+              >
                 Upload documents for {selectedFolder.clientName}
               </Text>
             </View>
@@ -522,10 +601,12 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
               <Text style={[styles.notesTitle, { color: theme.text }]}>
                 Client Notes
               </Text>
-              <Text style={[styles.notesContent, { color: theme.textSecondary }]}>
+              <Text
+                style={[styles.notesContent, { color: theme.textSecondary }]}
+              >
                 {selectedFolder.notes || "No notes added yet."}
               </Text>
-              
+
               {canEdit && (
                 <TouchableOpacity
                   style={[
@@ -562,14 +643,21 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
           </TouchableOpacity>
 
           <View style={styles.detailHeaderContent}>
-            <View style={[styles.clientIcon, { backgroundColor: selectedFolder.color }]}>
+            <View
+              style={[
+                styles.clientIcon,
+                { backgroundColor: selectedFolder.color },
+              ]}
+            >
               <Ionicons name="person" size={20} color="white" />
             </View>
             <View style={styles.clientDetails}>
               <Text style={[styles.clientName, { color: theme.text }]}>
                 {selectedFolder.clientName}
               </Text>
-              <Text style={[styles.clientContact, { color: theme.textSecondary }]}>
+              <Text
+                style={[styles.clientContact, { color: theme.textSecondary }]}
+              >
                 {selectedFolder.clientPhone}
               </Text>
             </View>
@@ -586,7 +674,12 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
         </View>
 
         {/* Tabs */}
-        <View style={[styles.tabsContainer, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
+        <View
+          style={[
+            styles.tabsContainer,
+            { backgroundColor: theme.surface, borderBottomColor: theme.border },
+          ]}
+        >
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -598,7 +691,8 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 style={[
                   styles.tab,
                   {
-                    borderBottomColor: activeTab === tab.id ? theme.primary : "transparent",
+                    borderBottomColor:
+                      activeTab === tab.id ? theme.primary : "transparent",
                   },
                 ]}
                 onPress={() => setActiveTab(tab.id)}
@@ -606,14 +700,22 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 <Ionicons
                   name={tab.icon as any}
                   size={18}
-                  color={activeTab === tab.id ? theme.primary : theme.textSecondary}
+                  color={
+                    activeTab === tab.id ? theme.primary : theme.textSecondary
+                  }
                 />
                 <Text
                   style={[
                     styles.tabText,
                     {
-                      color: activeTab === tab.id ? theme.primary : theme.textSecondary,
-                      fontWeight: activeTab === tab.id ? FontWeights.semibold : FontWeights.normal,
+                      color:
+                        activeTab === tab.id
+                          ? theme.primary
+                          : theme.textSecondary,
+                      fontWeight:
+                        activeTab === tab.id
+                          ? FontWeights.semibold
+                          : FontWeights.normal,
                     },
                   ]}
                 >
@@ -625,7 +727,10 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
         </View>
 
         {/* Tab Content */}
-        <ScrollView style={styles.tabContentContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.tabContentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           {renderTabContent()}
         </ScrollView>
       </View>
@@ -662,7 +767,12 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
 
       {/* Search */}
       <View style={styles.searchContainer}>
-        <View style={[styles.searchInput, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <View
+          style={[
+            styles.searchInput,
+            { backgroundColor: theme.surface, borderColor: theme.border },
+          ]}
+        >
           <Ionicons name="search" size={20} color={theme.textSecondary} />
           <TextInput
             style={[styles.searchText, { color: theme.text }]}
@@ -673,7 +783,11 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery("")}>
-              <Ionicons name="close-circle" size={20} color={theme.textSecondary} />
+              <Ionicons
+                name="close-circle"
+                size={20}
+                color={theme.textSecondary}
+              />
             </TouchableOpacity>
           )}
         </View>
@@ -707,10 +821,16 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
         animationType="slide"
         presentationStyle="pageSheet"
       >
-        <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
-          <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
+        <View
+          style={[styles.modalContainer, { backgroundColor: theme.background }]}
+        >
+          <View
+            style={[styles.modalHeader, { borderBottomColor: theme.border }]}
+          >
             <TouchableOpacity onPress={() => setShowFolderModal(false)}>
-              <Text style={[styles.modalButton, { color: theme.textSecondary }]}>
+              <Text
+                style={[styles.modalButton, { color: theme.textSecondary }]}
+              >
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -728,7 +848,9 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
 
           <ScrollView style={styles.modalContent}>
             {/* Client Name */}
-            <Text style={[styles.label, { color: theme.text }]}>Client Name *</Text>
+            <Text style={[styles.label, { color: theme.text }]}>
+              Client Name *
+            </Text>
             <TextInput
               style={[
                 styles.input,
@@ -739,7 +861,9 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 },
               ]}
               value={formData.clientName}
-              onChangeText={(text) => setFormData({ ...formData, clientName: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, clientName: text })
+              }
               placeholder="Enter client name..."
               placeholderTextColor={theme.textTertiary}
             />
@@ -756,7 +880,9 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 },
               ]}
               value={formData.clientEmail}
-              onChangeText={(text) => setFormData({ ...formData, clientEmail: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, clientEmail: text })
+              }
               placeholder="Enter email address..."
               placeholderTextColor={theme.textTertiary}
               keyboardType="email-address"
@@ -775,7 +901,9 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
                 },
               ]}
               value={formData.clientPhone}
-              onChangeText={(text) => setFormData({ ...formData, clientPhone: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, clientPhone: text })
+              }
               placeholder="Enter phone number..."
               placeholderTextColor={theme.textTertiary}
               keyboardType="phone-pad"
@@ -803,7 +931,9 @@ export function ClientFolderView({ userRole, style }: ClientFolderViewProps) {
             />
 
             {/* Folder Color */}
-            <Text style={[styles.label, { color: theme.text }]}>Folder Color</Text>
+            <Text style={[styles.label, { color: theme.text }]}>
+              Folder Color
+            </Text>
             <View style={styles.colorContainer}>
               {FOLDER_COLORS.map((color) => (
                 <TouchableOpacity
