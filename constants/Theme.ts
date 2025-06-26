@@ -208,4 +208,49 @@ export const Layout = {
   bottomSafeArea: 34,
   screenPadding: 16,
   cardSpacing: 12,
+  maxContentWidth: 768, // For tablet/desktop
+  minTouchTarget: 44, // Minimum touch target size
+};
+
+// Responsive breakpoints
+export const Breakpoints = {
+  small: 320, // Small phones
+  medium: 375, // Standard phones
+  large: 414, // Large phones
+  tablet: 768, // Tablets
+  desktop: 1024, // Desktop
+};
+
+// Responsive spacing function
+export const getResponsiveSpacing = (
+  screenWidth: number,
+  baseSpacing: number,
+) => {
+  if (screenWidth < Breakpoints.small) {
+    return baseSpacing * 0.75; // Reduce spacing on very small screens
+  } else if (screenWidth > Breakpoints.tablet) {
+    return baseSpacing * 1.25; // Increase spacing on tablets
+  }
+  return baseSpacing;
+};
+
+// Responsive font size function
+export const getResponsiveFontSize = (
+  screenWidth: number,
+  baseFontSize: number,
+) => {
+  if (screenWidth < Breakpoints.small) {
+    return baseFontSize * 0.9; // Slightly smaller fonts on small screens
+  } else if (screenWidth > Breakpoints.tablet) {
+    return baseFontSize * 1.1; // Slightly larger fonts on tablets
+  }
+  return baseFontSize;
+};
+
+// Accessibility improvements
+export const Accessibility = {
+  minContrastRatio: 4.5,
+  focusOutlineWidth: 2,
+  animationDuration: 300,
+  reduceMotion: false, // Can be set based on user preference
 };
