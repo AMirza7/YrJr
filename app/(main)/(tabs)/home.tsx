@@ -179,7 +179,7 @@ export default function HomeScreen() {
 
               <TouchableOpacity
                 style={styles.logoutButton}
-                onPress={handleLogout}
+                onPress={handleLogoutConfirm}
               >
                 <Ionicons
                   name="log-out-outline"
