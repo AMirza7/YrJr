@@ -64,7 +64,7 @@ function RootLayoutNav() {
     }
   }, [user?.language]);
 
-  const isAppLoading = !loaded || isLoading;
+  const isAppLoading = !loaded || isLoading || !appHealthChecked;
 
   return (
     <SessionManager>
