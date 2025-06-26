@@ -95,7 +95,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     credentials: LoginCredentials,
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      setAuthState((prev) => ({ ...prev, isLoading: true }));
+      if (mountedRef.current) {
+        setAuthState((prev) => ({ ...prev, isLoading: true }));
+      }
 
       // Check if credentials match any demo account
       const demoAccount = DEMO_ACCOUNTS.find(
@@ -105,7 +107,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       );
 
       if (!demoAccount) {
-        setAuthState((prev) => ({ ...prev, isLoading: false }));
+        if (mountedRef.current) {
+          setAuthState((prev) => ({ ...prev, isLoading: false }));
+        }
         return { success: false, message: "Invalid email or password" };
       }
 
