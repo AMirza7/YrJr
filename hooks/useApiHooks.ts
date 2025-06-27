@@ -9,6 +9,14 @@ import AuthApiService from "@/services/api/authApi";
 import CourtOrdersApiService from "@/services/api/courtOrdersApi";
 import MessagesApiService from "@/services/api/messagesApi";
 import LawyersApiService from "@/services/api/lawyersApi";
+import {
+  CaseManagementApiService,
+  NotificationsApiService,
+  SecureVaultApiService,
+  TemplatesApiService,
+  AIAssistantApiService,
+  DocumentScannerApiService,
+} from "@/services/api";
 
 // Re-export types for convenience
 export type {
