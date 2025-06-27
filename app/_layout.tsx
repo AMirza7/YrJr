@@ -28,42 +28,32 @@ function RootLayoutNav() {
   const [appHealthChecked, setAppHealthChecked] = React.useState(false);
   const mountedRef = React.useRef(true);
 
-  // Initialize app and run health checks
+  // Simplified app initialization
   React.useEffect(() => {
-    const initializeApp = async () => {
+    const initializeApp = () => {
       try {
         Logger.info("Initializing YrJr Legal Assistant...");
 
-        // Clean up console logs in production
-        Cleanup.removeConsoleLogs();
-
-        // Run health checks
-        const healthChecksPassed = await AppHealth.runHealthChecks();
-
-        if (healthChecksPassed) {
-          Logger.info("App initialization completed successfully");
-        } else {
-          Logger.warn("App initialization completed with warnings");
-        }
-
-        // Only update state if component is still mounted
+        // Mark app as initialized
         if (mountedRef.current) {
           setAppHealthChecked(true);
         }
       } catch (error) {
         Logger.error("App initialization failed:", error);
-        // Only update state if component is still mounted
+        // Still allow app to start
         if (mountedRef.current) {
-          setAppHealthChecked(true); // Still allow app to start
+          setAppHealthChecked(true);
         }
       }
     };
 
-    initializeApp();
+    // Use timeout to prevent blocking the render
+    const timeoutId = setTimeout(initializeApp, 100);
 
     // Cleanup function
     return () => {
       mountedRef.current = false;
+      clearTimeout(timeoutId);
     };
   }, []);
 
