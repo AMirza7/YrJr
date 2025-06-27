@@ -58,7 +58,10 @@ export class TokenManager extends EventEmitter {
 
   private constructor() {
     super();
-    this.setupAutoRefresh();
+    // Only setup auto-refresh if we're in a compatible environment
+    if (typeof window !== "undefined" && AsyncStorage) {
+      this.setupAutoRefresh();
+    }
   }
 
   /**
