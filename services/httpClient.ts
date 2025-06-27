@@ -268,21 +268,23 @@ class HttpClient {
     refreshToken: string,
     expiresIn?: number,
   ): Promise<void> {
-    await this.tokenManager.setTokens(accessToken, refreshToken, expiresIn);
+    await tokenManager.setTokens({
+      accessToken,
+      refreshToken,
+      expiresIn: expiresIn || 3600,
+    });
   }
 
   async clearAuthTokens(): Promise<void> {
-    await this.tokenManager.clearTokens();
+    await tokenManager.clearTokens();
   }
 
   async getAccessToken(): Promise<string | null> {
-    return this.tokenManager.getAccessToken();
+    return tokenManager.getAccessToken();
   }
 
   async isAuthenticated(): Promise<boolean> {
-    const token = await this.tokenManager.getAccessToken();
-    const isExpired = await this.tokenManager.isTokenExpired();
-    return !!(token && !isExpired);
+    return tokenManager.isAuthenticated();
   }
 }
 
