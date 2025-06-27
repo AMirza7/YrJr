@@ -61,7 +61,7 @@ class HttpClient {
     // Request interceptor
     this.axiosInstance.interceptors.request.use(
       async (config) => {
-        const token = await this.tokenManager.getAccessToken();
+        const token = await tokenManager.getAccessToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
