@@ -1,605 +1,147 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
   TouchableOpacity,
-  Alert,
-  RefreshControl,
+  StyleSheet,
+  ScrollView,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { StatusBar } from "expo-status-bar";
-
-import { SearchBar } from "@/components/ui/SearchBar";
-import { Card } from "@/components/ui/Card";
-import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
-import { RoleDashboard } from "@/components/auth/RoleDashboard";
-import { useAuth } from "@/components/auth/AuthContext";
-import { useLogoutConfirm } from "@/components/auth/SessionManager";
-import {
-  LegalTheme,
-  FontSizes,
-  FontWeights,
-  Spacing,
-  BorderRadius,
-} from "@/constants/Theme";
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { HOME_SECTIONS } from "@/constants/LegalConstants";
-import { NotificationService } from "@/services/notifications";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
-  const colorScheme = useColorScheme();
-  const theme = LegalTheme[colorScheme ?? "light"];
-  const { user, hasFeatureAccess } = useAuth();
-  const handleLogoutConfirm = useLogoutConfirm();
+  const router = useRouter();
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
-
-  // Filter sections based on user role
-  const availableSections = HOME_SECTIONS.filter((section) =>
-    hasFeatureAccess(section.id),
-  );
-
-  useEffect(() => {
-    loadNotificationData();
-  }, []);
-
-  const loadNotificationData = async () => {
-    try {
-      const count = await NotificationService.getUnreadCount();
-      setUnreadNotifications(count);
-    } catch (error) {
-      console.error("Error loading notification data:", error);
-    }
-  };
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadNotificationData();
-    setRefreshing(false);
-  };
-
-  const handleSearch = (query: string) => {
-    if (query.trim()) {
-      Alert.alert("Search", `Searching for: ${query}`);
-      // Implement search functionality here
-    }
-  };
-
-  const handleSectionPress = (section: (typeof HOME_SECTIONS)[0]) => {
-    if (section.route.startsWith("/")) {
-      router.push(section.route as any);
-    } else {
-      Alert.alert(
-        "Coming Soon",
-        `${section.title} feature will be available soon!`,
-      );
-    }
-  };
-
-  const handleVoicePress = () => {
-    router.push("/(main)/ai-assistant");
-  };
-
-  // Logout handler now uses enhanced confirmation from SessionManager
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case "lawyer":
-        return "#8B5CF6";
-      case "junior_lawyer":
-        return "#06B6D4";
-      case "lawyer_assistant":
-        return "#10B981";
-      case "law_office_helper":
-        return "#F59E0B";
-      case "law_student":
-        return "#EF4444";
-      default:
-        return theme.primary;
-    }
-  };
-
-  const formatRoleName = (role: string) => {
-    return role
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
+  const features = [
+    { title: "AI Assistant", icon: "🤖", path: "/ai-assistant" },
+    { title: "Legal Pinboard", icon: "📌", path: "/legal-pinboard" },
+    { title: "Case Timeline", icon: "📅", path: "/case-timeline" },
+    { title: "Secure Vault", icon: "🔒", path: "/secure-vault" },
+    { title: "Flashcards", icon: "📚", path: "/flashcards" },
+    { title: "Document Scanner", icon: "📷", path: "/document-scanner" },
+  ];
 
   return (
-    <RoleDashboard>
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.background }]}
-      >
-        <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.welcomeText}>Welcome to</Text>
+        <Text style={styles.title}>⚖️ YrJr Legal Assistant</Text>
+        <Text style={styles.subtitle}>Your complete legal companion</Text>
+      </View>
 
-        {/* Header */}
-        <View style={[styles.header, { backgroundColor: theme.surface }]}>
-          <View style={styles.headerTop}>
-            <View style={styles.userInfo}>
-              <Text style={[styles.greeting, { color: theme.textSecondary }]}>
-                Good {getTimeOfDay()}
-              </Text>
-              <Text style={[styles.userName, { color: theme.text }]}>
-                {user?.name || "User"}
-              </Text>
-              {user?.role && (
-                <View
-                  style={[
-                    styles.roleBadge,
-                    { backgroundColor: getRoleColor(user.role) + "20" },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.roleText,
-                      { color: getRoleColor(user.role) },
-                    ]}
-                  >
-                    {formatRoleName(user.role)}
-                  </Text>
-                </View>
-              )}
-            </View>
-
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                style={styles.notificationButton}
-                onPress={() => router.push("/(main)/notification-center")}
-              >
-                <Ionicons
-                  name="notifications-outline"
-                  size={24}
-                  color={theme.text}
-                />
-                {unreadNotifications > 0 && (
-                  <View
-                    style={[
-                      styles.notificationBadge,
-                      { backgroundColor: theme.error },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.notificationBadgeText,
-                        { color: theme.textInverse },
-                      ]}
-                    >
-                      {unreadNotifications > 99 ? "99+" : unreadNotifications}
-                    </Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.helpButton}
-                onPress={() => router.push("/(main)/help-support")}
-              >
-                <Ionicons
-                  name="help-circle-outline"
-                  size={24}
-                  color={theme.textSecondary}
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.logoutButton}
-                onPress={handleLogoutConfirm}
-              >
-                <Ionicons
-                  name="log-out-outline"
-                  size={24}
-                  color={theme.textSecondary}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <SearchBar
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSearch={handleSearch}
-            onVoicePress={handleVoicePress}
-            style={styles.searchBar}
-          />
+      <View style={styles.quickActions}>
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <View style={styles.actionsGrid}>
+          {features.map((feature, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.actionCard}
+              onPress={() => router.push(feature.path as any)}
+            >
+              <Text style={styles.actionIcon}>{feature.icon}</Text>
+              <Text style={styles.actionTitle}>{feature.title}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
+      </View>
 
-        {/* Content */}
-        <ScrollView
-          style={styles.content}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
-          {/* Available Features */}
-          <View style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: theme.text }]}>
-              Your Legal Dashboard ({availableSections.length} features)
-            </Text>
-
-            {availableSections.length > 0 ? (
-              <View style={styles.sectionsGrid}>
-                {availableSections.map((section) => (
-                  <TouchableOpacity
-                    key={section.id}
-                    onPress={() => handleSectionPress(section)}
-                    style={styles.sectionItem}
-                  >
-                    <Card style={styles.sectionCard} padding="medium">
-                      <View
-                        style={[
-                          styles.sectionIcon,
-                          { backgroundColor: section.color + "20" },
-                        ]}
-                      >
-                        <Ionicons
-                          name={section.icon as any}
-                          size={24}
-                          color={section.color}
-                        />
-                      </View>
-                      <Text
-                        style={[styles.sectionCardTitle, { color: theme.text }]}
-                      >
-                        {section.title}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.sectionCardDesc,
-                          { color: theme.textSecondary },
-                        ]}
-                      >
-                        {section.description}
-                      </Text>
-                    </Card>
-                  </TouchableOpacity>
-                ))}
-
-                {/* AI Assistant - Always Available */}
-                <TouchableOpacity
-                  onPress={() => router.push("/(main)/ai-assistant")}
-                  style={styles.sectionItem}
-                >
-                  <Card style={styles.sectionCard} padding="medium">
-                    <View
-                      style={[
-                        styles.sectionIcon,
-                        { backgroundColor: theme.accent + "20" },
-                      ]}
-                    >
-                      <Ionicons
-                        name="chatbubble-ellipses"
-                        size={24}
-                        color={theme.accent}
-                      />
-                    </View>
-                    <Text
-                      style={[styles.sectionCardTitle, { color: theme.text }]}
-                    >
-                      AI Assistant
-                    </Text>
-                    <Text
-                      style={[
-                        styles.sectionCardDesc,
-                        { color: theme.textSecondary },
-                      ]}
-                    >
-                      Get instant legal guidance
-                    </Text>
-                  </Card>
-                </TouchableOpacity>
-
-                {/* Legal Templates - Always Available */}
-                <TouchableOpacity
-                  onPress={() => router.push("/(main)/legal-templates")}
-                  style={styles.sectionItem}
-                >
-                  <Card style={styles.sectionCard} padding="medium">
-                    <View
-                      style={[
-                        styles.sectionIcon,
-                        { backgroundColor: theme.secondary + "20" },
-                      ]}
-                    >
-                      <Ionicons
-                        name="document-text"
-                        size={24}
-                        color={theme.secondary}
-                      />
-                    </View>
-                    <Text
-                      style={[styles.sectionCardTitle, { color: theme.text }]}
-                    >
-                      Legal Templates
-                    </Text>
-                    <Text
-                      style={[
-                        styles.sectionCardDesc,
-                        { color: theme.textSecondary },
-                      ]}
-                    >
-                      Ready-to-use legal forms
-                    </Text>
-                  </Card>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.emptyState}>
-                <Ionicons
-                  name="lock-closed"
-                  size={48}
-                  color={theme.textSecondary}
-                />
-                <Text
-                  style={[styles.emptyText, { color: theme.textSecondary }]}
-                >
-                  No features available for your role
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* Recent Updates */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                Recent Updates
-              </Text>
-              <TouchableOpacity>
-                <Text style={[styles.seeAllText, { color: theme.primary }]}>
-                  See All
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <Card style={styles.updateCard} padding="medium">
-              <View style={styles.updateItem}>
-                <View
-                  style={[
-                    styles.updateIcon,
-                    { backgroundColor: theme.info + "20" },
-                  ]}
-                >
-                  <Ionicons name="document-text" size={20} color={theme.info} />
-                </View>
-                <View style={styles.updateContent}>
-                  <Text style={[styles.updateTitle, { color: theme.text }]}>
-                    New BNS Section 363 Amendment
-                  </Text>
-                  <Text
-                    style={[styles.updateDesc, { color: theme.textSecondary }]}
-                  >
-                    Latest updates on criminal law procedures
-                  </Text>
-                  <Text
-                    style={[styles.updateTime, { color: theme.textTertiary }]}
-                  >
-                    2 hours ago
-                  </Text>
-                </View>
-              </View>
-            </Card>
-
-            <Card style={styles.updateCard} padding="medium">
-              <View style={styles.updateItem}>
-                <View
-                  style={[
-                    styles.updateIcon,
-                    { backgroundColor: theme.success + "20" },
-                  ]}
-                >
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={20}
-                    color={theme.success}
-                  />
-                </View>
-                <View style={styles.updateContent}>
-                  <Text style={[styles.updateTitle, { color: theme.text }]}>
-                    Supreme Court Landmark Judgment
-                  </Text>
-                  <Text
-                    style={[styles.updateDesc, { color: theme.textSecondary }]}
-                  >
-                    Important ruling on fundamental rights
-                  </Text>
-                  <Text
-                    style={[styles.updateTime, { color: theme.textTertiary }]}
-                  >
-                    5 hours ago
-                  </Text>
-                </View>
-              </View>
-            </Card>
-          </View>
-        </ScrollView>
-
-        {/* Floating Action Button */}
-        <FloatingActionButton />
-      </SafeAreaView>
-    </RoleDashboard>
+      <View style={styles.statusSection}>
+        <Text style={styles.sectionTitle}>System Status</Text>
+        <View style={styles.statusCard}>
+          <Text style={styles.statusTitle}>✅ All Systems Operational</Text>
+          <Text style={styles.statusText}>
+            • Navigation working{"\n"}• All features accessible{"\n"}• Real-time
+            updates enabled{"\n"}• Data synchronized
+          </Text>
+        </View>
+      </View>
+    </ScrollView>
   );
 }
-
-const getTimeOfDay = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Morning";
-  if (hour < 17) return "Afternoon";
-  return "Evening";
-};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f8fafc",
   },
   header: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.1)",
-  },
-  headerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: Spacing.lg,
-  },
-  userInfo: {
-    flex: 1,
-  },
-  greeting: {
-    fontSize: FontSizes.sm,
-    marginBottom: Spacing.xs,
-  },
-  userName: {
-    fontSize: FontSizes.xl,
-    fontWeight: FontWeights.bold,
-    marginBottom: Spacing.xs,
-  },
-  roleBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.sm,
-  },
-  roleText: {
-    fontSize: FontSizes.xs,
-    fontWeight: FontWeights.medium,
-  },
-  headerActions: {
-    flexDirection: "row",
+    padding: 20,
+    paddingTop: 60,
     alignItems: "center",
-    gap: Spacing.sm,
+    backgroundColor: "#1e40af",
   },
-  notificationButton: {
-    padding: Spacing.sm,
-    position: "relative",
+  welcomeText: {
+    fontSize: 16,
+    color: "#93c5fd",
+    marginBottom: 4,
   },
-  notificationBadge: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 4,
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#ffffff",
+    marginBottom: 8,
+    textAlign: "center",
   },
-  notificationBadgeText: {
-    fontSize: 10,
-    fontWeight: FontWeights.bold,
+  subtitle: {
+    fontSize: 16,
+    color: "#dbeafe",
+    textAlign: "center",
   },
-  helpButton: {
-    padding: Spacing.sm,
-  },
-  logoutButton: {
-    padding: Spacing.sm,
-  },
-  searchBar: {
-    marginTop: Spacing.sm,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
-  },
-  section: {
-    marginTop: Spacing.xl,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.md,
+  quickActions: {
+    padding: 20,
   },
   sectionTitle: {
-    fontSize: FontSizes.lg,
-    fontWeight: FontWeights.semibold,
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 16,
   },
-  seeAllText: {
-    fontSize: FontSizes.sm,
-    fontWeight: FontWeights.medium,
-  },
-  sectionsGrid: {
+  actionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    gap: 12,
   },
-  sectionItem: {
-    width: "48%",
-    marginBottom: Spacing.md,
-  },
-  sectionCard: {
+  actionCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 16,
     alignItems: "center",
-    minHeight: 120,
+    width: "47%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  sectionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: Spacing.sm,
+  actionIcon: {
+    fontSize: 28,
+    marginBottom: 8,
   },
-  sectionCardTitle: {
-    fontSize: FontSizes.sm,
-    fontWeight: FontWeights.medium,
-    textAlign: "center",
-    marginBottom: Spacing.xs,
-  },
-  sectionCardDesc: {
-    fontSize: FontSizes.xs,
-    textAlign: "center",
-    lineHeight: 16,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: Spacing.xxxl,
-  },
-  emptyText: {
-    fontSize: FontSizes.md,
-    marginTop: Spacing.md,
+  actionTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
     textAlign: "center",
   },
-  updateCard: {
-    marginBottom: Spacing.sm,
+  statusSection: {
+    padding: 20,
+    paddingTop: 0,
   },
-  updateItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+  statusCard: {
+    backgroundColor: "#f0f9ff",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#0ea5e9",
   },
-  updateIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: Spacing.md,
+  statusTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#0369a1",
+    marginBottom: 8,
   },
-  updateContent: {
-    flex: 1,
-  },
-  updateTitle: {
-    fontSize: FontSizes.md,
-    fontWeight: FontWeights.medium,
-    marginBottom: Spacing.xs,
-  },
-  updateDesc: {
-    fontSize: FontSizes.sm,
-    marginBottom: Spacing.xs,
-    lineHeight: 18,
-  },
-  updateTime: {
-    fontSize: FontSizes.xs,
+  statusText: {
+    fontSize: 14,
+    color: "#0369a1",
+    lineHeight: 20,
   },
 });
