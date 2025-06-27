@@ -57,27 +57,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      // Add a timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Auth check timeout")), 5000),
-      );
+      if (!mountedRef.current) return;
 
-      const authPromise = AuthService.isAuthenticated();
-      const isAuthenticated = (await Promise.race([
-        authPromise,
-        timeoutPromise,
-      ])) as boolean;
+      // Simplified auth check with shorter timeout
+      const isAuthenticated = await Promise.race([
+        AuthService.isAuthenticated(),
+        new Promise<boolean>((_, reject) =>
+          setTimeout(() => reject(new Error("Auth timeout")), 2000),
+        ),
+      ]);
 
       if (!mountedRef.current) return;
 
       if (isAuthenticated) {
-        const user = await AuthService.getUser();
-        if (mountedRef.current) {
-          setAuthState({
-            user,
-            isAuthenticated: true,
-            isLoading: false,
-          });
+        try {
+          const user = await AuthService.getUser();
+          if (mountedRef.current) {
+            setAuthState({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          }
+        } catch (userError) {
+          console.error("Error getting user:", userError);
+          if (mountedRef.current) {
+            setAuthState({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+            });
+          }
         }
       } else {
         if (mountedRef.current) {
@@ -89,9 +99,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error("Error checking auth status:", error);
+      console.error("Auth check error:", error);
       if (mountedRef.current) {
-        // Always set loading to false to prevent infinite loading
         setAuthState({
           user: null,
           isAuthenticated: false,
