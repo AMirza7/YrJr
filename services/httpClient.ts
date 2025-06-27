@@ -4,17 +4,9 @@ import axios, {
   AxiosResponse,
   AxiosError,
 } from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Config } from "@/config/env";
 import { Logger } from "@/utils/production";
-
-// Storage keys for tokens
-const STORAGE_KEYS = {
-  ACCESS_TOKEN: "access_token",
-  REFRESH_TOKEN: "refresh_token",
-  USER_DATA: "user_data",
-  TOKEN_EXPIRY: "token_expiry",
-} as const;
+import { tokenManager, AuthEvents } from "./tokenManager";
 
 // Types for API responses
 export interface ApiResponse<T = any> {
