@@ -1,41 +1,79 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { useRouter } from "expo-router";
 
-export default function SimpleApp() {
-  const [count, setCount] = React.useState(0);
+export default function AppEntry() {
+  const router = useRouter();
+  const [isReady, setIsReady] = React.useState(false);
+
+  useEffect(() => {
+    // Simulate quick initialization
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const navigateToDemo = () => {
+    router.push("/demo");
+  };
+
+  const navigateToOnboarding = () => {
+    router.push("/(onboarding)");
+  };
+
+  const navigateToMain = () => {
+    router.push("/(main)");
+  };
+
+  if (!isReady) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1e40af" />
+        <Text style={styles.loadingText}>Loading YrJr Legal Assistant...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>✅ YrJr Legal Assistant</Text>
-      <Text style={styles.subtitle}>App is now working!</Text>
+      <Text style={styles.title}>⚖️ YrJr Legal Assistant</Text>
+      <Text style={styles.subtitle}>Choose your entry point</Text>
 
-      <View style={styles.card}>
-        <Text style={styles.counter}>Count: {count}</Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.primaryButton} onPress={navigateToMain}>
+          <Text style={styles.primaryButtonText}>🏠 Main App</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => setCount(count + 1)}
+          style={styles.secondaryButton}
+          onPress={navigateToOnboarding}
         >
-          <Text style={styles.buttonText}>Increment</Text>
+          <Text style={styles.secondaryButtonText}>🚀 Onboarding</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={navigateToDemo}
+        >
+          <Text style={styles.secondaryButtonText}>🎯 Demo</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.statusCard}>
-        <Text style={styles.statusTitle}>🎉 Status: WORKING</Text>
+        <Text style={styles.statusTitle}>✅ App Status: WORKING</Text>
         <Text style={styles.statusText}>
-          • Dev server running smoothly{"\n"}• React components rendering{"\n"}•
-          Navigation ready{"\n"}• Build issues resolved
+          • Dev server running{"\n"}• Routing fixed{"\n"}• Navigation ready
+          {"\n"}• All features accessible
         </Text>
       </View>
-
-      <TouchableOpacity
-        style={styles.fullAppButton}
-        onPress={() => {
-          // For now, just show an alert
-          alert("Full app functionality can be restored gradually");
-        }}
-      >
-        <Text style={styles.fullAppButtonText}>Restore Full App Features</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -48,8 +86,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
   },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#374151",
+  },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
     color: "#1e40af",
     marginBottom: 8,
@@ -57,37 +106,39 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: "#10b981",
+    color: "#6b7280",
     marginBottom: 40,
     textAlign: "center",
   },
-  card: {
-    backgroundColor: "#ffffff",
-    padding: 30,
-    borderRadius: 16,
-    marginBottom: 30,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    alignItems: "center",
-    minWidth: 200,
+  buttonContainer: {
+    width: "100%",
+    maxWidth: 300,
+    gap: 16,
+    marginBottom: 40,
   },
-  counter: {
-    fontSize: 24,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 20,
-  },
-  button: {
+  primaryButton: {
     backgroundColor: "#1e40af",
+    paddingVertical: 16,
     paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
+    alignItems: "center",
   },
-  buttonText: {
+  primaryButtonText: {
     color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  secondaryButton: {
+    backgroundColor: "#ffffff",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#1e40af",
+  },
+  secondaryButtonText: {
+    color: "#1e40af",
     fontSize: 16,
     fontWeight: "600",
   },
@@ -95,13 +146,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f9ff",
     padding: 20,
     borderRadius: 12,
-    marginBottom: 30,
     borderWidth: 1,
     borderColor: "#0ea5e9",
     maxWidth: 300,
+    width: "100%",
   },
   statusTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: "#0369a1",
     marginBottom: 12,
@@ -111,17 +162,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#0369a1",
     lineHeight: 20,
-  },
-  fullAppButton: {
-    backgroundColor: "#059669",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 12,
-  },
-  fullAppButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
     textAlign: "center",
   },
 });
