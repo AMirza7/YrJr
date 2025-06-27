@@ -127,8 +127,14 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        Logger.error("Root layout error:", error, errorInfo);
+      }}
+    >
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
