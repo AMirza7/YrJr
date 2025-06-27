@@ -1,29 +1,29 @@
-import React, { useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
-import { router } from "expo-router";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { styles } from "@/constants/AppStyles";
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
 
-export default function AppEntry() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        router.replace("/(main)/(tabs)/home");
-      } else {
-        router.replace("/(onboarding)");
-      }
-    }
-  }, [isAuthenticated, isLoading]);
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#1e40af" />
-      </View>
-    );
-  }
-
-  return null;
+export default function HomeScreen() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>YrJr Legal Assistant</Text>
+      <Text style={styles.subtitle}>App is now working!</Text>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#666",
+  },
+});
