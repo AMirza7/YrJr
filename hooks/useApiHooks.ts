@@ -410,120 +410,146 @@ export const useFeaturedLawyers = (options?: {
   return useApi(LawyersApiService.getFeaturedLawyers, options);
 };
 
-// ==================== ADDITIONAL HOOKS FOR OTHER MODULES ====================
+// ==================== CASE MANAGEMENT HOOKS ====================
 
-// Placeholder hooks for remaining modules (to be implemented)
-
-// Case Management hooks
-export const useCases = (options?: any) => {
-  // TODO: Implement case management API
+// Get cases with filtering
+export const useCases = (
+  filters?: any,
+  options?: {
+    limit?: number;
+    immediate?: boolean;
+    onSuccess?: (data: any) => void;
+    onError?: (error: string) => void;
+  },
+) => {
   return usePaginatedApi(
-    async (page: number, limit: number) => ({
-      data: [],
-      success: true,
-      pagination: { page, limit, total: 0, totalPages: 0 },
-    }),
+    (page: number, limit: number) =>
+      CaseManagementApiService.getCases({ ...filters, page, limit }),
     options,
   );
 };
 
-export const useCreateCase = (options?: any) => {
+// Create new case
+export const useCreateCase = (options?: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+}) => {
+  return useApiMutation(CaseManagementApiService.createCase, options);
+};
+
+// Update case
+export const useUpdateCase = (options?: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+}) => {
   return useApiMutation(
-    async (caseData: any) => ({ data: {}, success: true }),
+    ({ id, data }: { id: string; data: any }) =>
+      CaseManagementApiService.updateCase(id, data),
     options,
   );
 };
 
-// Notifications hooks
-export const useNotifications = (options?: any) => {
-  return usePaginatedApi(
-    async (page: number, limit: number) => ({
-      data: [],
-      success: true,
-      pagination: { page, limit, total: 0, totalPages: 0 },
-    }),
-    options,
-  );
+// ==================== NOTIFICATIONS HOOKS ====================
+
+// Get notifications
+export const useNotifications = (options?: {
+  limit?: number;
+  immediate?: boolean;
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+}) => {
+  return usePaginatedApi(NotificationsApiService.getNotifications, options);
 };
 
-export const useMarkNotificationRead = (options?: any) => {
+// Mark notification as read
+export const useMarkNotificationRead = (options?: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+}) => {
+  return useApiMutation(NotificationsApiService.markAsRead, options);
+};
+
+// Get unread notifications count
+export const useUnreadNotificationCount = (options?: {
+  immediate?: boolean;
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+}) => {
+  return useApi(NotificationsApiService.getUnreadCount, options);
+};
+
+// ==================== SECURE VAULT HOOKS ====================
+
+// Get vault documents
+export const useVaultDocuments = (options?: {
+  immediate?: boolean;
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+}) => {
+  return useApi(SecureVaultApiService.getDocuments, options);
+};
+
+// Upload document to vault
+export const useUploadVaultDocument = (options?: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+  onProgress?: (progress: number) => void;
+}) => {
   return useApiMutation(
-    async (notificationId: string) => ({ data: {}, success: true }),
+    ({ file, metadata }: { file: any; metadata: any }) =>
+      SecureVaultApiService.uploadDocument(file, metadata),
     options,
   );
 };
 
-// Secure Vault hooks
-export const useVaultDocuments = (options?: any) => {
-  return usePaginatedApi(
-    async (page: number, limit: number) => ({
-      data: [],
-      success: true,
-      pagination: { page, limit, total: 0, totalPages: 0 },
-    }),
-    options,
-  );
+// ==================== TEMPLATES HOOKS ====================
+
+// Get legal templates
+export const useTemplates = (
+  category?: string,
+  options?: {
+    immediate?: boolean;
+    onSuccess?: (data: any) => void;
+    onError?: (error: string) => void;
+  },
+) => {
+  return useApi(() => TemplatesApiService.getTemplates(category), {
+    ...options,
+    dependencies: [category],
+  });
 };
 
-export const useUploadVaultDocument = (options?: any) => {
+// Generate document from template
+export const useGenerateDocument = (options?: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+}) => {
   return useApiMutation(
-    async (documentData: any) => ({ data: {}, success: true }),
+    ({ templateId, data }: { templateId: string; data: any }) =>
+      TemplatesApiService.generateDocument(templateId, data),
     options,
   );
 };
 
-// Flashcards hooks
-export const useFlashcards = (options?: any) => {
-  return usePaginatedApi(
-    async (page: number, limit: number) => ({
-      data: [],
-      success: true,
-      pagination: { page, limit, total: 0, totalPages: 0 },
-    }),
-    options,
-  );
+// ==================== AI ASSISTANT HOOKS ====================
+
+// Query AI Assistant
+export const useAIQuery = (options?: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+}) => {
+  return useApiMutation(AIAssistantApiService.query, options);
 };
 
-export const useFlashcardProgress = (options?: any) => {
-  return useApi(async () => ({ data: {}, success: true }), options);
-};
+// ==================== DOCUMENT SCANNER HOOKS ====================
 
-// Templates hooks
-export const useTemplates = (options?: any) => {
-  return usePaginatedApi(
-    async (page: number, limit: number) => ({
-      data: [],
-      success: true,
-      pagination: { page, limit, total: 0, totalPages: 0 },
-    }),
-    options,
-  );
-};
-
-export const useGenerateDocument = (options?: any) => {
-  return useApiMutation(
-    async (templateData: any) => ({ data: {}, success: true }),
-    options,
-  );
-};
-
-// AI Assistant hooks
-export const useAIQuery = (options?: any) => {
-  return useApiMutation(
-    async (query: string) => ({
-      data: { response: "AI response placeholder" },
-      success: true,
-    }),
-    options,
-  );
-};
-
-// Document Scanner hooks
-export const useScanDocument = (options?: any) => {
-  return useApiMutation(
-    async (documentImage: any) => ({ data: {}, success: true }),
-    options,
-  );
+// Scan document OCR
+export const useScanDocument = (options?: {
+  onSuccess?: (data: any) => void;
+  onError?: (error: string) => void;
+  onProgress?: (progress: number) => void;
+}) => {
+  return useApiMutation(DocumentScannerApiService.scanDocument, options);
 };
 
 // Export all hooks for easy importing
