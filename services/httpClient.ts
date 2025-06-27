@@ -128,7 +128,7 @@ class HttpClient {
           this.isRefreshing = true;
 
           try {
-            const newToken = await this.refreshAccessToken();
+            const newToken = await tokenManager.refreshAccessToken();
             if (newToken) {
               this.refreshSubscribers.forEach((callback) => callback(newToken));
               this.refreshSubscribers = [];
