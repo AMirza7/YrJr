@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/Card";
 import { FloatingActionButton } from "@/components/ui/FloatingActionButton";
 import { RoleDashboard } from "@/components/auth/RoleDashboard";
 import { useAuth } from "@/components/auth/AuthContext";
+import { useLogoutConfirm } from "@/components/auth/SessionManager";
 import {
   LegalTheme,
   FontSizes,
@@ -32,7 +33,8 @@ import { NotificationService } from "@/services/notifications";
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const theme = LegalTheme[colorScheme ?? "light"];
-  const { user, hasFeatureAccess, logout } = useAuth();
+  const { user, hasFeatureAccess } = useAuth();
+  const handleLogoutConfirm = useLogoutConfirm();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -84,23 +86,7 @@ export default function HomeScreen() {
     router.push("/(main)/ai-assistant");
   };
 
-  const handleLogout = async () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await logout();
-            router.replace("/(onboarding)/");
-          } catch (error) {
-            Alert.alert("Error", "Failed to logout. Please try again.");
-          }
-        },
-      },
-    ]);
-  };
+  // Logout handler now uses enhanced confirmation from SessionManager
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -192,8 +178,19 @@ export default function HomeScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
+                style={styles.helpButton}
+                onPress={() => router.push("/(main)/help-support")}
+              >
+                <Ionicons
+                  name="help-circle-outline"
+                  size={24}
+                  color={theme.textSecondary}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
                 style={styles.logoutButton}
-                onPress={handleLogout}
+                onPress={handleLogoutConfirm}
               >
                 <Ionicons
                   name="log-out-outline"
@@ -500,6 +497,9 @@ const styles = StyleSheet.create({
   notificationBadgeText: {
     fontSize: 10,
     fontWeight: FontWeights.bold,
+  },
+  helpButton: {
+    padding: Spacing.sm,
   },
   logoutButton: {
     padding: Spacing.sm,

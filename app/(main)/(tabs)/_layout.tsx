@@ -24,10 +24,12 @@ export default function TabLayout() {
           ios: {
             position: "absolute",
             backgroundColor: theme.surface,
+            boxShadow: "0 -2px 8px rgba(0,0,0,0.1)",
           },
           default: {
             backgroundColor: theme.surface,
             borderTopColor: theme.border,
+            elevation: 8,
           },
         }),
       }}

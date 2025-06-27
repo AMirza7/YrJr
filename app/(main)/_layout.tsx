@@ -22,6 +22,7 @@ export default function MainLayout() {
       <Stack.Screen name="flashcards" />
       <Stack.Screen name="client-folders" />
       <Stack.Screen name="document-scanner" />
+      <Stack.Screen name="help-support" />
     </Stack>
   );
 }

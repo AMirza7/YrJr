@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,7 +16,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 
 import { Button } from "@/components/ui/Button";
+import { BiometricAuth } from "@/components/auth/BiometricAuth";
 import { useAuth } from "@/components/auth/AuthContext";
+import { BiometricService } from "@/services/biometric";
 import { DEMO_ACCOUNTS, ROLE_DISPLAY_INFO } from "@/constants/AuthConstants";
 import { LegalTheme, FontSizes, FontWeights, Spacing } from "@/constants/Theme";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -34,6 +36,22 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDemo, setShowDemo] = useState(false);
+  const [showBiometric, setShowBiometric] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+
+  useEffect(() => {
+    checkBiometricAvailability();
+  }, []);
+
+  const checkBiometricAvailability = async () => {
+    try {
+      const isAvailable = await BiometricService.isBiometricAvailable();
+      const isEnabled = await BiometricService.isBiometricEnabled();
+      setBiometricAvailable(isAvailable && isEnabled);
+    } catch (error) {
+      console.error("Error checking biometric availability:", error);
+    }
+  };
 
   const handleLogin = async () => {
     if (!formData.email || !formData.password) {
@@ -70,6 +88,22 @@ export default function LoginScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleBiometricAuth = async () => {
+    setShowBiometric(true);
+  };
+
+  const handleBiometricSuccess = async () => {
+    setShowBiometric(false);
+    // Auto-login with the last used account or prompt for selection
+    if (DEMO_ACCOUNTS.length > 0) {
+      await handleDemoLogin(DEMO_ACCOUNTS[0].role);
+    }
+  };
+
+  const handleBiometricCancel = () => {
+    setShowBiometric(false);
   };
 
   const handleBackToWelcome = () => {
@@ -215,6 +249,35 @@ export default function LoginScreen() {
                 style={styles.loginButton}
               />
 
+              {/* Biometric Login Button */}
+              {biometricAvailable && (
+                <TouchableOpacity
+                  style={[
+                    styles.biometricButton,
+                    {
+                      backgroundColor: theme.secondary + "20",
+                      borderColor: theme.secondary,
+                    },
+                  ]}
+                  onPress={handleBiometricAuth}
+                  disabled={isLoading}
+                >
+                  <Ionicons
+                    name="finger-print"
+                    size={20}
+                    color={theme.secondary}
+                  />
+                  <Text
+                    style={[
+                      styles.biometricButtonText,
+                      { color: theme.secondary },
+                    ]}
+                  >
+                    Use Biometric Login
+                  </Text>
+                </TouchableOpacity>
+              )}
+
               {/* Demo Accounts Button */}
               <TouchableOpacity
                 style={[styles.demoButton, { borderColor: theme.primary }]}
@@ -337,6 +400,15 @@ export default function LoginScreen() {
           )}
         </ScrollView>
       </LinearGradient>
+
+      {/* Biometric Authentication Modal */}
+      <BiometricAuth
+        visible={showBiometric}
+        onSuccess={handleBiometricSuccess}
+        onCancel={handleBiometricCancel}
+        title="Secure Login"
+        subtitle="Use your biometric authentication to login securely"
+      />
     </SafeAreaView>
   );
 }
@@ -437,6 +509,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
   },
   demoButtonText: {
+    fontSize: FontSizes.md,
+    fontWeight: FontWeights.medium,
+    marginLeft: Spacing.sm,
+  },
+  biometricButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  biometricButtonText: {
     fontSize: FontSizes.md,
     fontWeight: FontWeights.medium,
     marginLeft: Spacing.sm,

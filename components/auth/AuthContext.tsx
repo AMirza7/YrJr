@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
 import { AuthState, User, UserRole, LoginCredentials } from "@/types";
 import { AuthService } from "@/services/auth";
 import { DEMO_ACCOUNTS } from "@/constants/AuthConstants";
@@ -39,34 +45,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading: true,
   });
 
+  const mountedRef = useRef(true);
+
   useEffect(() => {
     checkAuthStatus();
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   const checkAuthStatus = async () => {
     try {
       const isAuthenticated = await AuthService.isAuthenticated();
+
+      if (!mountedRef.current) return;
+
       if (isAuthenticated) {
         const user = await AuthService.getUser();
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        });
+        if (mountedRef.current) {
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        }
       } else {
+        if (mountedRef.current) {
+          setAuthState({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error checking auth status:", error);
+      if (mountedRef.current) {
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
         });
       }
-    } catch (error) {
-      console.error("Error checking auth status:", error);
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
     }
   };
 
@@ -74,7 +95,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     credentials: LoginCredentials,
   ): Promise<{ success: boolean; message: string }> => {
     try {
-      setAuthState((prev) => ({ ...prev, isLoading: true }));
+      if (mountedRef.current) {
+        setAuthState((prev) => ({ ...prev, isLoading: true }));
+      }
 
       // Check if credentials match any demo account
       const demoAccount = DEMO_ACCOUNTS.find(
@@ -84,7 +107,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       );
 
       if (!demoAccount) {
-        setAuthState((prev) => ({ ...prev, isLoading: false }));
+        if (mountedRef.current) {
+          setAuthState((prev) => ({ ...prev, isLoading: false }));
+        }
         return { success: false, message: "Invalid email or password" };
       }
 
@@ -113,16 +138,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await AuthService.setUser(user);
       await AuthService.setAuthToken(`demo_token_${user.id}`);
 
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      if (mountedRef.current) {
+        setAuthState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+      }
 
       return { success: true, message: "Login successful" };
     } catch (error) {
       console.error("Login error:", error);
-      setAuthState((prev) => ({ ...prev, isLoading: false }));
+      if (mountedRef.current) {
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
+      }
       return { success: false, message: "Login failed. Please try again." };
     }
   };
@@ -144,11 +173,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async (): Promise<void> => {
     try {
       await AuthService.logout();
-      setAuthState({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
+      if (mountedRef.current) {
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      }
     } catch (error) {
       console.error("Logout error:", error);
       throw error;
@@ -164,10 +195,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const updatedUser = { ...authState.user, ...updates };
       await AuthService.updateUser(updates);
 
-      setAuthState((prev) => ({
-        ...prev,
-        user: updatedUser,
-      }));
+      if (mountedRef.current) {
+        setAuthState((prev) => ({
+          ...prev,
+          user: updatedUser,
+        }));
+      }
     } catch (error) {
       console.error("Update user error:", error);
       throw error;

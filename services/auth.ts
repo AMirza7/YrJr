@@ -1,5 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User, UserRole, SubscriptionPlan } from "@/types";
+import { httpClient } from "./httpClient";
+import AuthApiService from "./api/authApi";
+import { Logger } from "@/utils/production";
 
 export class AuthService {
   private static readonly USER_KEY = "user_data";
@@ -24,11 +27,21 @@ export class AuthService {
     }
   }
 
-  static async setAuthToken(token: string): Promise<void> {
+  static async setAuthToken(
+    token: string,
+    refreshToken?: string,
+  ): Promise<void> {
     try {
       await AsyncStorage.setItem(this.AUTH_TOKEN_KEY, token);
+
+      // Also update HTTP client tokens
+      if (refreshToken) {
+        await httpClient.setAuthTokens(token, refreshToken);
+      }
+
+      Logger.debug("Auth tokens updated successfully");
     } catch (error) {
-      console.error("Error saving auth token:", error);
+      Logger.error("Error saving auth token:", error);
       throw new Error("Failed to save auth token");
     }
   }
@@ -37,22 +50,35 @@ export class AuthService {
     try {
       return await AsyncStorage.getItem(this.AUTH_TOKEN_KEY);
     } catch (error) {
-      console.error("Error retrieving auth token:", error);
+      Logger.error("Error retrieving auth token:", error);
       return null;
     }
   }
 
   static async isAuthenticated(): Promise<boolean> {
-    const token = await this.getAuthToken();
-    const user = await this.getUser();
-    return !!(token && user);
+    // Use HTTP client's authentication check which includes token expiry
+    return await httpClient.isAuthenticated();
   }
 
   static async logout(): Promise<void> {
     try {
+      // Call API logout endpoint
+      await AuthApiService.logout();
+
+      // Clear all local storage
       await AsyncStorage.multiRemove([this.USER_KEY, this.AUTH_TOKEN_KEY]);
+
+      // Clear HTTP client tokens
+      await httpClient.clearAuthTokens();
+
+      Logger.debug("Logout completed successfully");
     } catch (error) {
-      console.error("Error during logout:", error);
+      Logger.error("Error during logout:", error);
+
+      // Even if API call fails, clear local data
+      await AsyncStorage.multiRemove([this.USER_KEY, this.AUTH_TOKEN_KEY]);
+      await httpClient.clearAuthTokens();
+
       throw new Error("Failed to logout");
     }
   }

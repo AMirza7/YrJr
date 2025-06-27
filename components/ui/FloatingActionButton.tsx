@@ -65,6 +65,16 @@ export function FloatingActionButton({
       color: theme.primary,
     },
     {
+      id: "help",
+      label: "Help & Support",
+      icon: "help-circle",
+      onPress: () => {
+        router.push("/(main)/help-support");
+        toggleFAB();
+      },
+      color: theme.info,
+    },
+    {
       id: "message",
       label: "New Message",
       icon: "mail",
