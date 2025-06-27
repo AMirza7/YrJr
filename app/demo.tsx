@@ -1,161 +1,174 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { router } from "expo-router";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function DemoScreen() {
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: "#FFFFFF",
-      padding: 20,
-    },
-    header: {
-      alignItems: "center",
-      marginBottom: 40,
-      marginTop: 40,
-    },
-    logo: {
-      fontSize: 32,
-      fontWeight: "bold",
-      color: "#1E40AF",
-      marginBottom: 8,
-    },
-    tagline: {
-      fontSize: 16,
-      color: "#6B7280",
-      textAlign: "center",
-    },
-    section: {
-      marginBottom: 30,
-    },
-    sectionTitle: {
-      fontSize: 20,
-      fontWeight: "600",
-      color: "#1F2937",
-      marginBottom: 15,
-    },
-    feature: {
-      fontSize: 14,
-      color: "#374151",
-      marginBottom: 8,
-      lineHeight: 20,
-    },
-    button: {
-      backgroundColor: "#1E40AF",
-      paddingVertical: 15,
-      paddingHorizontal: 30,
-      borderRadius: 8,
-      alignItems: "center",
-      marginTop: 20,
-    },
-    buttonText: {
-      color: "#FFFFFF",
-      fontSize: 16,
-      fontWeight: "600",
-    },
-    statusBadge: {
-      backgroundColor: "#10B981",
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 12,
-      alignSelf: "center",
-      marginTop: 20,
-    },
-    statusText: {
-      color: "#FFFFFF",
-      fontSize: 12,
-      fontWeight: "600",
-    },
-  });
+  const router = useRouter();
+  const [interactions, setInteractions] = React.useState(0);
 
-  const features = [
-    "✅ Complete backend API integration structure",
-    "✅ Enhanced token management with auto-refresh",
-    "✅ Comprehensive API hooks for all modules",
-    "✅ Production-ready error handling",
-    "✅ Optimized loading and caching system",
-    "✅ Environment configuration support",
-    "✅ Mock data for development",
-    "✅ Security best practices implemented",
-  ];
+  const goBack = () => {
+    router.back();
+  };
 
-  const apiModules = [
-    "Authentication (login, register, OTP)",
-    "Court Orders (fetch, filter, download)",
-    "Messages (send, receive, conversations)",
-    "Lawyers Directory (search, reviews)",
-    "Case Management (create, update, track)",
-    "Notifications (push, in-app)",
-    "Secure Vault (document storage)",
-    "AI Assistant (legal queries)",
-    "Document Scanner (OCR)",
-    "Templates Hub (document generation)",
-  ];
+  const goToMain = () => {
+    router.push("/(main)/(tabs)/home");
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.logo}>YrJr Legal Assistant</Text>
-        <Text style={styles.tagline}>
-          Production-Ready Backend Integration Complete
-        </Text>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>🚀 READY FOR BACKEND</Text>
-        </View>
+    <View style={styles.container}>
+      <Text style={styles.title}>🎯 Demo Mode</Text>
+      <Text style={styles.subtitle}>Testing app functionality</Text>
+
+      <View style={styles.testCard}>
+        <Text style={styles.testTitle}>Interactive Test</Text>
+        <Text style={styles.counter}>Interactions: {interactions}</Text>
+        <TouchableOpacity
+          style={styles.testButton}
+          onPress={() => setInteractions(interactions + 1)}
+        >
+          <Text style={styles.testButtonText}>Test Button</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🔧 Key Features Implemented</Text>
-        {features.map((feature, index) => (
-          <Text key={index} style={styles.feature}>
-            {feature}
-          </Text>
-        ))}
+      <View style={styles.navigationCard}>
+        <Text style={styles.navTitle}>Navigation Test</Text>
+
+        <TouchableOpacity style={styles.navButton} onPress={goToMain}>
+          <Text style={styles.navButtonText}>🏠 Go to Main App</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
+          <Text style={styles.backButtonText}>← Go Back</Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📡 API Modules Ready</Text>
-        {apiModules.map((module, index) => (
-          <Text key={index} style={styles.feature}>
-            • {module}
-          </Text>
-        ))}
+      <View style={styles.statusCard}>
+        <Text style={styles.statusTitle}>✅ Demo Status</Text>
+        <Text style={styles.statusText}>
+          • React components working{"\n"}• State management active{"\n"}•
+          Navigation functional{"\n"}• UI rendering properly
+        </Text>
       </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🚀 Next Steps</Text>
-        <Text style={styles.feature}>
-          1. Update .env file with your backend API endpoints
-        </Text>
-        <Text style={styles.feature}>
-          2. Replace mock data with real API calls
-        </Text>
-        <Text style={styles.feature}>
-          3. Configure authentication providers
-        </Text>
-        <Text style={styles.feature}>4. Test with your backend services</Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          try {
-            router.replace("/(onboarding)");
-          } catch (error) {
-            console.log("Navigation error:", error);
-            // Fallback navigation
-            router.push("/(onboarding)/");
-          }
-        }}
-      >
-        <Text style={styles.buttonText}>Continue to Full App</Text>
-      </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+    padding: 20,
+    paddingTop: 60,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1e40af",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#6b7280",
+    textAlign: "center",
+    marginBottom: 40,
+  },
+  testCard: {
+    backgroundColor: "#ffffff",
+    padding: 24,
+    borderRadius: 16,
+    marginBottom: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  testTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 16,
+  },
+  counter: {
+    fontSize: 20,
+    color: "#1e40af",
+    marginBottom: 16,
+    fontWeight: "500",
+  },
+  testButton: {
+    backgroundColor: "#10b981",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  testButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  navigationCard: {
+    backgroundColor: "#ffffff",
+    padding: 20,
+    borderRadius: 16,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  navTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  navButton: {
+    backgroundColor: "#1e40af",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  navButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  backButton: {
+    backgroundColor: "#6b7280",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+  },
+  backButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  statusCard: {
+    backgroundColor: "#f0f9ff",
+    padding: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#0ea5e9",
+  },
+  statusTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#0369a1",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  statusText: {
+    fontSize: 14,
+    color: "#0369a1",
+    lineHeight: 20,
+    textAlign: "center",
+  },
+});
