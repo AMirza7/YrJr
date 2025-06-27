@@ -149,44 +149,26 @@ class HttpClient {
     );
   }
 
-  private async refreshAccessToken(): Promise<string | null> {
-    try {
-      const refreshToken = await this.tokenManager.getRefreshToken();
-      if (!refreshToken) {
-        throw new Error("No refresh token available");
-      }
-
-      const response = await axios.post(`${Config.API_BASE_URL}/auth/refresh`, {
-        refreshToken,
-      });
-
-      const {
-        accessToken,
-        refreshToken: newRefreshToken,
-        expiresIn,
-      } = response.data.data;
-
-      await this.tokenManager.setTokens(
-        accessToken,
-        newRefreshToken,
-        expiresIn,
-      );
-      return accessToken;
-    } catch (error) {
-      Logger.error("Token refresh error:", error);
-      await this.tokenManager.clearTokens();
-      return null;
-    }
+  private handleAuthFailure(): void {
+    // Clear tokens using enhanced token manager
+    tokenManager.forceLogout();
+    Logger.warn("Authentication failed, user needs to login again");
   }
 
-  private handleAuthFailure(): void {
-    // Clear tokens
-    this.tokenManager.clearTokens();
+  private setupTokenManagerEvents(): void {
+    // Listen to token manager events
+    tokenManager.on(AuthEvents.LOGIN_REQUIRED, () => {
+      Logger.warn("Login required event received");
+      // This will be handled by the auth context or navigation
+    });
 
-    // Emit logout event or navigate to login
-    // This can be handled by a global event emitter or navigation service
-    // For now, we'll just log it
-    Logger.warn("Authentication failed, user needs to login again");
+    tokenManager.on(AuthEvents.TOKEN_REFRESHED, (tokenData) => {
+      Logger.debug("Token refreshed successfully");
+    });
+
+    tokenManager.on(AuthEvents.LOGOUT_COMPLETED, () => {
+      Logger.debug("Logout completed");
+    });
   }
 
   private generateRequestId(): string {
