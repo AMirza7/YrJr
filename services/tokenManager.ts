@@ -144,6 +144,12 @@ export class TokenManager extends EventEmitter {
    */
   async clearTokens(): Promise<void> {
     try {
+      // Check web compatibility
+      if (typeof window === "undefined" || !AsyncStorage) {
+        Logger.warn("AsyncStorage not available, skipping token clearing");
+        return;
+      }
+
       await AsyncStorage.multiRemove([
         STORAGE_KEYS.ACCESS_TOKEN,
         STORAGE_KEYS.REFRESH_TOKEN,
