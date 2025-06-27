@@ -292,5 +292,4 @@ class HttpClient {
 export const httpClient = new HttpClient();
 
 // Export types and utilities
-export { TokenManager };
 export default httpClient;
