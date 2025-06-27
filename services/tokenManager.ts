@@ -78,6 +78,10 @@ export class TokenManager extends EventEmitter {
    */
   async getAccessToken(): Promise<string | null> {
     try {
+      // Check web compatibility
+      if (typeof window === "undefined" || !AsyncStorage) {
+        return null;
+      }
       return await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     } catch (error) {
       Logger.error("Error getting access token:", error);
@@ -90,6 +94,10 @@ export class TokenManager extends EventEmitter {
    */
   async getRefreshToken(): Promise<string | null> {
     try {
+      // Check web compatibility
+      if (typeof window === "undefined" || !AsyncStorage) {
+        return null;
+      }
       return await AsyncStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     } catch (error) {
       Logger.error("Error getting refresh token:", error);
