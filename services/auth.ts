@@ -7,7 +7,17 @@ import { Logger } from "@/utils/production";
 export class AuthService {
   static async setUser(user: User): Promise<void> {
     try {
-      await AsyncStorage.setItem(this.USER_KEY, JSON.stringify(user));
+      await tokenManager.setUserData({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        permissions: [], // Add permissions based on role
+        preferences: {
+          language: user.language,
+          subscription: user.subscription,
+        },
+      });
     } catch (error) {
       console.error("Error saving user data:", error);
       throw new Error("Failed to save user data");
@@ -16,8 +26,29 @@ export class AuthService {
 
   static async getUser(): Promise<User | null> {
     try {
-      const userData = await AsyncStorage.getItem(this.USER_KEY);
-      return userData ? JSON.parse(userData) : null;
+      const userData = await tokenManager.getUserData();
+      if (!userData) return null;
+
+      // Convert back to User format
+      return {
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role as UserRole,
+        language: userData.preferences?.language || "en",
+        subscription: userData.preferences?.subscription || {
+          type: "monthly",
+          price: 299,
+          startDate: new Date(),
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          isActive: true,
+        },
+        isVerified: false,
+        phone: "",
+        documents: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as User;
     } catch (error) {
       console.error("Error retrieving user data:", error);
       return null;
