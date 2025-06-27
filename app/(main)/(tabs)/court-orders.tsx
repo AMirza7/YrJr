@@ -1,122 +1,117 @@
 import React from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView } from "react-native";
+import { styles } from "@/constants/AppStyles";
+
+const SAMPLE_ORDERS = [
+  {
+    id: 1,
+    title: "Bail Application Order",
+    court: "Delhi High Court",
+    judge: "Justice A.K. Sharma",
+    date: "2024-01-15",
+    type: "order",
+    summary: "Bail granted to the accused with conditions",
+    importance: "high",
+  },
+  {
+    id: 2,
+    title: "Matrimonial Dispute Judgment",
+    court: "Family Court, Mumbai",
+    judge: "Justice P.R. Desai",
+    date: "2024-01-14",
+    type: "judgment",
+    summary: "Divorce decree granted with alimony provisions",
+    importance: "medium",
+  },
+  {
+    id: 3,
+    title: "Property Dispute Notice",
+    court: "Civil Court, Bangalore",
+    judge: "Justice S.K. Reddy",
+    date: "2024-01-13",
+    type: "notice",
+    summary: "Notice issued for property ownership clarification",
+    importance: "low",
+  },
+];
 
 export default function CourtOrdersScreen() {
-  const orders = [
-    {
-      id: 1,
-      title: "Property Dispute Case",
-      status: "Active",
-      date: "2024-01-15",
-    },
-    {
-      id: 2,
-      title: "Contract Violation",
-      status: "Pending",
-      date: "2024-01-10",
-    },
-    {
-      id: 3,
-      title: "Family Court Matter",
-      status: "Completed",
-      date: "2024-01-05",
-    },
-  ];
+  const getImportanceColor = (importance: string) => {
+    switch (importance) {
+      case "high":
+        return "#ef4444";
+      case "medium":
+        return "#f59e0b";
+      case "low":
+        return "#10b981";
+      default:
+        return "#64748b";
+    }
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>📋 Court Orders</Text>
-        <Text style={styles.subtitle}>Track your legal proceedings</Text>
-      </View>
+    <View style={styles.container}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
+        <Text style={styles.title}>Court Orders</Text>
+        <Text style={styles.subtitle}>Latest court orders and judgments</Text>
 
-      <View style={styles.ordersContainer}>
-        {orders.map((order) => (
-          <View key={order.id} style={styles.orderCard}>
-            <Text style={styles.orderTitle}>{order.title}</Text>
-            <View style={styles.orderDetails}>
-              <Text style={styles.orderDate}>Date: {order.date}</Text>
+        {SAMPLE_ORDERS.map((order) => (
+          <View key={order.id} style={styles.card}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: 8,
+              }}
+            >
               <Text
                 style={[
-                  styles.orderStatus,
-                  { color: getStatusColor(order.status) },
+                  styles.text,
+                  { fontWeight: "600", fontSize: 16, flex: 1 },
                 ]}
               >
-                {order.status}
+                {order.title}
               </Text>
+              <View
+                style={{
+                  backgroundColor: getImportanceColor(order.importance),
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  borderRadius: 4,
+                }}
+              >
+                <Text
+                  style={{ color: "#ffffff", fontSize: 12, fontWeight: "600" }}
+                >
+                  {order.importance.toUpperCase()}
+                </Text>
+              </View>
             </View>
+
+            <Text
+              style={[
+                styles.text,
+                { fontSize: 14, color: "#64748b", marginBottom: 4 },
+              ]}
+            >
+              {order.court} • {order.judge}
+            </Text>
+
+            <Text
+              style={[
+                styles.text,
+                { fontSize: 14, color: "#64748b", marginBottom: 8 },
+              ]}
+            >
+              {new Date(order.date).toLocaleDateString("en-IN")} •{" "}
+              {order.type.toUpperCase()}
+            </Text>
+
+            <Text style={[styles.text, { fontSize: 14 }]}>{order.summary}</Text>
           </View>
         ))}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case "Active":
-      return "#10b981";
-    case "Pending":
-      return "#f59e0b";
-    case "Completed":
-      return "#6b7280";
-    default:
-      return "#374151";
-  }
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-    backgroundColor: "#1e40af",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#ffffff",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#dbeafe",
-  },
-  ordersContainer: {
-    padding: 20,
-  },
-  orderCard: {
-    backgroundColor: "#ffffff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  orderTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 8,
-  },
-  orderDetails: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  orderDate: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-  orderStatus: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-});

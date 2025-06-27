@@ -1,154 +1,155 @@
 import React from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import { useRouter } from "expo-router";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { router } from "expo-router";
+import { styles } from "@/constants/AppStyles";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { ROLE_DISPLAY_INFO } from "@/constants/auth";
 
 export default function ProfileScreen() {
-  const router = useRouter();
+  const { user, logout } = useAuth();
 
-  const profileOptions = [
-    {
-      title: "Personal Information",
-      icon: "👤",
-      description: "Update your details",
-    },
-    {
-      title: "Legal Documents",
-      icon: "📄",
-      description: "Manage your documents",
-    },
-    { title: "Subscription", icon: "💳", description: "View billing details" },
-    { title: "Settings", icon: "⚙️", description: "App preferences" },
-    { title: "Help & Support", icon: "❓", description: "Get assistance" },
-  ];
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          router.replace("/(onboarding)");
+        },
+      },
+    ]);
+  };
+
+  if (!user) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.text}>No user data available</Text>
+      </View>
+    );
+  }
+
+  const roleInfo = ROLE_DISPLAY_INFO[user.role];
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.avatarContainer}>
-          <Text style={styles.avatar}>👤</Text>
+    <View style={styles.container}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
+        <Text style={styles.title}>Profile</Text>
+
+        {/* User Info Card */}
+        <View style={styles.card}>
+          <View style={{ alignItems: "center", marginBottom: 16 }}>
+            <Text style={{ fontSize: 48, marginBottom: 8 }}>
+              {roleInfo.icon}
+            </Text>
+            <Text style={[styles.text, { fontSize: 20, fontWeight: "600" }]}>
+              {user.name}
+            </Text>
+            <Text style={[styles.text, { color: "#64748b", fontSize: 14 }]}>
+              {user.email}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              backgroundColor: roleInfo.color + "20",
+              padding: 12,
+              borderRadius: 8,
+              marginBottom: 16,
+            }}
+          >
+            <Text
+              style={[
+                styles.text,
+                { fontWeight: "600", color: roleInfo.color },
+              ]}
+            >
+              {roleInfo.title}
+            </Text>
+            <Text
+              style={[
+                styles.text,
+                { fontSize: 14, color: "#374151", marginTop: 4 },
+              ]}
+            >
+              {roleInfo.description}
+            </Text>
+          </View>
+
+          <View style={{ marginBottom: 16 }}>
+            <Text style={[styles.text, { fontWeight: "600", marginBottom: 8 }]}>
+              Account Details
+            </Text>
+            <Text
+              style={[
+                styles.text,
+                { fontSize: 14, color: "#64748b", marginBottom: 4 },
+              ]}
+            >
+              User ID: {user.id}
+            </Text>
+            <Text
+              style={[
+                styles.text,
+                { fontSize: 14, color: "#64748b", marginBottom: 4 },
+              ]}
+            >
+              Role: {user.role.replace("_", " ")}
+            </Text>
+            <Text
+              style={[
+                styles.text,
+                { fontSize: 14, color: "#64748b", marginBottom: 4 },
+              ]}
+            >
+              Status:{" "}
+              {user.isVerified ? "Verified ✅" : "Pending Verification ⏳"}
+            </Text>
+            <Text style={[styles.text, { fontSize: 14, color: "#64748b" }]}>
+              Joined: {new Date(user.createdAt).toLocaleDateString("en-IN")}
+            </Text>
+          </View>
         </View>
-        <Text style={styles.userName}>John Doe</Text>
-        <Text style={styles.userRole}>Legal Professional</Text>
-      </View>
 
-      <View style={styles.optionsContainer}>
-        {profileOptions.map((option, index) => (
-          <TouchableOpacity key={index} style={styles.optionCard}>
-            <View style={styles.optionContent}>
-              <Text style={styles.optionIcon}>{option.icon}</Text>
-              <View style={styles.optionText}>
-                <Text style={styles.optionTitle}>{option.title}</Text>
-                <Text style={styles.optionDescription}>
-                  {option.description}
-                </Text>
-              </View>
-            </View>
-            <Text style={styles.chevron}>›</Text>
+        {/* Actions */}
+        <View style={styles.card}>
+          <Text style={[styles.text, { fontWeight: "600", marginBottom: 16 }]}>
+            Account Actions
+          </Text>
+
+          <TouchableOpacity
+            style={[
+              styles.button,
+              { backgroundColor: "#64748b", marginBottom: 8 },
+            ]}
+            onPress={() =>
+              Alert.alert("Coming Soon", "This feature will be available soon")
+            }
+          >
+            <Text style={styles.buttonText}>Edit Profile</Text>
           </TouchableOpacity>
-        ))}
-      </View>
 
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={() => router.push("/")}
-      >
-        <Text style={styles.logoutText}>Sign Out</Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              { backgroundColor: "#64748b", marginBottom: 8 },
+            ]}
+            onPress={() =>
+              Alert.alert("Coming Soon", "This feature will be available soon")
+            }
+          >
+            <Text style={styles.buttonText}>Settings</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#ef4444" }]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.buttonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-    backgroundColor: "#1e40af",
-    alignItems: "center",
-  },
-  avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#ffffff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  avatar: {
-    fontSize: 40,
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#ffffff",
-    marginBottom: 4,
-  },
-  userRole: {
-    fontSize: 16,
-    color: "#dbeafe",
-  },
-  optionsContainer: {
-    padding: 20,
-  },
-  optionCard: {
-    backgroundColor: "#ffffff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  optionContent: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  optionIcon: {
-    fontSize: 24,
-    marginRight: 16,
-  },
-  optionText: {
-    flex: 1,
-  },
-  optionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 2,
-  },
-  optionDescription: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-  chevron: {
-    fontSize: 20,
-    color: "#9ca3af",
-  },
-  logoutButton: {
-    margin: 20,
-    backgroundColor: "#ef4444",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  logoutText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});

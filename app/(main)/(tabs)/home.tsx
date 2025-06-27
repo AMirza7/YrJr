@@ -1,147 +1,178 @@
 import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { useRouter } from "expo-router";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { router } from "expo-router";
+import { styles } from "@/constants/AppStyles";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { ROLE_PERMISSIONS } from "@/constants/auth";
 
-export default function HomeScreen() {
-  const router = useRouter();
-
-  const features = [
-    { title: "AI Assistant", icon: "🤖", path: "/ai-assistant" },
-    { title: "Legal Pinboard", icon: "📌", path: "/legal-pinboard" },
-    { title: "Case Timeline", icon: "📅", path: "/case-timeline" },
-    { title: "Secure Vault", icon: "🔒", path: "/secure-vault" },
-    { title: "Flashcards", icon: "📚", path: "/flashcards" },
-    { title: "Document Scanner", icon: "📷", path: "/document-scanner" },
-  ];
-
-  return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>Welcome to</Text>
-        <Text style={styles.title}>⚖️ YrJr Legal Assistant</Text>
-        <Text style={styles.subtitle}>Your complete legal companion</Text>
-      </View>
-
-      <View style={styles.quickActions}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.actionsGrid}>
-          {features.map((feature, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.actionCard}
-              onPress={() => router.push(feature.path as any)}
-            >
-              <Text style={styles.actionIcon}>{feature.icon}</Text>
-              <Text style={styles.actionTitle}>{feature.title}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.statusSection}>
-        <Text style={styles.sectionTitle}>System Status</Text>
-        <View style={styles.statusCard}>
-          <Text style={styles.statusTitle}>✅ All Systems Operational</Text>
-          <Text style={styles.statusText}>
-            • Navigation working{"\n"}• All features accessible{"\n"}• Real-time
-            updates enabled{"\n"}• Data synchronized
-          </Text>
-        </View>
-      </View>
-    </ScrollView>
-  );
+interface FeatureCard {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  route: string;
+  permission?: keyof typeof ROLE_PERMISSIONS.lawyer;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
+const FEATURES: FeatureCard[] = [
+  {
+    id: "legal_pinboard",
+    title: "Legal Pinboard",
+    description: "Pin important legal notes and updates",
+    icon: "📌",
+    route: "/(main)/legal-pinboard",
+    permission: "canUsePinboard",
   },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-    alignItems: "center",
-    backgroundColor: "#1e40af",
+  {
+    id: "case_timeline",
+    title: "Case Timeline",
+    description: "Track case progress and milestones",
+    icon: "⏰",
+    route: "/(main)/case-timeline",
+    permission: "canViewTimeline",
   },
-  welcomeText: {
-    fontSize: 16,
-    color: "#93c5fd",
-    marginBottom: 4,
+  {
+    id: "secure_vault",
+    title: "Secure Vault",
+    description: "Store confidential documents safely",
+    icon: "🔒",
+    route: "/(main)/secure-vault",
+    permission: "canAccessSecureVault",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#ffffff",
-    marginBottom: 8,
-    textAlign: "center",
+  {
+    id: "section_comparator",
+    title: "Section Comparator",
+    description: "Compare IPC vs BNS sections",
+    icon: "⚖️",
+    route: "/(main)/section-comparator",
+    permission: "canCompareSections",
   },
-  subtitle: {
-    fontSize: 16,
-    color: "#dbeafe",
-    textAlign: "center",
+  {
+    id: "flashcards",
+    title: "Legal Flashcards",
+    description: "Learn legal concepts with interactive cards",
+    icon: "🎯",
+    route: "/(main)/flashcards",
+    permission: "canUseFlashcards",
   },
-  quickActions: {
-    padding: 20,
+  {
+    id: "client_folders",
+    title: "Client Folders",
+    description: "Organize client information and cases",
+    icon: "📁",
+    route: "/(main)/client-folders",
+    permission: "canViewClientFolders",
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#374151",
-    marginBottom: 16,
-  },
-  actionsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  actionCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    width: "47%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  actionIcon: {
-    fontSize: 28,
-    marginBottom: 8,
-  },
-  actionTitle: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#374151",
-    textAlign: "center",
-  },
-  statusSection: {
-    padding: 20,
-    paddingTop: 0,
-  },
-  statusCard: {
-    backgroundColor: "#f0f9ff",
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#0ea5e9",
-  },
-  statusTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#0369a1",
-    marginBottom: 8,
-  },
-  statusText: {
-    fontSize: 14,
-    color: "#0369a1",
-    lineHeight: 20,
-  },
-});
+];
+
+export default function HomeScreen() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          router.replace("/(onboarding)");
+        },
+      },
+    ]);
+  };
+
+  const handleFeaturePress = (feature: FeatureCard) => {
+    if (feature.permission) {
+      const userPermissions = ROLE_PERMISSIONS[user?.role || "law_student"];
+      if (!userPermissions[feature.permission]) {
+        Alert.alert(
+          "Access Restricted",
+          `This feature is not available for ${user?.role?.replace("_", " ") || "your role"}.`,
+        );
+        return;
+      }
+    }
+    router.push(feature.route as any);
+  };
+
+  const getAvailableFeatures = () => {
+    if (!user) return [];
+    const userPermissions = ROLE_PERMISSIONS[user.role];
+    return FEATURES.filter((feature) => {
+      if (!feature.permission) return true;
+      return userPermissions[feature.permission];
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
+        {/* Header */}
+        <View style={[styles.card, { marginBottom: 20 }]}>
+          <Text style={styles.title}>Welcome back!</Text>
+          <Text style={styles.subtitle}>
+            {user?.name} • {user?.role?.replace("_", " ")}
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              { backgroundColor: "#ef4444", marginTop: 10 },
+            ]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.buttonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Features Grid */}
+        <Text
+          style={[
+            styles.text,
+            { fontSize: 18, fontWeight: "600", marginBottom: 16 },
+          ]}
+        >
+          Available Features
+        </Text>
+
+        {getAvailableFeatures().map((feature) => (
+          <TouchableOpacity
+            key={feature.id}
+            style={styles.card}
+            onPress={() => handleFeaturePress(feature)}
+          >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ fontSize: 24, marginRight: 16 }}>
+                {feature.icon}
+              </Text>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={[styles.text, { fontWeight: "600", fontSize: 16 }]}
+                >
+                  {feature.title}
+                </Text>
+                <Text
+                  style={[
+                    styles.text,
+                    { color: "#64748b", fontSize: 14, marginTop: 4 },
+                  ]}
+                >
+                  {feature.description}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 16, color: "#1e40af" }}>→</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+
+        {getAvailableFeatures().length === 0 && (
+          <View style={styles.card}>
+            <Text style={styles.text}>
+              No features available for your role.
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+}
