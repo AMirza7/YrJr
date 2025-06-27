@@ -1,118 +1,54 @@
-import React, { Component, ReactNode } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { LegalTheme } from "@/constants/Theme";
-import { Logger } from "@/utils/production";
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { styles } from "@/constants/AppStyles";
 
-interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: any) => void;
-}
-
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean;
-  error?: Error;
+  error: Error | null;
 }
 
-export default class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
-    Logger.error("ErrorBoundary caught an error:", error, errorInfo);
-    this.props.onError?.(error, errorInfo);
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("Error caught by boundary:", error, errorInfo);
   }
+
+  handleReset = () => {
+    this.setState({ hasError: false, error: null });
+  };
 
   render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
-      return <DefaultErrorFallback onRetry={this.handleRetry} />;
+      return (
+        <View style={styles.centerContainer}>
+          <View style={styles.card}>
+            <Text style={styles.title}>⚠️ Something went wrong</Text>
+            <Text style={styles.text}>
+              The app encountered an unexpected error. Please try restarting.
+            </Text>
+            <TouchableOpacity style={styles.button} onPress={this.handleReset}>
+              <Text style={styles.buttonText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
     }
 
     return this.props.children;
   }
-
-  private handleRetry = () => {
-    this.setState({ hasError: false, error: undefined });
-  };
-}
-
-function DefaultErrorFallback({ onRetry }: { onRetry: () => void }) {
-  const theme = LegalTheme.light; // Use light theme as fallback
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: theme.background,
-      paddingHorizontal: 32,
-    },
-    emoji: {
-      fontSize: 64,
-      marginBottom: 16,
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: "bold",
-      color: theme.text,
-      marginBottom: 8,
-      textAlign: "center",
-    },
-    message: {
-      fontSize: 16,
-      color: theme.textSecondary,
-      textAlign: "center",
-      marginBottom: 32,
-      lineHeight: 24,
-    },
-    button: {
-      backgroundColor: theme.primary,
-      paddingHorizontal: 24,
-      paddingVertical: 12,
-      borderRadius: 8,
-      marginTop: 16,
-    },
-    buttonText: {
-      color: "#FFFFFF",
-      fontSize: 16,
-      fontWeight: "600",
-    },
-  });
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.emoji}>⚠️</Text>
-      <Text style={styles.title}>Something went wrong</Text>
-      <Text style={styles.message}>
-        We encountered an unexpected error. This has been logged and will be
-        fixed in the next update.
-      </Text>
-
-      <TouchableOpacity style={styles.button} onPress={onRetry}>
-        <Text style={styles.buttonText}>Try Again</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-// Hook version for functional components
-export function useErrorHandler() {
-  const handleError = (error: Error, context?: string) => {
-    Logger.error(`Error in ${context || "component"}:`, error);
-
-    // In production, you would send this to a crash reporting service
-    // Example: Crashlytics.recordError(error);
-  };
-
-  return { handleError };
 }

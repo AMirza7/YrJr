@@ -1,225 +1,58 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  SafeAreaView,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { StatusBar } from "expo-status-bar";
-
-import { Button } from "@/components/ui/Button";
-import {
-  LegalTheme,
-  FontSizes,
-  FontWeights,
-  Spacing,
-  Layout,
-} from "@/constants/Theme";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { styles } from "@/constants/AppStyles";
+import { DEMO_ACCOUNTS } from "@/constants/auth";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export default function WelcomeScreen() {
-  const colorScheme = useColorScheme();
-  const theme = LegalTheme[colorScheme ?? "light"];
+  const { loginWithDemo } = useAuth();
 
-  const handleGetStarted = () => {
-    router.push("/(onboarding)/language-selection");
-  };
-
-  const handleLogin = () => {
-    router.push("/(onboarding)/login");
+  const handleDemoLogin = async (role: string) => {
+    const result = await loginWithDemo(role as any);
+    if (result.success) {
+      router.replace("/(main)/(tabs)/home");
+    }
   };
 
   return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: theme.background }]}
-    >
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+    <View style={styles.container}>
+      <View style={styles.centerContainer}>
+        <Text style={styles.title}>⚖️ YrJr Legal Assistant</Text>
+        <Text style={styles.subtitle}>Your AI-powered legal companion</Text>
 
-      <LinearGradient
-        colors={[theme.primary + "20", theme.secondary + "20"]}
-        style={styles.gradient}
-      >
-        <View style={styles.content}>
-          {/* Logo and App Name */}
-          <View style={styles.logoContainer}>
-            <View
-              style={[styles.logoCircle, { backgroundColor: theme.primary }]}
-            >
-              <Text style={[styles.logoText, { color: theme.textInverse }]}>
-                ⚖️
-              </Text>
-            </View>
-            <Text style={[styles.appName, { color: theme.text }]}>
-              LegalTax Assistant
-            </Text>
-            <Text style={[styles.tagline, { color: theme.textSecondary }]}>
-              Your Complete Indian Legal System Companion
-            </Text>
-          </View>
+        <View style={styles.card}>
+          <Text style={[styles.text, { fontWeight: "600", marginBottom: 16 }]}>
+            Quick Demo Access
+          </Text>
 
-          {/* Features */}
-          <View style={styles.featuresContainer}>
-            <FeatureItem
-              icon="🔍"
-              title="Smart Legal Search"
-              description="Search IPC, CrPC, BNS, BNSS & Judgments"
-              theme={theme}
-            />
-            <FeatureItem
-              icon="🎤"
-              title="Voice Assistant"
-              description="Ask questions in any Indian language"
-              theme={theme}
-            />
-            <FeatureItem
-              icon="📱"
-              title="Real-time Updates"
-              description="Latest court orders and legal updates"
-              theme={theme}
-            />
-            <FeatureItem
-              icon="💬"
-              title="Connect with Lawyers"
-              description="Chat with verified legal professionals"
-              theme={theme}
-            />
-          </View>
-
-          {/* Action Buttons */}
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Get Started"
-              onPress={handleGetStarted}
-              variant="primary"
-              size="large"
-              fullWidth
-              gradient
-              style={styles.primaryButton}
-            />
-
+          {DEMO_ACCOUNTS.map((account) => (
             <TouchableOpacity
-              style={[styles.loginButton, { borderColor: theme.primary }]}
-              onPress={handleLogin}
+              key={account.role}
+              style={[styles.button, { backgroundColor: "#6366f1" }]}
+              onPress={() => handleDemoLogin(account.role)}
             >
-              <Text style={[styles.loginButtonText, { color: theme.primary }]}>
-                Already have an account? Login
-              </Text>
+              <Text style={styles.buttonText}>{account.displayTitle} Demo</Text>
             </TouchableOpacity>
-          </View>
+          ))}
+
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#10b981" }]}
+            onPress={() => router.push("/(onboarding)/login")}
+          >
+            <Text style={styles.buttonText}>Manual Login</Text>
+          </TouchableOpacity>
         </View>
-      </LinearGradient>
-    </SafeAreaView>
+
+        <Text
+          style={[
+            styles.text,
+            { textAlign: "center", fontSize: 14, marginTop: 20 },
+          ]}
+        >
+          All demo accounts use password: demo123
+        </Text>
+      </View>
+    </View>
   );
 }
-
-interface FeatureItemProps {
-  icon: string;
-  title: string;
-  description: string;
-  theme: any;
-}
-
-const FeatureItem: React.FC<FeatureItemProps> = ({
-  icon,
-  title,
-  description,
-  theme,
-}) => (
-  <View style={styles.featureItem}>
-    <Text style={styles.featureIcon}>{icon}</Text>
-    <View style={styles.featureText}>
-      <Text style={[styles.featureTitle, { color: theme.text }]}>{title}</Text>
-      <Text style={[styles.featureDescription, { color: theme.textSecondary }]}>
-        {description}
-      </Text>
-    </View>
-  </View>
-);
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  gradient: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.xxxl,
-    paddingBottom: Layout.bottomSafeArea + Spacing.xl,
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: Spacing.xxxl,
-  },
-  logoCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: Spacing.lg,
-  },
-  logoText: {
-    fontSize: 40,
-  },
-  appName: {
-    fontSize: FontSizes.heading,
-    fontWeight: FontWeights.bold,
-    textAlign: "center",
-    marginBottom: Spacing.sm,
-  },
-  tagline: {
-    fontSize: FontSizes.md,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  featuresContainer: {
-    flex: 1,
-    paddingTop: Spacing.xl,
-  },
-  featureItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.xl,
-  },
-  featureIcon: {
-    fontSize: 32,
-    marginRight: Spacing.md,
-    width: 50,
-    textAlign: "center",
-  },
-  featureText: {
-    flex: 1,
-  },
-  featureTitle: {
-    fontSize: FontSizes.lg,
-    fontWeight: FontWeights.semibold,
-    marginBottom: Spacing.xs,
-  },
-  featureDescription: {
-    fontSize: FontSizes.sm,
-    lineHeight: 20,
-  },
-  buttonContainer: {
-    paddingTop: Spacing.lg,
-  },
-  primaryButton: {
-    marginBottom: Spacing.md,
-  },
-  loginButton: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: Spacing.sm,
-    alignItems: "center",
-  },
-  loginButtonText: {
-    fontSize: FontSizes.md,
-    fontWeight: FontWeights.medium,
-  },
-});
