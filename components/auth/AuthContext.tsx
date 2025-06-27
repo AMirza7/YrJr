@@ -57,7 +57,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
-      const isAuthenticated = await AuthService.isAuthenticated();
+      // Add a timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Auth check timeout")), 5000),
+      );
+
+      const authPromise = AuthService.isAuthenticated();
+      const isAuthenticated = (await Promise.race([
+        authPromise,
+        timeoutPromise,
+      ])) as boolean;
 
       if (!mountedRef.current) return;
 
@@ -82,6 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error("Error checking auth status:", error);
       if (mountedRef.current) {
+        // Always set loading to false to prevent infinite loading
         setAuthState({
           user: null,
           isAuthenticated: false,
