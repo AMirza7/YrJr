@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform } from "react-native";
+import { Platform, Text } from "react-native";
 
 export default function TabLayout() {
   return (
@@ -28,51 +28,42 @@ export default function TabLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <TabIcon name="🏠" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="🏠" />,
         }}
       />
       <Tabs.Screen
         name="court-orders"
         options={{
           title: "Orders",
-          tabBarIcon: ({ color }) => <TabIcon name="📋" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="📋" />,
         }}
       />
       <Tabs.Screen
         name="messages"
         options={{
           title: "Messages",
-          tabBarIcon: ({ color }) => <TabIcon name="💬" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="💬" />,
         }}
       />
       <Tabs.Screen
         name="directory"
         options={{
           title: "Lawyers",
-          tabBarIcon: ({ color }) => <TabIcon name="👥" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="👥" />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => <TabIcon name="👤" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="👤" />,
         }}
       />
     </Tabs>
   );
 }
 
-// Simple tab icon component using emojis to avoid complex icon dependencies
-function TabIcon({ name, color }: { name: string; color: string }) {
-  return (
-    <div
-      style={{
-        fontSize: 24,
-        filter: color === "#1e40af" ? "none" : "grayscale(0.5)",
-      }}
-    >
-      {name}
-    </div>
-  );
+// Simple tab icon component using emojis
+function TabIcon({ name }: { name: string }) {
+  return <Text style={{ fontSize: 24 }}>{name}</Text>;
 }
