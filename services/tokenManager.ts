@@ -311,10 +311,20 @@ export class TokenManager extends EventEmitter {
    * Setup automatic token refresh
    */
   private async setupAutoRefresh(): Promise<void> {
-    const timeUntilExpiry = await this.getTimeUntilExpiry();
+    try {
+      // Check web compatibility first
+      if (typeof window === "undefined" || !AsyncStorage) {
+        Logger.debug("Skipping auto-refresh setup on web");
+        return;
+      }
 
-    if (timeUntilExpiry > 0) {
-      this.setupRefreshTimer(timeUntilExpiry);
+      const timeUntilExpiry = await this.getTimeUntilExpiry();
+
+      if (timeUntilExpiry > 0) {
+        this.setupRefreshTimer(timeUntilExpiry);
+      }
+    } catch (error) {
+      Logger.error("Error setting up auto-refresh:", error);
     }
   }
 
