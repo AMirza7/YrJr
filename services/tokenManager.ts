@@ -176,6 +176,11 @@ export class TokenManager extends EventEmitter {
    */
   async isTokenExpired(): Promise<boolean> {
     try {
+      // Check web compatibility
+      if (typeof window === "undefined" || !AsyncStorage) {
+        return true;
+      }
+
       const expiryTime = await AsyncStorage.getItem(STORAGE_KEYS.TOKEN_EXPIRY);
       if (!expiryTime) return true;
 
