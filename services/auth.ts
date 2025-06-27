@@ -1,13 +1,10 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User, UserRole, SubscriptionPlan } from "@/types";
 import { httpClient } from "./httpClient";
+import { tokenManager } from "./tokenManager";
 import AuthApiService from "./api/authApi";
 import { Logger } from "@/utils/production";
 
 export class AuthService {
-  private static readonly USER_KEY = "user_data";
-  private static readonly AUTH_TOKEN_KEY = "auth_token";
-
   static async setUser(user: User): Promise<void> {
     try {
       await AsyncStorage.setItem(this.USER_KEY, JSON.stringify(user));
