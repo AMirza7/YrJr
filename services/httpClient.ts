@@ -35,14 +35,13 @@ export interface ApiError {
 // HTTP Client class
 class HttpClient {
   private axiosInstance: AxiosInstance;
-  private tokenManager: TokenManager;
   private isRefreshing = false;
   private refreshSubscribers: Array<(token: string) => void> = [];
 
   constructor() {
-    this.tokenManager = TokenManager.getInstance();
     this.axiosInstance = this.createAxiosInstance();
     this.setupInterceptors();
+    this.setupTokenManagerEvents();
   }
 
   private createAxiosInstance(): AxiosInstance {
