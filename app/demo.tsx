@@ -146,9 +146,11 @@ export default function DemoScreen() {
         style={styles.button}
         onPress={() => {
           try {
-            router.push("/(onboarding)");
+            router.replace("/(onboarding)");
           } catch (error) {
             console.log("Navigation error:", error);
+            // Fallback navigation
+            router.push("/(onboarding)/");
           }
         }}
       >
