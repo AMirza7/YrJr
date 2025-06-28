@@ -506,6 +506,72 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  planButtonDisabled: {
+    opacity: 0.6,
+  },
+  discountBadge: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    backgroundColor: "#ef4444",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  discountText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+  originalPrice: {
+    fontSize: 14,
+    color: "#9ca3af",
+    textDecorationLine: "line-through",
+    marginTop: 4,
+  },
+  historyContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  historyItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f3f4f6",
+  },
+  historyInfo: {
+    flex: 1,
+  },
+  historyPlan: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#111827",
+    marginBottom: 2,
+  },
+  historyDate: {
+    fontSize: 12,
+    color: "#6b7280",
+  },
+  historyAmount: {
+    alignItems: "flex-end",
+  },
+  historyPrice: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 2,
+  },
+  historyStatus: {
+    fontSize: 10,
+    fontWeight: "600",
+  },
   billingInfo: {
     backgroundColor: "#fff",
     borderRadius: 12,
