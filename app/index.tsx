@@ -93,9 +93,63 @@ export default function Index() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            © 2024 YRJR Legal Assistant. All rights reserved.
-          </Text>
+          <View style={styles.footerContent}>
+            <View style={styles.footerBrand}>
+              <Text style={styles.footerLogo}>⚖️</Text>
+              <Text style={styles.footerBrandName}>YRJR Legal Assistant</Text>
+              <Text style={styles.footerTagline}>
+                Your Intelligent Legal Companion
+              </Text>
+            </View>
+
+            <View style={styles.footerLinks}>
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerColumnTitle}>Product</Text>
+                <TouchableOpacity onPress={() => console.log("Features")}>
+                  <Text style={styles.footerLink}>Features</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => console.log("Pricing")}>
+                  <Text style={styles.footerLink}>Pricing</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleDemoAccess}>
+                  <Text style={styles.footerLink}>Demo</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerColumnTitle}>Legal</Text>
+                <TouchableOpacity onPress={() => console.log("Privacy Policy")}>
+                  <Text style={styles.footerLink}>Privacy Policy</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => console.log("Terms of Service")}
+                >
+                  <Text style={styles.footerLink}>Terms of Service</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => console.log("Support")}>
+                  <Text style={styles.footerLink}>Support</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerColumnTitle}>Contact</Text>
+                <Text style={styles.footerContact}>support@yrjr.app</Text>
+                <Text style={styles.footerContact}>+91-1234567890</Text>
+                <Text style={styles.footerContact}>
+                  Legal Tech Hub, Mumbai, India
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.footerBottom}>
+            <Text style={styles.footerCopyright}>
+              © 2024 YRJR Legal Assistant. All rights reserved.
+            </Text>
+            <Text style={styles.footerBuilt}>
+              Built for the Indian Legal System
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </View>
