@@ -6,78 +6,27 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { User } from "@/types";
 import BackButton from "@/components/navigation/BackButton";
+import {
+  paymentService,
+  PaymentPlan,
+  PaymentHistory,
+} from "@/services/payment";
 
-const SUBSCRIPTION_PLANS = [
-  {
-    id: "free",
-    name: "Free",
-    price: "₹0",
-    period: "forever",
-    features: [
-      "Basic legal templates",
-      "5 document downloads/month",
-      "Basic search functionality",
-      "Email support",
-      "Access to flashcards",
-    ],
-    limitations: [
-      "No AI comparator",
-      "No document scanner",
-      "No voice assistant",
-      "No biometric security",
-    ],
-    color: "#6b7280",
-    recommended: false,
-  },
-  {
-    id: "pro",
-    name: "Professional",
-    price: "₹999",
-    period: "month",
-    features: [
-      "All free features",
-      "Unlimited downloads",
-      "AI section comparator",
-      "Advanced search with voice",
-      "Document scanner with OCR",
-      "Priority email support",
-      "Calendar integration",
-      "Advanced templates",
-    ],
-    limitations: ["No video consultations", "No custom templates"],
-    color: "#3b82f6",
-    recommended: true,
-  },
-  {
-    id: "premium",
-    name: "Premium",
-    price: "₹1999",
-    period: "month",
-    features: [
-      "All professional features",
-      "Video consultations",
-      "Custom template creation",
-      "API access",
-      "White-label options",
-      "24/7 phone support",
-      "Advanced analytics",
-      "Multi-user accounts",
-    ],
-    limitations: [],
-    color: "#7c3aed",
-    recommended: false,
-  },
-];
+// Plans will be loaded from payment service
 
 export default function SubscriptionScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [plans, setPlans] = useState<PaymentPlan[]>([]);
+  const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string>("pro");
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     loadUser();
@@ -92,6 +41,15 @@ export default function SubscriptionScreen() {
       }
       setUser(currentUser);
       setSelectedPlan(currentUser.subscriptionTier);
+
+      // Load payment plans and history
+      const availablePlans = paymentService.getAvailablePlans();
+      const history = await paymentService.getPaymentHistory(
+        currentUser.id || "demo",
+      );
+
+      setPlans(availablePlans);
+      setPaymentHistory(history);
     } catch (error) {
       router.replace("/login");
     } finally {
@@ -102,73 +60,134 @@ export default function SubscriptionScreen() {
   const handleUpgrade = async (planId: string) => {
     if (!user) return;
 
+    const plan = plans.find((p) => p.id === planId);
+    if (!plan) return;
+
     if (planId === user.subscriptionTier) {
       Alert.alert("Already Subscribed", "You already have this plan active.");
       return;
     }
 
+    if (plan.price === 0) {
+      // Free plan - direct upgrade
+      const updatedUser = { ...user, subscriptionTier: planId as any };
+      const success = await authService.updateUser(updatedUser);
+
+      if (success) {
+        setUser(updatedUser);
+        Alert.alert("Success!", "Your plan has been updated successfully.");
+      }
+      return;
+    }
+
+    // Paid plan - initiate payment
     Alert.alert(
       "Upgrade Subscription",
-      `Upgrade to ${SUBSCRIPTION_PLANS.find((p) => p.id === planId)?.name} plan?`,
+      `Upgrade to ${plan.name} plan for ${paymentService.formatCurrency(plan.price)}?`,
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Upgrade",
-          onPress: async () => {
-            // Simulate upgrade process
-            const updatedUser = { ...user, subscriptionTier: planId as any };
-            const success = await authService.updateUser(updatedUser);
-
-            if (success) {
-              setUser(updatedUser);
-              Alert.alert(
-                "Success!",
-                "Your subscription has been upgraded successfully.",
-              );
-            } else {
-              Alert.alert("Error", "Failed to upgrade subscription.");
-            }
-          },
+          text: "Continue to Payment",
+          onPress: () => handlePayment(plan),
         },
       ],
     );
   };
 
-  const PlanCard = ({ plan }: { plan: (typeof SUBSCRIPTION_PLANS)[0] }) => {
+  const handlePayment = async (plan: PaymentPlan) => {
+    if (!user) return;
+
+    setProcessing(true);
+
+    try {
+      // Demo payment flow
+      const success = await paymentService.simulatePaymentFlow(plan);
+
+      if (success) {
+        // Update user subscription
+        const updatedUser = { ...user, subscriptionTier: plan.id as any };
+        const updateSuccess = await authService.updateUser(updatedUser);
+
+        if (updateSuccess) {
+          setUser(updatedUser);
+
+          // Reload payment history
+          const history = await paymentService.getPaymentHistory(
+            user.id || "demo",
+          );
+          setPaymentHistory(history);
+        }
+      }
+    } catch (error) {
+      Alert.alert(
+        "Payment Error",
+        "Failed to process payment. Please try again.",
+      );
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const PlanCard = ({ plan }: { plan: PaymentPlan }) => {
     const isCurrentPlan = user?.subscriptionTier === plan.id;
-    const isSelected = selectedPlan === plan.id;
+    const planColor = plan.popular
+      ? "#3b82f6"
+      : plan.price === 0
+        ? "#6b7280"
+        : "#7c3aed";
 
     return (
       <View
         style={[
           styles.planCard,
-          { borderColor: plan.color },
+          { borderColor: planColor },
           isCurrentPlan && styles.currentPlan,
-          plan.recommended && styles.recommendedPlan,
+          plan.popular && styles.recommendedPlan,
         ]}
       >
-        {plan.recommended && (
+        {plan.popular && (
           <View
-            style={[styles.recommendedBadge, { backgroundColor: plan.color }]}
+            style={[styles.recommendedBadge, { backgroundColor: planColor }]}
           >
-            <Text style={styles.recommendedText}>RECOMMENDED</Text>
+            <Text style={styles.recommendedText}>MOST POPULAR</Text>
+          </View>
+        )}
+
+        {plan.discountPercentage && (
+          <View style={styles.discountBadge}>
+            <Text style={styles.discountText}>
+              Save {plan.discountPercentage}%
+            </Text>
           </View>
         )}
 
         <View style={styles.planHeader}>
-          <Text style={[styles.planName, { color: plan.color }]}>
+          <Text style={[styles.planName, { color: planColor }]}>
             {plan.name}
           </Text>
           <View style={styles.priceContainer}>
-            <Text style={[styles.planPrice, { color: plan.color }]}>
-              {plan.price}
+            <Text style={[styles.planPrice, { color: planColor }]}>
+              {paymentService.formatCurrency(plan.price)}
             </Text>
-            <Text style={styles.planPeriod}>/{plan.period}</Text>
+            <Text style={styles.planPeriod}>/{plan.duration}</Text>
           </View>
+
+          {plan.discountPercentage && (
+            <Text style={styles.originalPrice}>
+              Was:{" "}
+              {paymentService.formatCurrency(
+                plan.price +
+                  paymentService.calculateDiscount(
+                    plan.price,
+                    plan.discountPercentage,
+                  ),
+              )}
+            </Text>
+          )}
         </View>
 
         <View style={styles.featuresSection}>
-          <Text style={styles.featuresTitle}>✅ Included Features:</Text>
+          <Text style={styles.featuresTitle}>✅ Features:</Text>
           {plan.features.map((feature, index) => (
             <Text key={index} style={styles.featureText}>
               • {feature}
@@ -176,29 +195,27 @@ export default function SubscriptionScreen() {
           ))}
         </View>
 
-        {plan.limitations.length > 0 && (
-          <View style={styles.limitationsSection}>
-            <Text style={styles.limitationsTitle}>❌ Limitations:</Text>
-            {plan.limitations.map((limitation, index) => (
-              <Text key={index} style={styles.limitationText}>
-                • {limitation}
-              </Text>
-            ))}
-          </View>
-        )}
-
         <TouchableOpacity
           style={[
             styles.planButton,
-            { backgroundColor: isCurrentPlan ? "#6b7280" : plan.color },
+            { backgroundColor: isCurrentPlan ? "#6b7280" : planColor },
             isCurrentPlan && styles.currentPlanButton,
+            processing && styles.planButtonDisabled,
           ]}
           onPress={() => handleUpgrade(plan.id)}
-          disabled={isCurrentPlan}
+          disabled={isCurrentPlan || processing}
         >
-          <Text style={styles.planButtonText}>
-            {isCurrentPlan ? "Current Plan" : `Upgrade to ${plan.name}`}
-          </Text>
+          {processing ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.planButtonText}>
+              {isCurrentPlan
+                ? "Current Plan"
+                : plan.price === 0
+                  ? "Select Free"
+                  : `Upgrade - ${paymentService.formatCurrency(plan.price)}`}
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
     );
@@ -227,20 +244,61 @@ export default function SubscriptionScreen() {
         <View style={styles.currentPlanInfo}>
           <Text style={styles.currentPlanTitle}>Current Plan</Text>
           <Text style={styles.currentPlanName}>
-            {SUBSCRIPTION_PLANS.find((p) => p.id === user?.subscriptionTier)
-              ?.name || "Free"}
+            {plans.find((p) => p.id === user?.subscriptionTier)?.name ||
+              "Basic"}
           </Text>
           <Text style={styles.currentPlanStatus}>
-            {user?.subscriptionTier === "free"
+            {user?.subscriptionTier === "basic" ||
+            plans.find((p) => p.id === user?.subscriptionTier)?.price === 0
               ? "No billing - Free forever"
-              : "Next billing: January 15, 2025"}
+              : "Next billing: February 15, 2025"}
           </Text>
         </View>
+
+        {/* Payment History */}
+        {paymentHistory.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>💳 Payment History</Text>
+            <View style={styles.historyContainer}>
+              {paymentHistory.slice(0, 3).map((payment) => (
+                <View key={payment.id} style={styles.historyItem}>
+                  <View style={styles.historyInfo}>
+                    <Text style={styles.historyPlan}>
+                      {plans.find((p) => p.id === payment.planId)?.name ||
+                        payment.planId}
+                    </Text>
+                    <Text style={styles.historyDate}>
+                      {payment.date.toLocaleDateString("en-IN")}
+                    </Text>
+                  </View>
+                  <View style={styles.historyAmount}>
+                    <Text style={styles.historyPrice}>
+                      {paymentService.formatCurrency(payment.amount)}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.historyStatus,
+                        {
+                          color:
+                            payment.status === "success"
+                              ? "#059669"
+                              : "#ef4444",
+                        },
+                      ]}
+                    >
+                      {payment.status.toUpperCase()}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
 
         {/* Plans */}
         <View style={styles.plansSection}>
           <Text style={styles.sectionTitle}>Available Plans</Text>
-          {SUBSCRIPTION_PLANS.map((plan) => (
+          {plans.map((plan) => (
             <PlanCard key={plan.id} plan={plan} />
           ))}
         </View>
