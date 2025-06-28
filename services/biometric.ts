@@ -51,10 +51,17 @@ class BiometricService {
 
   async isBiometricEnabled(): Promise<boolean> {
     try {
-      const enabled = await SecureStore.getItemAsync(
-        this.BIOMETRIC_ENABLED_KEY,
-      );
-      return enabled === "true";
+      // Check if we're in web environment where SecureStore is not available
+      if (typeof window !== "undefined") {
+        // Use localStorage for web
+        const enabled = localStorage.getItem(this.BIOMETRIC_ENABLED_KEY);
+        return enabled === "true";
+      } else {
+        const enabled = await SecureStore.getItemAsync(
+          this.BIOMETRIC_ENABLED_KEY,
+        );
+        return enabled === "true";
+      }
     } catch (error) {
       console.error("Error checking biometric enabled status:", error);
       return false;
@@ -82,11 +89,17 @@ class BiometricService {
       });
 
       if (authResult.success) {
-        await SecureStore.setItemAsync(this.BIOMETRIC_ENABLED_KEY, "true");
-
-        // Store PIN as fallback if provided
-        if (pin) {
-          await SecureStore.setItemAsync(this.BIOMETRIC_PIN_KEY, pin);
+        // Check if we're in web environment
+        if (typeof window !== "undefined") {
+          localStorage.setItem(this.BIOMETRIC_ENABLED_KEY, "true");
+          if (pin) {
+            localStorage.setItem(this.BIOMETRIC_PIN_KEY, pin);
+          }
+        } else {
+          await SecureStore.setItemAsync(this.BIOMETRIC_ENABLED_KEY, "true");
+          if (pin) {
+            await SecureStore.setItemAsync(this.BIOMETRIC_PIN_KEY, pin);
+          }
         }
 
         return {
@@ -110,8 +123,13 @@ class BiometricService {
 
   async disableBiometric(): Promise<boolean> {
     try {
-      await SecureStore.deleteItemAsync(this.BIOMETRIC_ENABLED_KEY);
-      await SecureStore.deleteItemAsync(this.BIOMETRIC_PIN_KEY);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(this.BIOMETRIC_ENABLED_KEY);
+        localStorage.removeItem(this.BIOMETRIC_PIN_KEY);
+      } else {
+        await SecureStore.deleteItemAsync(this.BIOMETRIC_ENABLED_KEY);
+        await SecureStore.deleteItemAsync(this.BIOMETRIC_PIN_KEY);
+      }
       return true;
     } catch (error) {
       console.error("Error disabling biometric:", error);
@@ -170,7 +188,13 @@ class BiometricService {
 
   private async authenticateWithPIN(): Promise<BiometricAuthResult> {
     try {
-      const storedPin = await SecureStore.getItemAsync(this.BIOMETRIC_PIN_KEY);
+      let storedPin: string | null = null;
+
+      if (typeof window !== "undefined") {
+        storedPin = localStorage.getItem(this.BIOMETRIC_PIN_KEY);
+      } else {
+        storedPin = await SecureStore.getItemAsync(this.BIOMETRIC_PIN_KEY);
+      }
 
       if (!storedPin) {
         return { success: false, error: "No PIN fallback available" };
@@ -190,7 +214,11 @@ class BiometricService {
 
   async setBiometricPin(pin: string): Promise<boolean> {
     try {
-      await SecureStore.setItemAsync(this.BIOMETRIC_PIN_KEY, pin);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(this.BIOMETRIC_PIN_KEY, pin);
+      } else {
+        await SecureStore.setItemAsync(this.BIOMETRIC_PIN_KEY, pin);
+      }
       return true;
     } catch (error) {
       console.error("Error setting biometric PIN:", error);
@@ -200,7 +228,14 @@ class BiometricService {
 
   async validatePin(inputPin: string): Promise<boolean> {
     try {
-      const storedPin = await SecureStore.getItemAsync(this.BIOMETRIC_PIN_KEY);
+      let storedPin: string | null = null;
+
+      if (typeof window !== "undefined") {
+        storedPin = localStorage.getItem(this.BIOMETRIC_PIN_KEY);
+      } else {
+        storedPin = await SecureStore.getItemAsync(this.BIOMETRIC_PIN_KEY);
+      }
+
       return storedPin === inputPin;
     } catch (error) {
       console.error("Error validating PIN:", error);
