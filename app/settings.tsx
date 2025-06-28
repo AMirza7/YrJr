@@ -191,7 +191,15 @@ export default function SettingsScreen() {
   const handleSecurityToggle = (key: string, value: boolean) => {
     const newPreferences = {
       ...preferences,
-      security: { ...preferences.security, [key]: value },
+      security: {
+        ...(preferences.security || {
+          biometricEnabled: false,
+          twoFactorEnabled: false,
+          autoLockEnabled: true,
+          autoLockMinutes: 5,
+        }),
+        [key]: value,
+      },
     };
     updatePreferences(newPreferences);
   };
