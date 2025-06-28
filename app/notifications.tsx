@@ -198,7 +198,7 @@ export default function NotificationCenter() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.categoryFilters}>
             {categories.map((category) =>
-              renderCategoryFilter({ item: category }),
+              renderCategoryFilter({ item: category, key: category.value }),
             )}
           </View>
         </ScrollView>
