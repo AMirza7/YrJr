@@ -209,9 +209,15 @@ export default function SignupScreen() {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.back()}
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.replace("/landing");
+              }
+            }}
           >
-            <Text style={styles.backButtonText}>← Back</Text>
+            <Text style={styles.backButtonText}>← {t("back")}</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Join the legal community</Text>
