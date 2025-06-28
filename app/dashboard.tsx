@@ -16,13 +16,15 @@ export default function DashboardScreen() {
     try {
       const userData = await storage.getUser();
       if (!userData) {
-        router.replace("/");
+        // Use setTimeout to avoid navigation during render
+        setTimeout(() => router.replace("/"), 0);
         return;
       }
       setUser(userData);
     } catch (error) {
       console.error("Error loading user:", error);
-      router.replace("/");
+      // Use setTimeout to avoid navigation during render
+      setTimeout(() => router.replace("/"), 0);
     } finally {
       setLoading(false);
     }
