@@ -238,39 +238,38 @@ export default function LandingScreen() {
           </ScrollView>
         </View>
 
-        {/* Pricing Teaser */}
-        <View style={styles.pricingSection}>
-          <Text style={styles.sectionTitle}>Simple, Transparent Pricing</Text>
-          <View style={styles.pricingCards}>
-            <View style={styles.pricingCard}>
-              <Text style={styles.planName}>Free</Text>
-              <Text style={styles.planPrice}>₹0/month</Text>
-              <Text style={styles.planDescription}>
-                Perfect for law students and beginners
+        {/* Benefits Section */}
+        <View style={styles.benefitsSection}>
+          <Text style={styles.sectionTitle}>Why Choose YRJR?</Text>
+          <View style={styles.benefitsGrid}>
+            <View style={styles.benefitItem}>
+              <Text style={styles.benefitIcon}>🚀</Text>
+              <Text style={styles.benefitTitle}>Fast & Efficient</Text>
+              <Text style={styles.benefitDescription}>
+                Save hours with AI-powered legal research and document
+                processing
               </Text>
-              <View style={styles.planFeatures}>
-                <Text style={styles.planFeature}>✅ Basic templates</Text>
-                <Text style={styles.planFeature}>✅ 5 document scans</Text>
-                <Text style={styles.planFeature}>✅ Basic search</Text>
-              </View>
             </View>
-
-            <View style={[styles.pricingCard, styles.popularCard]}>
-              <View style={styles.popularBadge}>
-                <Text style={styles.popularText}>Most Popular</Text>
-              </View>
-              <Text style={styles.planName}>Professional</Text>
-              <Text style={styles.planPrice}>₹999/month</Text>
-              <Text style={styles.planDescription}>
-                For practicing lawyers and firms
+            <View style={styles.benefitItem}>
+              <Text style={styles.benefitIcon}>🔒</Text>
+              <Text style={styles.benefitTitle}>Secure & Private</Text>
+              <Text style={styles.benefitDescription}>
+                Bank-level encryption ensures your legal data stays confidential
               </Text>
-              <View style={styles.planFeatures}>
-                <Text style={styles.planFeature}>✅ All free features</Text>
-                <Text style={styles.planFeature}>✅ Unlimited scans</Text>
-                <Text style={styles.planFeature}>✅ AI comparator</Text>
-                <Text style={styles.planFeature}>✅ Voice search</Text>
-                <Text style={styles.planFeature}>✅ Biometric security</Text>
-              </View>
+            </View>
+            <View style={styles.benefitItem}>
+              <Text style={styles.benefitIcon}>⚖️</Text>
+              <Text style={styles.benefitTitle}>Legal Accuracy</Text>
+              <Text style={styles.benefitDescription}>
+                Built by legal experts with latest Indian law updates
+              </Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <Text style={styles.benefitIcon}>📱</Text>
+              <Text style={styles.benefitTitle}>Mobile First</Text>
+              <Text style={styles.benefitDescription}>
+                Access your legal tools anywhere, anytime on any device
+              </Text>
             </View>
           </View>
         </View>
