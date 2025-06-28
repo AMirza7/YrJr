@@ -11,10 +11,14 @@ import { router } from "expo-router";
 import { storage } from "@/services/storage";
 import { User } from "@/types";
 import { getRoleColor, getRolePermissions } from "@/constants/tabs";
+import FloatingActionButton from "@/components/ui/FloatingActionButton";
+import { dataService } from "@/services/dataService";
 
 export default function HomeScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userStats, setUserStats] = useState<any>(null);
+  const [recentNotifications, setRecentNotifications] = useState<any[]>([]);
 
   useEffect(() => {
     loadUser();
@@ -28,6 +32,12 @@ export default function HomeScreen() {
         return;
       }
       setUser(userData);
+
+      // Load user stats and notifications
+      const stats = await dataService.getUserStats();
+      const notifications = await dataService.getNotifications();
+      setUserStats(stats);
+      setRecentNotifications(notifications.slice(0, 3));
     } catch (error) {
       console.error("Error loading user:", error);
       router.replace("/login");
@@ -70,21 +80,57 @@ export default function HomeScreen() {
       title: "Legal Pinboard",
       icon: "📌",
       available: permissions.canAccessPinboard,
-      tab: "pinboard",
+      route: "/(tabs)/pinboard",
     },
     {
       title: "Case Timeline",
       icon: "⏱️",
       available: permissions.canAccessCaseTimeline,
-      tab: "timeline",
+      route: "/(tabs)/timeline",
     },
     {
       title: "Secure Notes",
       icon: "🔐",
       available: permissions.canAccessSecureNotes,
-      tab: "notes",
+      route: "/(tabs)/notes",
     },
-    { title: "Search Legal", icon: "🔍", available: true, tab: "search" },
+    {
+      title: "Search Legal",
+      icon: "🔍",
+      available: true,
+      route: "/(tabs)/search",
+    },
+  ];
+
+  const advancedFeatures = [
+    {
+      title: "AI Comparator",
+      icon: "⚖️",
+      available: permissions.canAccessAIComparator,
+      route: "/ai-comparator",
+      description: "Compare IPC vs BNS",
+    },
+    {
+      title: "Templates Hub",
+      icon: "📋",
+      available: permissions.canAccessTemplates,
+      route: "/templates",
+      description: "Legal document templates",
+    },
+    {
+      title: "Flashcards",
+      icon: "🧠",
+      available: permissions.canAccessFlashcards,
+      route: "/flashcards",
+      description: "Study legal concepts",
+    },
+    {
+      title: "Notifications",
+      icon: "🔔",
+      available: permissions.canAccessNotifications,
+      route: "/notifications",
+      description: "Recent updates",
+    },
   ];
 
   return (
@@ -112,7 +158,7 @@ export default function HomeScreen() {
                 { opacity: action.available ? 1 : 0.5 },
               ]}
               onPress={() =>
-                action.available && router.push(`/(tabs)/${action.tab}`)
+                action.available && router.push(action.route as any)
               }
               disabled={!action.available}
             >
@@ -126,17 +172,89 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Features Status */}
+      {/* User Stats */}
+      {userStats && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Your Overview</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{userStats.activeCases}</Text>
+              <Text style={styles.statLabel}>Active Cases</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>
+                {userStats.upcomingHearings}
+              </Text>
+              <Text style={styles.statLabel}>Hearings</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{userStats.notesCreated}</Text>
+              <Text style={styles.statLabel}>Notes</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{userStats.flashcardScore}%</Text>
+              <Text style={styles.statLabel}>Study Score</Text>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {/* Advanced Features */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Available Features</Text>
-        <View style={styles.featuresCard}>
-          <Text style={styles.featuresText}>
-            ✅ Role-based navigation{"\n"}✅ Tab-based interface{"\n"}✅
-            Authentication system{"\n"}✅ Demo accounts{"\n"}
-            🔄 Advanced features in progress...
-          </Text>
+        <Text style={styles.sectionTitle}>Advanced Features</Text>
+        <View style={styles.featuresGrid}>
+          {advancedFeatures.map((feature, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.featureCard,
+                { opacity: feature.available ? 1 : 0.5 },
+              ]}
+              onPress={() =>
+                feature.available && router.push(feature.route as any)
+              }
+              disabled={!feature.available}
+            >
+              <Text style={styles.featureIcon}>{feature.icon}</Text>
+              <Text style={styles.featureTitle}>{feature.title}</Text>
+              <Text style={styles.featureDescription}>
+                {feature.description}
+              </Text>
+              {!feature.available && (
+                <Text style={styles.unavailableText}>Not available</Text>
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
+
+      {/* Recent Notifications */}
+      {recentNotifications.length > 0 && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Updates</Text>
+            <TouchableOpacity onPress={() => router.push("/notifications")}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          {recentNotifications.map((notification, index) => (
+            <View key={index} style={styles.notificationItem}>
+              <Text style={styles.notificationIcon}>🔔</Text>
+              <View style={styles.notificationContent}>
+                <Text style={styles.notificationTitle}>
+                  {notification.title}
+                </Text>
+                <Text style={styles.notificationMessage} numberOfLines={1}>
+                  {notification.message}
+                </Text>
+              </View>
+              <Text style={styles.notificationTime}>
+                {new Date(notification.createdAt).toLocaleDateString("en-IN")}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
 
       {/* User Actions */}
       <View style={styles.section}>
@@ -151,6 +269,9 @@ export default function HomeScreen() {
           <Text style={styles.logoutText}>🚪 Logout</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Floating Action Button */}
+      <FloatingActionButton userRole={user.role} />
     </ScrollView>
   );
 }
