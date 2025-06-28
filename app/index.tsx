@@ -1,5 +1,14 @@
-// Use platform-optimized entry point
-export { default } from "./index.platform";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  Animated,
+} from "react-native";
+import { router } from "expo-router";
 
 export default function Index() {
   const [fadeAnim] = useState(new Animated.Value(0));
