@@ -28,6 +28,9 @@ import { useLocalization } from "@/contexts/LocalizationContext";
 import TermsCheckbox from "@/components/auth/TermsCheckbox";
 
 export default function SignupScreen() {
+  const { theme } = useTheme();
+  const { t } = useLocalization();
+
   const [formData, setFormData] = useState<SignupData>({
     name: "",
     email: "",
@@ -46,6 +49,8 @@ export default function SignupScreen() {
   const [selectedSpecializations, setSelectedSpecializations] = useState<
     string[]
   >([]);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState(false);
 
   const roles: { value: UserRole; label: string; description: string }[] = [
     {
