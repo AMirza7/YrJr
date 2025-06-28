@@ -28,7 +28,8 @@ export default function HomeScreen() {
     try {
       const userData = await storage.getUser();
       if (!userData) {
-        router.replace("/login");
+        // Use setTimeout to avoid navigation during render
+        setTimeout(() => router.replace("/login"), 0);
         return;
       }
       setUser(userData);
@@ -40,7 +41,8 @@ export default function HomeScreen() {
       setRecentNotifications(notifications.slice(0, 3));
     } catch (error) {
       console.error("Error loading user:", error);
-      router.replace("/login");
+      // Use setTimeout to avoid navigation during render
+      setTimeout(() => router.replace("/login"), 0);
     } finally {
       setLoading(false);
     }
