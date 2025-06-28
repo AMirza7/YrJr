@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -6,89 +6,12 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
-  Animated,
 } from "react-native";
 import { router } from "expo-router";
-import { storage } from "@/services/storage";
 
 const { width } = Dimensions.get("window");
 
 export default function LandingScreen() {
-  const [currentFeature, setCurrentFeature] = useState(0);
-  const scrollRef = useRef<ScrollView>(null);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  React.useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  const features = [
-    {
-      icon: "📌",
-      title: "Legal Pinboard",
-      description: "Organize and track all your legal research in one place",
-      color: "#1e40af",
-    },
-    {
-      icon: "🔐",
-      title: "Secure Notes Vault",
-      description: "Encrypted storage for sensitive legal documents",
-      color: "#059669",
-    },
-    {
-      icon: "⚖️",
-      title: "AI Section Comparator",
-      description: "Compare legal sections and find similarities instantly",
-      color: "#dc2626",
-    },
-    {
-      icon: "📱",
-      title: "Document Scanner",
-      description: "OCR scanning with legal document recognition",
-      color: "#7c3aed",
-    },
-    {
-      icon: "🎤",
-      title: "Voice Assistant",
-      description: "Search legal information using natural voice commands",
-      color: "#ea580c",
-    },
-    {
-      icon: "📚",
-      title: "Smart Flashcards",
-      description: "AI-powered learning system for legal concepts",
-      color: "#0891b2",
-    },
-  ];
-
-  const testimonials = [
-    {
-      name: "Advocate Priya Sharma",
-      role: "Senior Lawyer, Delhi High Court",
-      comment:
-        "This app has revolutionized how I manage my practice. The AI comparator saves hours of research time.",
-      rating: 5,
-    },
-    {
-      name: "Rahul Kumar",
-      role: "Junior Lawyer, Mumbai",
-      comment:
-        "Perfect for new lawyers like me. The flashcards helped me prepare for court arguments.",
-      rating: 5,
-    },
-    {
-      name: "Dr. Anita Desai",
-      role: "Law Professor, Delhi University",
-      comment:
-        "I recommend this to all my students. The document scanner is incredibly accurate.",
-      rating: 5,
-    },
-  ];
-
   const handleGetStarted = () => {
     router.push("/signup");
   };
@@ -97,25 +20,14 @@ export default function LandingScreen() {
     router.push("/login");
   };
 
-  const handleDemoAccess = async () => {
-    // Create a demo user session
-    const demoUser = {
-      id: "demo_user",
-      name: "Demo User",
-      email: "demo@yrjr.com",
-      role: "law_student",
-      isVerified: true,
-      subscriptionTier: "pro",
-    };
-
-    await storage.setUser(demoUser);
-    await storage.setToken("demo_token");
+  const handleDemoAccess = () => {
+    // Skip all storage operations for now - just navigate
     router.replace("/(tabs)");
   };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+      <View style={styles.content}>
         {/* Hero Section */}
         <View style={styles.hero}>
           <View style={styles.logoContainer}>
@@ -167,22 +79,34 @@ export default function LandingScreen() {
           </Text>
 
           <View style={styles.featuresGrid}>
-            {features.map((feature, index) => (
-              <View key={index} style={styles.featureCard}>
-                <View
-                  style={[
-                    styles.featureIcon,
-                    { backgroundColor: feature.color + "15" },
-                  ]}
-                >
-                  <Text style={styles.featureIconText}>{feature.icon}</Text>
-                </View>
-                <Text style={styles.featureTitle}>{feature.title}</Text>
-                <Text style={styles.featureDescription}>
-                  {feature.description}
-                </Text>
-              </View>
-            ))}
+            <View style={styles.featureCard}>
+              <Text style={styles.featureIcon}>📌</Text>
+              <Text style={styles.featureTitle}>Legal Pinboard</Text>
+              <Text style={styles.featureDescription}>
+                Organize and track all your legal research in one place
+              </Text>
+            </View>
+            <View style={styles.featureCard}>
+              <Text style={styles.featureIcon}>🔐</Text>
+              <Text style={styles.featureTitle}>Secure Notes Vault</Text>
+              <Text style={styles.featureDescription}>
+                Encrypted storage for sensitive legal documents
+              </Text>
+            </View>
+            <View style={styles.featureCard}>
+              <Text style={styles.featureIcon}>⚖️</Text>
+              <Text style={styles.featureTitle}>AI Section Comparator</Text>
+              <Text style={styles.featureDescription}>
+                Compare legal sections and find similarities instantly
+              </Text>
+            </View>
+            <View style={styles.featureCard}>
+              <Text style={styles.featureIcon}>📱</Text>
+              <Text style={styles.featureTitle}>Document Scanner</Text>
+              <Text style={styles.featureDescription}>
+                OCR scanning with legal document recognition
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -209,71 +133,6 @@ export default function LandingScreen() {
           </View>
         </View>
 
-        {/* Testimonials */}
-        <View style={styles.testimonialsSection}>
-          <Text style={styles.sectionTitle}>What Legal Professionals Say</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.testimonialsContainer}
-          >
-            {testimonials.map((testimonial, index) => (
-              <View key={index} style={styles.testimonialCard}>
-                <View style={styles.ratingContainer}>
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Text key={i} style={styles.star}>
-                      ⭐
-                    </Text>
-                  ))}
-                </View>
-                <Text style={styles.testimonialText}>
-                  "{testimonial.comment}"
-                </Text>
-                <View style={styles.testimonialAuthor}>
-                  <Text style={styles.authorName}>{testimonial.name}</Text>
-                  <Text style={styles.authorRole}>{testimonial.role}</Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Benefits Section */}
-        <View style={styles.benefitsSection}>
-          <Text style={styles.sectionTitle}>Why Choose YRJR?</Text>
-          <View style={styles.benefitsGrid}>
-            <View style={styles.benefitItem}>
-              <Text style={styles.benefitIcon}>🚀</Text>
-              <Text style={styles.benefitTitle}>Fast & Efficient</Text>
-              <Text style={styles.benefitDescription}>
-                Save hours with AI-powered legal research and document
-                processing
-              </Text>
-            </View>
-            <View style={styles.benefitItem}>
-              <Text style={styles.benefitIcon}>🔒</Text>
-              <Text style={styles.benefitTitle}>Secure & Private</Text>
-              <Text style={styles.benefitDescription}>
-                Bank-level encryption ensures your legal data stays confidential
-              </Text>
-            </View>
-            <View style={styles.benefitItem}>
-              <Text style={styles.benefitIcon}>⚖️</Text>
-              <Text style={styles.benefitTitle}>Legal Accuracy</Text>
-              <Text style={styles.benefitDescription}>
-                Built by legal experts with latest Indian law updates
-              </Text>
-            </View>
-            <View style={styles.benefitItem}>
-              <Text style={styles.benefitIcon}>📱</Text>
-              <Text style={styles.benefitTitle}>Mobile First</Text>
-              <Text style={styles.benefitDescription}>
-                Access your legal tools anywhere, anytime on any device
-              </Text>
-            </View>
-          </View>
-        </View>
-
         {/* Call to Action */}
         <View style={styles.ctaSection}>
           <Text style={styles.ctaTitle}>Ready to Transform Your Practice?</Text>
@@ -295,27 +154,12 @@ export default function LandingScreen() {
             <Text style={styles.footerDescription}>
               Empowering legal professionals with AI-driven technology
             </Text>
-            <View style={styles.footerLinks}>
-              <TouchableOpacity onPress={() => router.push("/privacy-policy")}>
-                <Text style={styles.footerLink}>Privacy Policy</Text>
-              </TouchableOpacity>
-              <Text style={styles.footerSeparator}>•</Text>
-              <TouchableOpacity
-                onPress={() => router.push("/terms-of-service")}
-              >
-                <Text style={styles.footerLink}>Terms of Service</Text>
-              </TouchableOpacity>
-              <Text style={styles.footerSeparator}>•</Text>
-              <TouchableOpacity onPress={() => router.push("/help-support")}>
-                <Text style={styles.footerLink}>Support</Text>
-              </TouchableOpacity>
-            </View>
             <Text style={styles.copyright}>
               © 2024 YRJR Legal Assistant. All rights reserved.
             </Text>
           </View>
         </View>
-      </Animated.View>
+      </View>
     </ScrollView>
   );
 }
@@ -449,15 +293,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   featureIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
+    fontSize: 32,
     marginBottom: 12,
-  },
-  featureIconText: {
-    fontSize: 28,
   },
   featureTitle: {
     fontSize: 16,
@@ -497,95 +334,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6b7280",
     textAlign: "center",
-  },
-  testimonialsSection: {
-    padding: 20,
-    paddingVertical: 40,
-  },
-  testimonialsContainer: {
-    paddingHorizontal: 10,
-  },
-  testimonialCard: {
-    width: width - 80,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginHorizontal: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  ratingContainer: {
-    flexDirection: "row",
-    marginBottom: 12,
-  },
-  star: {
-    fontSize: 16,
-    marginRight: 2,
-  },
-  testimonialText: {
-    fontSize: 16,
-    color: "#374151",
-    lineHeight: 24,
-    marginBottom: 16,
-    fontStyle: "italic",
-  },
-  testimonialAuthor: {
-    borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
-    paddingTop: 12,
-  },
-  authorName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 2,
-  },
-  authorRole: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-  benefitsSection: {
-    backgroundColor: "#f9fafb",
-    padding: 20,
-    paddingVertical: 40,
-  },
-  benefitsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  benefitItem: {
-    width: (width - 60) / 2,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  benefitIcon: {
-    fontSize: 32,
-    marginBottom: 12,
-  },
-  benefitTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  benefitDescription: {
-    fontSize: 12,
-    color: "#6b7280",
-    textAlign: "center",
-    lineHeight: 18,
   },
   ctaSection: {
     backgroundColor: "#1e40af",
@@ -648,20 +396,6 @@ const styles = StyleSheet.create({
     color: "#9ca3af",
     textAlign: "center",
     marginBottom: 20,
-  },
-  footerLinks: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  footerLink: {
-    fontSize: 14,
-    color: "#d1d5db",
-  },
-  footerSeparator: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginHorizontal: 8,
   },
   copyright: {
     fontSize: 12,
