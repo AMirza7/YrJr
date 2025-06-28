@@ -40,20 +40,10 @@ export default function Index() {
       // Show splash for at least 2 seconds
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const user = await storage.getUser();
-      const token = await storage.getToken();
-
-      if (user && token) {
-        // User is authenticated, go to main app
-        setTimeout(() => {
-          router.replace("/(tabs)");
-        }, 100);
-      } else {
-        // Not authenticated, show landing page first
-        setTimeout(() => {
-          router.replace("/landing");
-        }, 100);
-      }
+      // Force landing page for now - bypass auth check
+      setTimeout(() => {
+        router.replace("/landing");
+      }, 100);
     } catch (error) {
       console.error("Auth check error:", error);
       setTimeout(() => {
