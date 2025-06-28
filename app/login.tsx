@@ -14,6 +14,9 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 
 export default function LoginScreen() {
+  const { theme } = useTheme();
+  const { t } = useLocalization();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
