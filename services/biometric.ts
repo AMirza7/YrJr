@@ -39,6 +39,16 @@ class BiometricService {
     }
   }
 
+  async isBiometricAvailable(): Promise<boolean> {
+    try {
+      const capabilities = await this.checkCapabilities();
+      return capabilities.hasHardware && capabilities.isEnrolled;
+    } catch (error) {
+      console.error("Error checking biometric availability:", error);
+      return false;
+    }
+  }
+
   async isBiometricEnabled(): Promise<boolean> {
     try {
       const enabled = await SecureStore.getItemAsync(
