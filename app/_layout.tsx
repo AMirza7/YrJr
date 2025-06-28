@@ -10,15 +10,9 @@ import {
 } from "react-native";
 // import { performanceMonitor } from "@/utils/performance";
 
-// Lazy load contexts to reduce initial bundle size
-const ThemeProvider = React.lazy(() =>
-  import("@/contexts/ThemeContext").then((m) => ({ default: m.ThemeProvider })),
-);
-const LocalizationProvider = React.lazy(() =>
-  import("@/contexts/LocalizationContext").then((m) => ({
-    default: m.LocalizationProvider,
-  })),
-);
+// Direct imports for stability
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LocalizationProvider } from "@/contexts/LocalizationContext";
 
 // Minimal loading screen
 const ContextLoader = () => (
@@ -50,60 +44,37 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <Suspense fallback={<ContextLoader />}>
-      <LocalizationProvider>
-        <ThemeProvider>
-          <StatusBar style="auto" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              // Performance optimizations
-              animationTypeForReplace: "push",
-              animation: Platform.OS === "web" ? "none" : "slide_from_right",
-            }}
-          >
-            <Stack.Screen name="index" />
-            <Stack.Screen
-              name="landing"
-              options={{
-                // Preload for faster navigation
-                lazy: false,
-              }}
-            />
-            <Stack.Screen
-              name="landing.optimized"
-              options={{
-                lazy: false,
-              }}
-            />
-
-            {/* Lazy-loaded auth screens */}
-            <Stack.Screen name="login" options={{ lazy: true }} />
-            <Stack.Screen name="signup" options={{ lazy: true }} />
-            <Stack.Screen name="verify-email" options={{ lazy: true }} />
-            <Stack.Screen name="verify-phone" options={{ lazy: true }} />
-            <Stack.Screen name="verification-status" options={{ lazy: true }} />
-            <Stack.Screen name="profile-completion" options={{ lazy: true }} />
-
-            {/* Main app */}
-            <Stack.Screen name="(tabs)" options={{ lazy: true }} />
-
-            {/* Feature screens - all lazy */}
-            <Stack.Screen name="admin" options={{ lazy: true }} />
-            <Stack.Screen name="ai-comparator" options={{ lazy: true }} />
-            <Stack.Screen name="templates" options={{ lazy: true }} />
-            <Stack.Screen name="flashcards" options={{ lazy: true }} />
-            <Stack.Screen name="notifications" options={{ lazy: true }} />
-            <Stack.Screen name="scanner" options={{ lazy: true }} />
-            <Stack.Screen name="notes-vault" options={{ lazy: true }} />
-            <Stack.Screen name="privacy-policy" options={{ lazy: true }} />
-            <Stack.Screen name="terms-of-service" options={{ lazy: true }} />
-            <Stack.Screen name="settings" options={{ lazy: true }} />
-            <Stack.Screen name="help-support" options={{ lazy: true }} />
-            <Stack.Screen name="subscription" options={{ lazy: true }} />
-          </Stack>
-        </ThemeProvider>
-      </LocalizationProvider>
+    <LocalizationProvider>
+      <ThemeProvider>
+        <StatusBar style="auto" />
+        <Stack screenOptions={{
+          headerShown: false,
+        }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="landing" />
+          <Stack.Screen name="login" />
+          <Stack.Screen name="signup" />
+          <Stack.Screen name="verify-email" />
+          <Stack.Screen name="verify-phone" />
+          <Stack.Screen name="verification-status" />
+          <Stack.Screen name="profile-completion" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="admin" />
+          <Stack.Screen name="ai-comparator" />
+          <Stack.Screen name="templates" />
+          <Stack.Screen name="flashcards" />
+          <Stack.Screen name="notifications" />
+          <Stack.Screen name="scanner" />
+          <Stack.Screen name="notes-vault" />
+          <Stack.Screen name="privacy-policy" />
+          <Stack.Screen name="terms-of-service" />
+          <Stack.Screen name="settings" />
+          <Stack.Screen name="help-support" />
+          <Stack.Screen name="subscription" />
+        </Stack>
+      </ThemeProvider>
+    </LocalizationProvider>
+  );
     </Suspense>
   );
 }
