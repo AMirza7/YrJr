@@ -8,7 +8,7 @@ import {
   Text,
   StyleSheet,
 } from "react-native";
-import { performanceMonitor } from "@/utils/performance";
+// import { performanceMonitor } from "@/utils/performance";
 
 // Lazy load contexts to reduce initial bundle size
 const ThemeProvider = React.lazy(() =>
@@ -31,7 +31,7 @@ const ContextLoader = () => (
 export default function RootLayout() {
   React.useEffect(() => {
     // Start performance monitoring
-    performanceMonitor.startMeasure("app-init");
+    // performanceMonitor.startMeasure("app-init");
 
     // Platform-specific optimizations
     if (Platform.OS === "web") {
@@ -45,7 +45,7 @@ export default function RootLayout() {
     }
 
     return () => {
-      performanceMonitor.endMeasure("app-init");
+      // performanceMonitor.endMeasure("app-init");
     };
   }, []);
 
