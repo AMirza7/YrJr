@@ -147,34 +147,6 @@ export default function NotificationCenter() {
     </TouchableOpacity>
   );
 
-  const renderCategoryFilter = ({ item }: { item: (typeof categories)[0] }) => (
-    <TouchableOpacity
-      style={[
-        styles.categoryChip,
-        {
-          backgroundColor:
-            selectedCategory === item.value ? "#7c3aed" : "#f3f4f6",
-        },
-      ]}
-      onPress={() => setSelectedCategory(item.value)}
-    >
-      <Text style={styles.categoryIcon}>{item.icon}</Text>
-      <Text
-        style={[
-          styles.categoryLabel,
-          { color: selectedCategory === item.value ? "#fff" : "#374151" },
-        ]}
-      >
-        {item.label}
-      </Text>
-      {item.value === "all" && unreadCount > 0 && (
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryBadgeText}>{unreadCount}</Text>
-        </View>
-      )}
-    </TouchableOpacity>
-  );
-
   return (
     <View style={styles.container}>
       {/* Header */}
