@@ -12,7 +12,11 @@ import { router, useLocalSearchParams } from "expo-router";
 import { authService } from "@/services/auth";
 
 export default function VerifyEmailScreen() {
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { email, phone, nextStep } = useLocalSearchParams<{
+    email: string;
+    phone?: string;
+    nextStep?: string;
+  }>();
   const [verificationCode, setVerificationCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);

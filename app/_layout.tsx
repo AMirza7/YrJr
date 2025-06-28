@@ -7,8 +7,11 @@ export default function RootLayout() {
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="landing" />
         <Stack.Screen name="login" />
         <Stack.Screen name="signup" />
+        <Stack.Screen name="verify-email" />
+        <Stack.Screen name="verify-phone" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="admin" />
         <Stack.Screen name="ai-comparator" />

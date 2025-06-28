@@ -147,14 +147,18 @@ export default function SignupScreen() {
       if (result.success) {
         Alert.alert(
           "Account Created!",
-          "Please check your email to verify your account before logging in.",
+          "Let's verify your email and phone number to secure your account.",
           [
             {
-              text: "Verify Email",
+              text: "Verify Email First",
               onPress: () =>
                 router.push({
                   pathname: "/verify-email",
-                  params: { email: formData.email },
+                  params: {
+                    email: formData.email,
+                    phone: formData.phone,
+                    nextStep: "phone",
+                  },
                 }),
             },
           ],
