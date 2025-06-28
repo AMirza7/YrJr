@@ -23,7 +23,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Error", "Please enter email and password");
+      Alert.alert(t("error"), t("enterEmail") + " and " + t("enterPassword"));
       return;
     }
 
