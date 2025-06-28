@@ -230,7 +230,7 @@ export default function AdminDashboard() {
             </View>
             <TouchableOpacity
               style={styles.alertButton}
-              onPress={() => router.push("/admin/users")}
+              onPress={() => router.push("/admin/pending-approvals")}
             >
               <Text style={styles.alertButtonText}>Review</Text>
             </TouchableOpacity>
