@@ -151,16 +151,16 @@ export default function SignupScreen() {
           [
             {
               text: "Verify Email",
-              onPress: () => router.push({
-                pathname: "/verify-email",
-                params: { email: formData.email }
-              })
+              onPress: () =>
+                router.push({
+                  pathname: "/verify-email",
+                  params: { email: formData.email },
+                }),
             },
-          ]
+          ],
         );
       } else {
         Alert.alert("Signup Failed", result.error || "Please try again.");
-      }
       }
     } catch (error) {
       Alert.alert("Error", "Something went wrong. Please try again.");
