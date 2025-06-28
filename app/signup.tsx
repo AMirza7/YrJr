@@ -55,27 +55,27 @@ export default function SignupScreen() {
   const roles: { value: UserRole; label: string; description: string }[] = [
     {
       value: "law_student",
-      label: "Law Student",
+      label: t("lawStudent"),
       description: "Currently studying law",
     },
     {
       value: "law_office_helper",
-      label: "Office Helper",
+      label: t("lawOfficeHelper"),
       description: "Administrative support",
     },
     {
       value: "lawyer_assistant",
-      label: "Legal Assistant",
+      label: t("lawyerAssistant"),
       description: "Supporting legal professionals",
     },
     {
       value: "junior_lawyer",
-      label: "Junior Lawyer",
+      label: t("juniorLawyer"),
       description: "Early career lawyer",
     },
     {
       value: "lawyer",
-      label: "Senior Lawyer",
+      label: t("seniorLawyer"),
       description: "Experienced legal practitioner",
     },
   ];
