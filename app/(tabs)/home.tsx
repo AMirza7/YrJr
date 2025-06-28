@@ -76,6 +76,7 @@ export default function HomeScreen() {
 
   const permissions = getRolePermissions(user.role);
   const roleColor = getRoleColor(user.role);
+  const visibleTabs = getVisibleTabs(user.role);
 
   const quickActions = [
     {
