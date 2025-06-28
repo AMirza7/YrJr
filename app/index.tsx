@@ -40,23 +40,14 @@ export default function Index() {
       // Show splash for at least 2 seconds
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const user = await storage.getUser();
-      const token = await storage.getToken();
-
-      if (user && token) {
-        // Add small delay to ensure layout is fully mounted before navigation
-        setTimeout(() => {
-          router.replace("/(tabs)");
-        }, 100);
-      } else {
-        setTimeout(() => {
-          router.replace("/login");
-        }, 100);
-      }
+      // Force landing page for now - bypass auth check
+      setTimeout(() => {
+        router.replace("/landing");
+      }, 100);
     } catch (error) {
       console.error("Auth check error:", error);
       setTimeout(() => {
-        router.replace("/login");
+        router.replace("/landing");
       }, 100);
     }
   };

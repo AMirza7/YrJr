@@ -1,52 +1,105 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  FlatList,
   TouchableOpacity,
+  StyleSheet,
   ScrollView,
+  Alert,
+  RefreshControl,
+  FlatList,
 } from "react-native";
 import { router } from "expo-router";
-import { dataService } from "@/services/dataService";
-import { Notification } from "@/types/features";
+import { authService } from "@/services/auth";
+import { User } from "@/types";
+import { canAccessFeature } from "@/constants/roles";
+import BackButton from "@/components/navigation/BackButton";
+import {
+  notificationService,
+  NotificationData,
+  NotificationSettings,
+} from "@/services/notifications";
 
 export default function NotificationCenter() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [settings, setSettings] = useState<NotificationSettings | null>(null);
 
   const categories = [
     { value: "all", label: "All", icon: "🔔" },
     { value: "case_update", label: "Cases", icon: "⚖️" },
-    { value: "hearing_reminder", label: "Hearings", icon: "📅" },
-    { value: "deadline", label: "Deadlines", icon: "⏰" },
-    { value: "message", label: "Messages", icon: "💬" },
+    { value: "reminder", label: "Reminders", icon: "⏰" },
+    { value: "legal_update", label: "Legal", icon: "📖" },
     { value: "system", label: "System", icon: "⚙️" },
+    { value: "general", label: "General", icon: "📢" },
   ];
 
   useEffect(() => {
-    loadNotifications();
+    checkAccess();
   }, []);
 
-  const loadNotifications = async () => {
+  const checkAccess = async () => {
     try {
-      const data = await dataService.getNotifications();
-      setNotifications(data);
+      const currentUser = await authService.getCurrentUser();
+      if (!currentUser) {
+        router.replace("/login");
+        return;
+      }
+
+      if (
+        !canAccessFeature(
+          currentUser.role,
+          currentUser.subscriptionTier,
+          "notifications",
+        )
+      ) {
+        Alert.alert(
+          "Access Restricted",
+          "Notifications feature requires appropriate subscription level.",
+          [{ text: "OK", onPress: () => router.back() }],
+        );
+        return;
+      }
+
+      setUser(currentUser);
+      await loadData();
     } catch (error) {
-      console.error("Error loading notifications:", error);
+      router.replace("/login");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleNotificationPress = async (notification: Notification) => {
+  const loadData = async () => {
+    try {
+      const [notificationsData, settingsData] = await Promise.all([
+        notificationService.getNotifications(),
+        notificationService.getSettings(),
+      ]);
+
+      setNotifications(notificationsData);
+      setSettings(settingsData);
+    } catch (error) {
+      console.error("Error loading notification data:", error);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
+  const handleNotificationPress = async (notification: NotificationData) => {
     // Mark as read
-    if (!notification.readAt) {
-      await dataService.markNotificationAsRead(notification.id);
-      setNotifications(
-        notifications.map((n) =>
-          n.id === notification.id ? { ...n, readAt: new Date() } : n,
+    if (!notification.isRead) {
+      await notificationService.markAsRead(notification.id);
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notification.id ? { ...n, isRead: true } : n,
         ),
       );
     }
@@ -57,34 +110,54 @@ export default function NotificationCenter() {
     }
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "case_update":
-        return "⚖️";
-      case "hearing_reminder":
-        return "📅";
-      case "deadline":
-        return "⏰";
-      case "message":
-        return "💬";
-      case "system":
-        return "⚙️";
-      default:
-        return "🔔";
+  const handleMarkAllAsRead = async () => {
+    const success = await notificationService.markAllAsRead();
+    if (success) {
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "#ef4444";
-      case "medium":
-        return "#f59e0b";
-      case "low":
-        return "#10b981";
-      default:
-        return "#6b7280";
-    }
+  const handleDeleteNotification = async (notificationId: string) => {
+    Alert.alert(
+      "Delete Notification",
+      "Are you sure you want to delete this notification?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            const success =
+              await notificationService.deleteNotification(notificationId);
+            if (success) {
+              setNotifications((prev) =>
+                prev.filter((n) => n.id !== notificationId),
+              );
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleClearAll = async () => {
+    Alert.alert(
+      "Clear All Notifications",
+      "Are you sure you want to clear all notifications? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear All",
+          style: "destructive",
+          onPress: async () => {
+            const success = await notificationService.clearAllNotifications();
+            if (success) {
+              setNotifications([]);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const filteredNotifications =
@@ -92,26 +165,45 @@ export default function NotificationCenter() {
       ? notifications
       : notifications.filter((n) => n.type === selectedCategory);
 
-  const unreadCount = notifications.filter((n) => !n.readAt).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
-  const renderNotification = ({ item }: { item: Notification }) => (
+  const formatTimeAgo = (dateString: string): string => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return "Just now";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)}d ago`;
+
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+    });
+  };
+
+  const renderNotification = ({ item }: { item: NotificationData }) => (
     <TouchableOpacity
       style={[
         styles.notificationCard,
-        { backgroundColor: item.readAt ? "#fff" : "#f0f9ff" },
+        { backgroundColor: item.isRead ? "#fff" : "#f0f9ff" },
       ]}
       onPress={() => handleNotificationPress(item)}
+      onLongPress={() => handleDeleteNotification(item.id)}
     >
       <View style={styles.notificationHeader}>
         <View style={styles.notificationLeft}>
           <Text style={styles.notificationIcon}>
-            {getNotificationIcon(item.type)}
+            {notificationService.getNotificationTypeIcon(item.type)}
           </Text>
           <View style={styles.notificationContent}>
             <Text
               style={[
                 styles.notificationTitle,
-                { fontWeight: item.readAt ? "500" : "600" },
+                { fontWeight: item.isRead ? "500" : "600" },
               ]}
             >
               {item.title}
@@ -126,61 +218,68 @@ export default function NotificationCenter() {
           <View
             style={[
               styles.priorityDot,
-              { backgroundColor: getPriorityColor(item.priority) },
+              {
+                backgroundColor: notificationService.getPriorityColor(
+                  item.priority,
+                ),
+              },
             ]}
           />
-          {!item.readAt && <View style={styles.unreadDot} />}
+          {!item.isRead && <View style={styles.unreadDot} />}
         </View>
       </View>
 
       <View style={styles.notificationFooter}>
         <Text style={styles.notificationTime}>
-          {new Date(item.createdAt).toLocaleString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {formatTimeAgo(item.createdAt)}
         </Text>
-        {item.actionUrl && <Text style={styles.actionHint}>Tap to view →</Text>}
+        <View style={styles.notificationActions}>
+          <View
+            style={[
+              styles.typeChip,
+              {
+                backgroundColor:
+                  notificationService.getNotificationTypeColor(item.type) +
+                  "20",
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.typeText,
+                {
+                  color: notificationService.getNotificationTypeColor(
+                    item.type,
+                  ),
+                },
+              ]}
+            >
+              {item.type.replace("_", " ").toUpperCase()}
+            </Text>
+          </View>
+          {item.actionUrl && (
+            <Text style={styles.actionHint}>Tap to view →</Text>
+          )}
+        </View>
       </View>
     </TouchableOpacity>
   );
 
-  const renderCategoryFilter = ({ item }: { item: (typeof categories)[0] }) => (
-    <TouchableOpacity
-      style={[
-        styles.categoryChip,
-        {
-          backgroundColor:
-            selectedCategory === item.value ? "#7c3aed" : "#f3f4f6",
-        },
-      ]}
-      onPress={() => setSelectedCategory(item.value)}
-    >
-      <Text style={styles.categoryIcon}>{item.icon}</Text>
-      <Text
-        style={[
-          styles.categoryLabel,
-          { color: selectedCategory === item.value ? "#fff" : "#374151" },
-        ]}
-      >
-        {item.label}
-      </Text>
-      {item.value === "all" && unreadCount > 0 && (
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryBadgeText}>{unreadCount}</Text>
-        </View>
-      )}
-    </TouchableOpacity>
-  );
+  if (loading) {
+    return (
+      <View style={styles.loading}>
+        <Text>Loading notifications...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <BackButton title="Home" color="#fff" />
         <View style={styles.headerContent}>
-          <Text style={styles.screenTitle}>🔔 Notifications</Text>
+          <Text style={styles.screenTitle}>Notifications</Text>
           {unreadCount > 0 && (
             <View style={styles.unreadBadge}>
               <Text style={styles.unreadBadgeText}>{unreadCount}</Text>
@@ -193,13 +292,95 @@ export default function NotificationCenter() {
         </Text>
       </View>
 
+      {/* Action Buttons */}
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={handleMarkAllAsRead}
+          disabled={unreadCount === 0}
+        >
+          <Text
+            style={[
+              styles.actionButtonText,
+              { opacity: unreadCount === 0 ? 0.5 : 1 },
+            ]}
+          >
+            ✓ Mark All Read
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => router.push("/settings")}
+        >
+          <Text style={styles.actionButtonText}>⚙️ Settings</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionButton, styles.dangerButton]}
+          onPress={handleClearAll}
+          disabled={notifications.length === 0}
+        >
+          <Text
+            style={[
+              styles.actionButtonText,
+              { opacity: notifications.length === 0 ? 0.5 : 1 },
+            ]}
+          >
+            🗑️ Clear All
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Category Filters */}
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.categoryFilters}>
-            {categories.map((category) =>
-              renderCategoryFilter({ item: category }),
-            )}
+            {categories.map((category) => {
+              const categoryCount =
+                category.value === "all"
+                  ? notifications.length
+                  : notifications.filter((n) => n.type === category.value)
+                      .length;
+
+              return (
+                <TouchableOpacity
+                  key={category.value}
+                  style={[
+                    styles.categoryChip,
+                    {
+                      backgroundColor:
+                        selectedCategory === category.value
+                          ? "#7c3aed"
+                          : "#f3f4f6",
+                    },
+                  ]}
+                  onPress={() => setSelectedCategory(category.value)}
+                >
+                  <Text style={styles.categoryIcon}>{category.icon}</Text>
+                  <Text
+                    style={[
+                      styles.categoryLabel,
+                      {
+                        color:
+                          selectedCategory === category.value
+                            ? "#fff"
+                            : "#374151",
+                      },
+                    ]}
+                  >
+                    {category.label}
+                  </Text>
+                  {categoryCount > 0 && (
+                    <View style={styles.categoryBadge}>
+                      <Text style={styles.categoryBadgeText}>
+                        {categoryCount}
+                      </Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </ScrollView>
       </View>
@@ -211,15 +392,24 @@ export default function NotificationCenter() {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
-        refreshing={loading}
-        onRefresh={loadNotifications}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>🔕</Text>
             <Text style={styles.emptyTitle}>No notifications</Text>
             <Text style={styles.emptyText}>
-              You're all caught up! No notifications in this category.
+              {selectedCategory === "all"
+                ? "You're all caught up! No notifications to show."
+                : `No ${selectedCategory.replace("_", " ")} notifications found.`}
             </Text>
+            <TouchableOpacity
+              style={styles.refreshButton}
+              onPress={handleRefresh}
+            >
+              <Text style={styles.refreshButtonText}>🔄 Refresh</Text>
+            </TouchableOpacity>
           </View>
         }
       />
@@ -232,22 +422,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9fafb",
   },
-  header: {
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#fff",
+  },
+  header: {
+    backgroundColor: "#7c3aed",
     padding: 20,
     paddingTop: 50,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
   },
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 4,
+    marginTop: 10,
   },
   screenTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#111827",
+    color: "#fff",
     marginRight: 8,
   },
   unreadBadge: {
@@ -264,8 +459,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
+    fontSize: 16,
+    color: "rgba(255,255,255,0.8)",
+  },
+  actionsContainer: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+  },
+  actionButton: {
+    flex: 1,
+    backgroundColor: "#f3f4f6",
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: "center",
+  },
+  dangerButton: {
+    backgroundColor: "#fef2f2",
+  },
+  actionButtonText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#374151",
   },
   filtersContainer: {
     backgroundColor: "#fff",
@@ -294,7 +514,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   categoryBadge: {
-    backgroundColor: "#ef4444",
+    backgroundColor: "rgba(255,255,255,0.3)",
     borderRadius: 8,
     paddingHorizontal: 4,
     paddingVertical: 1,
@@ -371,6 +591,20 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#9ca3af",
   },
+  notificationActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  typeChip: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  typeText: {
+    fontSize: 8,
+    fontWeight: "600",
+  },
   actionHint: {
     fontSize: 10,
     color: "#7c3aed",
@@ -397,5 +631,17 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     textAlign: "center",
     lineHeight: 20,
+    marginBottom: 16,
+  },
+  refreshButton: {
+    backgroundColor: "#7c3aed",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  refreshButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "500",
   },
 });

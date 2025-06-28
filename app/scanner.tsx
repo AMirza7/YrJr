@@ -1,206 +1,441 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
+  StyleSheet,
   ScrollView,
   Alert,
-  FlatList,
+  Image,
+  ActivityIndicator,
+  Share,
 } from "react-native";
+import { router } from "expo-router";
+import { authService } from "@/services/auth";
+import { User } from "@/types";
+import { canAccessFeature } from "@/constants/roles";
+import BackButton from "@/components/navigation/BackButton";
+import {
+  documentScannerService,
+  ScanResult,
+  ExtractedLegalFields,
+} from "@/services/documentScanner";
 
 export default function DocumentScanner() {
-  const [scannedDocuments, setScannedDocuments] = useState<any[]>([]);
-  const [isScanning, setIsScanning] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [recentScans, setRecentScans] = useState<ScanResult[]>([]);
 
   const documentTypes = [
-    { type: "FIR", icon: "🚔", description: "First Information Report" },
     {
-      type: "Court Order",
+      type: "fir",
+      name: "FIR",
+      icon: "🚔",
+      description: "First Information Report",
+    },
+    {
+      type: "court_order",
+      name: "Court Order",
       icon: "⚖️",
       description: "Court orders and judgments",
     },
     {
-      type: "Legal Notice",
+      type: "notice",
+      name: "Legal Notice",
       icon: "📋",
       description: "Legal notices and summons",
     },
-    { type: "Contract", icon: "📝", description: "Agreements and contracts" },
-    { type: "Evidence", icon: "📸", description: "Documentary evidence" },
-    { type: "Identity", icon: "🆔", description: "ID cards and certificates" },
+    {
+      type: "contract",
+      name: "Contract",
+      icon: "📝",
+      description: "Agreements and contracts",
+    },
+    {
+      type: "petition",
+      name: "Petition",
+      icon: "📄",
+      description: "Petitions and applications",
+    },
+    {
+      type: "affidavit",
+      name: "Affidavit",
+      icon: "✍️",
+      description: "Sworn statements",
+    },
   ];
 
-  const handleScanDocument = (documentType: string) => {
-    setIsScanning(true);
+  useEffect(() => {
+    checkAccess();
+  }, []);
 
-    Alert.alert(
-      "Document Scanner",
-      `This would open the camera to scan ${documentType} documents with OCR text extraction and automatic field recognition.`,
-      [
-        { text: "Cancel", onPress: () => setIsScanning(false) },
-        {
-          text: "Scan Document",
-          onPress: () => simulateScan(documentType),
-        },
-      ],
+  const checkAccess = async () => {
+    try {
+      const currentUser = await authService.getCurrentUser();
+      if (!currentUser) {
+        router.replace("/login");
+        return;
+      }
+
+      if (
+        !canAccessFeature(
+          currentUser.role,
+          currentUser.subscriptionTier,
+          "scanner",
+        )
+      ) {
+        Alert.alert(
+          "Access Restricted",
+          "Document scanner requires Pro subscription or higher.",
+          [{ text: "OK", onPress: () => router.back() }],
+        );
+        return;
+      }
+
+      setUser(currentUser);
+      loadRecentScans();
+    } catch (error) {
+      router.replace("/login");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadRecentScans = async () => {
+    // In a real app, this would load from storage
+    // For demo, we'll use empty array initially
+    setRecentScans([]);
+  };
+
+  const handleScanWithCamera = async () => {
+    setScanning(true);
+    try {
+      const result = await documentScannerService.scanWithCamera();
+
+      if (result.success) {
+        setScanResult(result);
+        // Add to recent scans
+        setRecentScans((prev) => [result, ...prev.slice(0, 4)]);
+        Alert.alert("Success!", "Document scanned and processed successfully.");
+      } else {
+        Alert.alert("Scan Failed", result.error || "Failed to scan document");
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred during scanning");
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const handleScanFromGallery = async () => {
+    setScanning(true);
+    try {
+      const result = await documentScannerService.scanFromGallery();
+
+      if (result.success) {
+        setScanResult(result);
+        // Add to recent scans
+        setRecentScans((prev) => [result, ...prev.slice(0, 4)]);
+        Alert.alert("Success!", "Document processed successfully.");
+      } else {
+        Alert.alert(
+          "Processing Failed",
+          result.error || "Failed to process document",
+        );
+      }
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred during processing");
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const handleSaveToGallery = async () => {
+    if (!scanResult?.imageUri) return;
+
+    const success = await documentScannerService.saveToGallery(
+      scanResult.imageUri,
+    );
+    if (success) {
+      Alert.alert("Saved", "Document saved to gallery successfully.");
+    } else {
+      Alert.alert("Error", "Failed to save document to gallery.");
+    }
+  };
+
+  const handleShareDocument = async () => {
+    if (!scanResult) return;
+
+    const extractedData = scanResult.extractedFields
+      ? documentScannerService.formatExtractedData(scanResult.extractedFields)
+      : [];
+
+    const shareText = `
+Legal Document Scan Results:
+
+${
+  scanResult.extractedFields
+    ? `Document Type: ${documentScannerService.getDocumentTypeName(scanResult.extractedFields.documentType)}\n`
+    : ""
+}
+${extractedData.map((item) => `${item.label}: ${item.value}`).join("\n")}
+
+${scanResult.extractedText ? "\nFull Text:\n" + scanResult.extractedText : ""}
+    `.trim();
+
+    try {
+      await Share.share({
+        message: shareText,
+        title: "Legal Document Scan",
+      });
+    } catch (error) {
+      Alert.alert("Error", "Failed to share document");
+    }
+  };
+
+  const clearScanResult = () => {
+    setScanResult(null);
+  };
+
+  const renderScanResult = () => {
+    if (!scanResult) return null;
+
+    const extractedData = scanResult.extractedFields
+      ? documentScannerService.formatExtractedData(scanResult.extractedFields)
+      : [];
+
+    return (
+      <View style={styles.resultContainer}>
+        <View style={styles.resultHeader}>
+          <Text style={styles.resultTitle}>📄 Scan Results</Text>
+          <TouchableOpacity
+            onPress={clearScanResult}
+            style={styles.closeButton}
+          >
+            <Text style={styles.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+        </View>
+
+        {scanResult.imageUri && (
+          <Image
+            source={{ uri: scanResult.imageUri }}
+            style={styles.scannedImage}
+          />
+        )}
+
+        {scanResult.extractedFields && (
+          <View style={styles.documentTypeCard}>
+            <Text style={styles.documentTypeIcon}>
+              {documentScannerService.getDocumentTypeIcon(
+                scanResult.extractedFields.documentType,
+              )}
+            </Text>
+            <Text style={styles.documentTypeName}>
+              {documentScannerService.getDocumentTypeName(
+                scanResult.extractedFields.documentType,
+              )}
+            </Text>
+          </View>
+        )}
+
+        {extractedData.length > 0 && (
+          <View style={styles.extractedFieldsCard}>
+            <Text style={styles.sectionTitle}>📋 Extracted Information</Text>
+            {extractedData.map((item, index) => (
+              <View key={index} style={styles.fieldRow}>
+                <Text style={styles.fieldLabel}>{item.label}:</Text>
+                <Text style={styles.fieldValue}>{item.value}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {scanResult.extractedText && (
+          <View style={styles.textCard}>
+            <Text style={styles.sectionTitle}>📝 Full Text</Text>
+            <ScrollView style={styles.textScrollView} nestedScrollEnabled>
+              <Text style={styles.extractedText}>
+                {scanResult.extractedText}
+              </Text>
+            </ScrollView>
+          </View>
+        )}
+
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={handleSaveToGallery}
+          >
+            <Text style={styles.actionButtonText}>💾 Save</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={handleShareDocument}
+          >
+            <Text style={styles.actionButtonText}>📤 Share</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, styles.primaryButton]}
+            onPress={() => router.push("/(tabs)/notes")}
+          >
+            <Text style={[styles.actionButtonText, styles.primaryButtonText]}>
+              📝 Save to Notes
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     );
   };
 
-  const simulateScan = (documentType: string) => {
-    setTimeout(() => {
-      const mockDocument = {
-        id: Date.now().toString(),
-        type: documentType,
-        name: `${documentType}_${Date.now()}`,
-        scanDate: new Date(),
-        ocrText: `This is extracted text from the ${documentType} document. OCR technology would extract all readable text from the document for search and analysis purposes.`,
-        confidence: Math.floor(Math.random() * 20) + 80, // 80-99%
-        pages: 1,
-        size: "2.3 MB",
-      };
-
-      setScannedDocuments([mockDocument, ...scannedDocuments]);
-      setIsScanning(false);
-
-      Alert.alert(
-        "Scan Complete",
-        `${documentType} scanned successfully with ${mockDocument.confidence}% accuracy!`,
-      );
-    }, 2000);
-  };
-
-  const renderDocumentType = ({ item }: { item: any }) => (
+  const renderRecentScan = ({
+    item,
+    index,
+  }: {
+    item: ScanResult;
+    index: number;
+  }) => (
     <TouchableOpacity
-      style={styles.documentTypeCard}
-      onPress={() => handleScanDocument(item.type)}
+      style={styles.recentScanCard}
+      onPress={() => setScanResult(item)}
     >
-      <Text style={styles.documentTypeIcon}>{item.icon}</Text>
-      <Text style={styles.documentTypeName}>{item.type}</Text>
-      <Text style={styles.documentTypeDescription}>{item.description}</Text>
+      <View style={styles.recentScanHeader}>
+        <Text style={styles.recentScanIcon}>
+          {item.extractedFields
+            ? documentScannerService.getDocumentTypeIcon(
+                item.extractedFields.documentType,
+              )
+            : "📄"}
+        </Text>
+        <View style={styles.recentScanInfo}>
+          <Text style={styles.recentScanTitle}>
+            {item.extractedFields
+              ? documentScannerService.getDocumentTypeName(
+                  item.extractedFields.documentType,
+                )
+              : "Scanned Document"}
+          </Text>
+          <Text style={styles.recentScanSubtitle}>
+            {item.extractedFields?.caseNumber ||
+              item.extractedFields?.firNumber ||
+              "Recent scan"}
+          </Text>
+        </View>
+      </View>
+
+      {item.imageUri && (
+        <Image
+          source={{ uri: item.imageUri }}
+          style={styles.recentScanThumbnail}
+        />
+      )}
     </TouchableOpacity>
   );
 
-  const renderScannedDocument = ({ item }: { item: any }) => (
-    <View style={styles.scannedDocCard}>
-      <View style={styles.docHeader}>
-        <View style={styles.docInfo}>
-          <Text style={styles.docName}>{item.name}</Text>
-          <Text style={styles.docType}>{item.type}</Text>
-        </View>
-        <View style={styles.docStats}>
-          <Text style={styles.confidenceText}>{item.confidence}% accuracy</Text>
-          <Text style={styles.docSize}>{item.size}</Text>
-        </View>
+  if (loading) {
+    return (
+      <View style={styles.loading}>
+        <Text>Loading scanner...</Text>
       </View>
-
-      <Text style={styles.ocrPreview} numberOfLines={3}>
-        OCR Text: {item.ocrText}
-      </Text>
-
-      <View style={styles.docActions}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>👁️ View</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>📤 Share</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Text style={styles.actionText}>🔍 Search</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  }
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
+    <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.screenTitle}>🧬 Document Scanner</Text>
+        <BackButton title="Home" color="#fff" />
+        <Text style={styles.title}>Document Scanner</Text>
         <Text style={styles.subtitle}>AI-powered OCR for legal documents</Text>
       </View>
 
-      {/* Scan Options */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📱 Scan Document Types</Text>
-        <FlatList
-          data={documentTypes}
-          renderItem={renderDocumentType}
-          keyExtractor={(item) => item.type}
-          numColumns={2}
-          scrollEnabled={false}
-          columnWrapperStyle={styles.documentTypeRow}
-        />
-      </View>
-
-      {/* Features */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>🚀 Scanner Features</Text>
-        <View style={styles.featuresContainer}>
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🤖</Text>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>AI-Powered OCR</Text>
-              <Text style={styles.featureDescription}>
-                Advanced text recognition with legal document understanding
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>📋</Text>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Auto Field Detection</Text>
-              <Text style={styles.featureDescription}>
-                Automatically identifies and extracts key legal fields
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🔍</Text>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Smart Search</Text>
-              <Text style={styles.featureDescription}>
-                Search through scanned documents using extracted text
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>☁️</Text>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>Cloud Backup</Text>
-              <Text style={styles.featureDescription}>
-                Secure cloud storage with encryption for all documents
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Scanned Documents */}
-      {scannedDocuments.length > 0 && (
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Scan Options */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            📄 Recent Scans ({scannedDocuments.length})
-          </Text>
-          {scannedDocuments.map((doc, index) =>
-            renderScannedDocument({ item: doc }),
+          <Text style={styles.sectionTitle}>📷 Scan Document</Text>
+
+          <View style={styles.scanOptions}>
+            <TouchableOpacity
+              style={[styles.scanButton, scanning && styles.scanButtonDisabled]}
+              onPress={handleScanWithCamera}
+              disabled={scanning}
+            >
+              <Text style={styles.scanButtonIcon}>📱</Text>
+              <Text style={styles.scanButtonText}>Take Photo</Text>
+              <Text style={styles.scanButtonSubtext}>Use camera to scan</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.scanButton, scanning && styles.scanButtonDisabled]}
+              onPress={handleScanFromGallery}
+              disabled={scanning}
+            >
+              <Text style={styles.scanButtonIcon}>🖼️</Text>
+              <Text style={styles.scanButtonText}>From Gallery</Text>
+              <Text style={styles.scanButtonSubtext}>
+                Select existing photo
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {scanning && (
+            <View style={styles.scanningIndicator}>
+              <ActivityIndicator size="large" color="#7c3aed" />
+              <Text style={styles.scanningText}>Processing document...</Text>
+              <Text style={styles.scanningSubtext}>
+                Extracting text and analyzing content
+              </Text>
+            </View>
           )}
         </View>
-      )}
 
-      {/* Loading State */}
-      {isScanning && (
-        <View style={styles.scanningOverlay}>
-          <View style={styles.scanningContainer}>
-            <Text style={styles.scanningIcon}>📷</Text>
-            <Text style={styles.scanningText}>Scanning Document...</Text>
-            <Text style={styles.scanningSubtext}>Processing with AI OCR</Text>
+        {/* Document Types */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>📋 Supported Documents</Text>
+          <View style={styles.documentTypesGrid}>
+            {documentTypes.map((doc, index) => (
+              <View key={index} style={styles.documentTypeItem}>
+                <Text style={styles.documentTypeIcon}>{doc.icon}</Text>
+                <Text style={styles.documentTypeName}>{doc.name}</Text>
+                <Text style={styles.documentTypeDescription}>
+                  {doc.description}
+                </Text>
+              </View>
+            ))}
           </View>
         </View>
-      )}
-    </ScrollView>
+
+        {/* Scan Results */}
+        {renderScanResult()}
+
+        {/* Recent Scans */}
+        {recentScans.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>🕒 Recent Scans</Text>
+            {recentScans.map((scan, index) => (
+              <View key={index}>{renderRecentScan({ item: scan, index })}</View>
+            ))}
+          </View>
+        )}
+
+        {/* OCR Info */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>ℹ️ OCR Features</Text>
+          <View style={styles.featuresList}>
+            <Text style={styles.featureItem}>✅ Automatic text extraction</Text>
+            <Text style={styles.featureItem}>
+              ⚖️ Legal document recognition
+            </Text>
+            <Text style={styles.featureItem}>📝 Field auto-completion</Text>
+            <Text style={styles.featureItem}>🔍 Case number detection</Text>
+            <Text style={styles.featureItem}>📅 Date extraction</Text>
+            <Text style={styles.featureItem}>👥 Party identification</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -209,42 +444,106 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9fafb",
   },
-  header: {
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#fff",
+  },
+  header: {
+    backgroundColor: "#7c3aed",
     padding: 20,
     paddingTop: 50,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
   },
-  screenTitle: {
+  title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#111827",
-    marginBottom: 4,
+    color: "#fff",
+    marginBottom: 8,
+    marginTop: 10,
   },
   subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
+    fontSize: 16,
+    color: "rgba(255,255,255,0.8)",
+  },
+  content: {
+    flex: 1,
+    padding: 16,
   },
   section: {
-    padding: 20,
+    marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#111827",
+    marginBottom: 12,
+  },
+  scanOptions: {
+    flexDirection: "row",
+    gap: 12,
     marginBottom: 16,
   },
-  documentTypeRow: {
-    justifyContent: "space-between",
-  },
-  documentTypeCard: {
+  scanButton: {
+    flex: 1,
     backgroundColor: "#fff",
-    width: "48%",
-    padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
+    padding: 20,
     alignItems: "center",
-    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  scanButtonDisabled: {
+    opacity: 0.6,
+  },
+  scanButtonIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  scanButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 4,
+  },
+  scanButtonSubtext: {
+    fontSize: 12,
+    color: "#6b7280",
+    textAlign: "center",
+  },
+  scanningIndicator: {
+    backgroundColor: "#f0f9ff",
+    borderRadius: 12,
+    padding: 20,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#dbeafe",
+  },
+  scanningText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1e40af",
+    marginTop: 12,
+  },
+  scanningSubtext: {
+    fontSize: 14,
+    color: "#3b82f6",
+    marginTop: 4,
+  },
+  documentTypesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  documentTypeItem: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+    width: "48%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -252,11 +551,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   documentTypeIcon: {
-    fontSize: 32,
+    fontSize: 24,
     marginBottom: 8,
   },
   documentTypeName: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "600",
     color: "#111827",
     marginBottom: 4,
@@ -267,7 +566,158 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     textAlign: "center",
   },
-  featuresContainer: {
+  resultContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  resultHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  resultTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  closeButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#f3f4f6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    fontSize: 14,
+    color: "#6b7280",
+    fontWeight: "bold",
+  },
+  scannedImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 16,
+    resizeMode: "cover",
+  },
+  documentTypeCard: {
+    backgroundColor: "#f0f9ff",
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#dbeafe",
+  },
+  extractedFieldsCard: {
+    backgroundColor: "#f9fafb",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  fieldRow: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    width: 100,
+  },
+  fieldValue: {
+    fontSize: 14,
+    color: "#111827",
+    flex: 1,
+  },
+  textCard: {
+    backgroundColor: "#f9fafb",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  textScrollView: {
+    maxHeight: 150,
+  },
+  extractedText: {
+    fontSize: 12,
+    color: "#374151",
+    lineHeight: 18,
+    fontFamily: "monospace",
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  actionButton: {
+    flex: 1,
+    backgroundColor: "#f3f4f6",
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  primaryButton: {
+    backgroundColor: "#7c3aed",
+  },
+  actionButtonText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  primaryButtonText: {
+    color: "#fff",
+  },
+  recentScanCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  recentScanHeader: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  recentScanIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  recentScanInfo: {
+    flex: 1,
+  },
+  recentScanTitle: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#111827",
+    marginBottom: 2,
+  },
+  recentScanSubtitle: {
+    fontSize: 12,
+    color: "#6b7280",
+  },
+  recentScanThumbnail: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    marginLeft: 12,
+  },
+  featuresList: {
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
@@ -278,122 +728,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   featureItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  featureIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  featureContent: {
-    flex: 1,
-  },
-  featureTitle: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 2,
-  },
-  featureDescription: {
-    fontSize: 12,
-    color: "#6b7280",
-    lineHeight: 16,
-  },
-  scannedDocCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  docHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
-  },
-  docInfo: {
-    flex: 1,
-  },
-  docName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 2,
-  },
-  docType: {
-    fontSize: 12,
-    color: "#7c3aed",
-    fontWeight: "500",
-  },
-  docStats: {
-    alignItems: "flex-end",
-  },
-  confidenceText: {
-    fontSize: 10,
-    color: "#059669",
-    fontWeight: "600",
-  },
-  docSize: {
-    fontSize: 10,
-    color: "#6b7280",
-  },
-  ocrPreview: {
-    fontSize: 12,
     color: "#374151",
-    lineHeight: 16,
-    marginBottom: 12,
-    fontStyle: "italic",
-  },
-  docActions: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: "#f3f4f6",
-    padding: 8,
-    borderRadius: 8,
-    alignItems: "center",
-    marginHorizontal: 4,
-  },
-  actionText: {
-    fontSize: 12,
-    color: "#374151",
-    fontWeight: "500",
-  },
-  scanningOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scanningContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 32,
-    alignItems: "center",
-  },
-  scanningIcon: {
-    fontSize: 48,
-    marginBottom: 16,
-  },
-  scanningText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111827",
     marginBottom: 8,
-  },
-  scanningSubtext: {
-    fontSize: 14,
-    color: "#6b7280",
+    lineHeight: 20,
   },
 });
