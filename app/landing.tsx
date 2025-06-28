@@ -21,146 +21,101 @@ export default function LandingScreen() {
   };
 
   const handleDemoAccess = () => {
-    // Skip all storage operations for now - just navigate
-    router.replace("/(tabs)");
+    router.push("/(tabs)");
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.content}>
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Hero Section */}
         <View style={styles.hero}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logo}>⚖️</Text>
-            <Text style={styles.appName}>YRJR Legal Assistant</Text>
-            <Text style={styles.tagline}>Your Intelligent Legal Companion</Text>
-          </View>
+          <Text style={styles.logo}>⚖️</Text>
+          <Text style={styles.appName}>YRJR Legal Assistant</Text>
+          <Text style={styles.tagline}>Your Intelligent Legal Companion</Text>
 
-          <View style={styles.heroDescription}>
-            <Text style={styles.heroTitle}>
-              Revolutionize Your Legal Practice
-            </Text>
-            <Text style={styles.heroSubtitle}>
-              AI-powered tools for lawyers, law students, and legal
-              professionals. From document scanning to case research -
-              everything you need in one app.
-            </Text>
-          </View>
+          <Text style={styles.heroTitle}>
+            Revolutionize Your Legal Practice
+          </Text>
+          <Text style={styles.heroSubtitle}>
+            AI-powered tools for lawyers, law students, and legal professionals
+          </Text>
 
-          <View style={styles.heroActions}>
-            <TouchableOpacity
-              style={styles.primaryButton}
-              onPress={handleGetStarted}
-            >
-              <Text style={styles.primaryButtonText}>Get Started Free</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={handleGetStarted}
+          >
+            <Text style={styles.primaryButtonText}>Get Started Free</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={handleSignIn}
-            >
-              <Text style={styles.secondaryButtonText}>Sign In</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={handleSignIn}
+          >
+            <Text style={styles.secondaryButtonText}>Sign In</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.demoButton}
             onPress={handleDemoAccess}
           >
-            <Text style={styles.demoButtonText}>🎯 Try Demo (No Signup)</Text>
+            <Text style={styles.demoButtonText}>🎯 Try Demo</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Features Section */}
+        {/* Features */}
         <View style={styles.featuresSection}>
           <Text style={styles.sectionTitle}>Powerful Features</Text>
-          <Text style={styles.sectionSubtitle}>
-            Everything you need for modern legal practice
-          </Text>
 
           <View style={styles.featuresGrid}>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>📌</Text>
               <Text style={styles.featureTitle}>Legal Pinboard</Text>
               <Text style={styles.featureDescription}>
-                Organize and track all your legal research in one place
+                Organize legal research
               </Text>
             </View>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🔐</Text>
-              <Text style={styles.featureTitle}>Secure Notes Vault</Text>
-              <Text style={styles.featureDescription}>
-                Encrypted storage for sensitive legal documents
-              </Text>
+              <Text style={styles.featureTitle}>Secure Vault</Text>
+              <Text style={styles.featureDescription}>Encrypted documents</Text>
             </View>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>⚖️</Text>
-              <Text style={styles.featureTitle}>AI Section Comparator</Text>
-              <Text style={styles.featureDescription}>
-                Compare legal sections and find similarities instantly
-              </Text>
+              <Text style={styles.featureTitle}>AI Comparator</Text>
+              <Text style={styles.featureDescription}>Smart analysis</Text>
             </View>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>📱</Text>
-              <Text style={styles.featureTitle}>Document Scanner</Text>
-              <Text style={styles.featureDescription}>
-                OCR scanning with legal document recognition
-              </Text>
+              <Text style={styles.featureTitle}>Scanner</Text>
+              <Text style={styles.featureDescription}>OCR scanning</Text>
             </View>
           </View>
         </View>
 
-        {/* Stats Section */}
+        {/* Stats */}
         <View style={styles.statsSection}>
           <Text style={styles.sectionTitle}>Trusted by Professionals</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>10,000+</Text>
-              <Text style={styles.statLabel}>Legal Professionals</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>50,000+</Text>
-              <Text style={styles.statLabel}>Documents Scanned</Text>
+              <Text style={styles.statLabel}>Users</Text>
             </View>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>99.9%</Text>
-              <Text style={styles.statLabel}>OCR Accuracy</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>24/7</Text>
-              <Text style={styles.statLabel}>AI Support</Text>
+              <Text style={styles.statLabel}>Accuracy</Text>
             </View>
           </View>
         </View>
 
-        {/* Call to Action */}
+        {/* CTA */}
         <View style={styles.ctaSection}>
           <Text style={styles.ctaTitle}>Ready to Transform Your Practice?</Text>
-          <Text style={styles.ctaSubtitle}>
-            Join thousands of legal professionals already using YRJR
-          </Text>
           <TouchableOpacity style={styles.ctaButton} onPress={handleGetStarted}>
             <Text style={styles.ctaButtonText}>Start Free Trial</Text>
           </TouchableOpacity>
-          <Text style={styles.ctaNote}>
-            No credit card required • 30-day free trial
-          </Text>
         </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <View style={styles.footerContent}>
-            <Text style={styles.footerBrand}>⚖️ YRJR Legal Assistant</Text>
-            <Text style={styles.footerDescription}>
-              Empowering legal professionals with AI-driven technology
-            </Text>
-            <Text style={styles.copyright}>
-              © 2024 YRJR Legal Assistant. All rights reserved.
-            </Text>
-          </View>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -169,19 +124,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  content: {
-    flex: 1,
-  },
   hero: {
     backgroundColor: "#1e40af",
     paddingTop: 60,
     paddingBottom: 40,
     paddingHorizontal: 20,
     alignItems: "center",
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: 30,
   },
   logo: {
     fontSize: 60,
@@ -196,10 +144,7 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: 16,
     color: "rgba(255,255,255,0.8)",
-  },
-  heroDescription: {
-    alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 20,
   },
   heroTitle: {
     fontSize: 28,
@@ -213,11 +158,7 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.9)",
     textAlign: "center",
     lineHeight: 24,
-    paddingHorizontal: 10,
-  },
-  heroActions: {
-    width: "100%",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   primaryButton: {
     backgroundColor: "#fff",
@@ -226,11 +167,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    width: "100%",
   },
   primaryButtonText: {
     color: "#1e40af",
@@ -244,6 +181,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 12,
     alignItems: "center",
+    marginBottom: 16,
+    width: "100%",
   },
   secondaryButtonText: {
     color: "#fff",
@@ -270,12 +209,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#111827",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  sectionSubtitle: {
-    fontSize: 16,
-    color: "#6b7280",
     textAlign: "center",
     marginBottom: 30,
   },
@@ -307,7 +240,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6b7280",
     textAlign: "center",
-    lineHeight: 20,
   },
   statsSection: {
     backgroundColor: "#f3f4f6",
@@ -316,13 +248,10 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
   },
   statCard: {
-    width: (width - 60) / 2,
     alignItems: "center",
-    marginBottom: 20,
   },
   statNumber: {
     fontSize: 32,
@@ -333,7 +262,6 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: "#6b7280",
-    textAlign: "center",
   },
   ctaSection: {
     backgroundColor: "#1e40af",
@@ -346,12 +274,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
     textAlign: "center",
-    marginBottom: 8,
-  },
-  ctaSubtitle: {
-    fontSize: 16,
-    color: "rgba(255,255,255,0.9)",
-    textAlign: "center",
     marginBottom: 24,
   },
   ctaButton: {
@@ -360,46 +282,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 12,
     alignItems: "center",
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    width: "80%",
   },
   ctaButtonText: {
     color: "#1e40af",
     fontSize: 16,
     fontWeight: "600",
-  },
-  ctaNote: {
-    fontSize: 14,
-    color: "rgba(255,255,255,0.8)",
-    textAlign: "center",
-  },
-  footer: {
-    backgroundColor: "#111827",
-    padding: 20,
-    paddingVertical: 30,
-  },
-  footerContent: {
-    alignItems: "center",
-  },
-  footerBrand: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 8,
-  },
-  footerDescription: {
-    fontSize: 14,
-    color: "#9ca3af",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  copyright: {
-    fontSize: 12,
-    color: "#6b7280",
-    textAlign: "center",
   },
 });
