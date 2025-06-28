@@ -40,10 +40,10 @@ export default function LoginScreen() {
           router.replace("/(tabs)");
         }
       } else {
-        Alert.alert("Error", response.message || "Invalid credentials");
+        Alert.alert(t("error"), response.message || t("invalidCredentials"));
       }
     } catch (error) {
-      Alert.alert("Error", "Login failed. Please try again.");
+      Alert.alert(t("error"), t("loginFailed"));
     } finally {
       setLoading(false);
     }
