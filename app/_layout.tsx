@@ -12,6 +12,7 @@ export default function RootLayout() {
         <Stack.Screen name="signup" />
         <Stack.Screen name="verify-email" />
         <Stack.Screen name="verify-phone" />
+        <Stack.Screen name="verification-status" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="admin" />
         <Stack.Screen name="ai-comparator" />
