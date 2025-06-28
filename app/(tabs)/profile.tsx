@@ -8,11 +8,14 @@ import {
   Alert,
 } from "react-native";
 import { router } from "expo-router";
-import { storage } from "@/services/storage";
+import { authService } from "@/services/auth";
 import { User } from "@/types";
 import { getRoleColor, getRolePermissions } from "@/constants/tabs";
+import { useLocalization } from "@/contexts/LocalizationContext";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 
 export default function ProfileScreen() {
+  const { t } = useLocalization();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,31 +25,42 @@ export default function ProfileScreen() {
 
   const loadUser = async () => {
     try {
-      const userData = await storage.getUser();
+      const userData = await authService.getCurrentUser();
       if (!userData) {
         // Use setTimeout to avoid navigation during render
-        setTimeout(() => router.replace("/login"), 0);
+        setTimeout(() => router.replace("/landing"), 0);
         return;
       }
       setUser(userData);
     } catch (error) {
       console.error("Error loading user:", error);
       // Use setTimeout to avoid navigation during render
-      setTimeout(() => router.replace("/login"), 0);
+      setTimeout(() => router.replace("/landing"), 0);
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("logout"), t("logoutConfirm"), [
+      { text: t("cancel"), style: "cancel" },
       {
-        text: "Logout",
+        text: t("logout"),
         style: "destructive",
         onPress: async () => {
-          await storage.clearAuth();
-          router.replace("/login");
+          try {
+            await authService.logout();
+            Alert.alert(t("success"), t("logoutSuccess"), [
+              {
+                text: t("done"),
+                onPress: () => router.replace("/landing"),
+              },
+            ]);
+          } catch (error) {
+            console.error("Logout error:", error);
+            // Force navigation even if logout fails
+            router.replace("/landing");
+          }
         },
       },
     ]);
@@ -68,17 +82,17 @@ export default function ProfileScreen() {
   const roleColor = getRoleColor(user.role);
 
   const profileActions = [
-    { title: "Settings", icon: "⚙️", available: true },
-    { title: "Help & Support", icon: "❓", available: true },
-    { title: "Privacy Policy", icon: "🔒", available: true },
-    { title: "Terms of Service", icon: "📋", available: true },
+    { title: t("settings"), icon: "⚙️", available: true },
+    { title: t("helpSupport"), icon: "❓", available: true },
+    { title: t("privacyPolicy"), icon: "🔒", available: true },
+    { title: t("termsAndConditions"), icon: "📋", available: true },
   ];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.screenTitle}>Profile</Text>
+        <Text style={styles.screenTitle}>{t("profile")}</Text>
       </View>
 
       {/* User Info */}
@@ -102,8 +116,8 @@ export default function ProfileScreen() {
           </View>
           <Text style={styles.verificationStatus}>
             {user.isVerified
-              ? "✅ Verified Account"
-              : "⏳ Pending Verification"}
+              ? `✅ ${t("verifiedAccount")}`
+              : `⏳ ${t("pendingVerification")}`}
           </Text>
         </View>
       </View>
@@ -145,16 +159,19 @@ export default function ProfileScreen() {
         </View>
       </View>
 
+      {/* Language Settings */}
+      <View style={styles.section}>
+        <LanguageSelector showTitle />
+      </View>
+
       {/* Profile Actions */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account</Text>
+        <Text style={styles.sectionTitle}>{t("accountSettings")}</Text>
         {profileActions.map((action, index) => (
           <TouchableOpacity
             key={index}
             style={styles.actionRow}
-            onPress={() =>
-              Alert.alert(action.title, "This feature is coming soon!")
-            }
+            onPress={() => Alert.alert(action.title, t("comingSoon"))}
           >
             <Text style={styles.actionIcon}>{action.icon}</Text>
             <Text style={styles.actionText}>{action.title}</Text>
@@ -166,7 +183,7 @@ export default function ProfileScreen() {
       {/* Logout */}
       <View style={styles.section}>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>🚪 Logout</Text>
+          <Text style={styles.logoutText}>🚪 {t("logout")}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
