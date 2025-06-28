@@ -44,19 +44,20 @@ export default function Index() {
       const token = await storage.getToken();
 
       if (user && token) {
-        // Add small delay to ensure layout is fully mounted before navigation
+        // User is authenticated, go to main app
         setTimeout(() => {
           router.replace("/(tabs)");
         }, 100);
       } else {
+        // Not authenticated, show landing page first
         setTimeout(() => {
-          router.replace("/login");
+          router.replace("/landing");
         }, 100);
       }
     } catch (error) {
       console.error("Auth check error:", error);
       setTimeout(() => {
-        router.replace("/login");
+        router.replace("/landing");
       }, 100);
     }
   };

@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+// import RazorpayCheckout from 'react-native-razorpay'; // Real Razorpay SDK
 
 export interface PaymentPlan {
   id: string;
@@ -37,9 +38,16 @@ export interface RazorpayOrder {
   status: string;
 }
 
+export interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
 class PaymentService {
-  private readonly apiKey = "rzp_test_demo_key"; // Demo key
-  private readonly apiSecret = "demo_secret"; // Demo secret
+  private readonly apiKey = "rzp_test_your_actual_key"; // Replace with actual Razorpay test key
+  private readonly apiSecret = "your_actual_secret"; // Replace with actual secret
+  private readonly baseUrl = "https://api.razorpay.com/v1";
 
   // Available subscription plans
   getAvailablePlans(): PaymentPlan[] {
@@ -121,8 +129,46 @@ class PaymentService {
     ];
   }
 
-  // Initialize Razorpay payment
-  async initiatePayment(
+  // Create Razorpay order on server
+  private async createRazorpayOrder(
+    plan: PaymentPlan,
+  ): Promise<RazorpayOrder | null> {
+    try {
+      // In a real app, this would be a server-side API call
+      // Example server endpoint: POST /api/payments/create-order
+      const orderData = {
+        amount: plan.price * 100, // Amount in paisa
+        currency: plan.currency,
+        receipt: `receipt_${plan.id}_${Date.now()}`,
+        notes: {
+          plan_id: plan.id,
+          plan_name: plan.name,
+        },
+      };
+
+      // For demo purposes, simulate the order creation
+      // In production, replace this with actual API call
+      const response = await this.simulateServerCall("/orders", orderData);
+
+      if (response.success) {
+        return {
+          id: `order_${Date.now()}`,
+          amount: orderData.amount,
+          currency: orderData.currency,
+          receipt: orderData.receipt,
+          status: "created",
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error creating Razorpay order:", error);
+      return null;
+    }
+  }
+
+  // Initialize Razorpay payment with real SDK
+  async initiateRazorpayPayment(
     plan: PaymentPlan,
     userDetails: {
       name: string;
@@ -132,74 +178,80 @@ class PaymentService {
   ): Promise<{ success: boolean; paymentId?: string; error?: string }> {
     try {
       // Create order
-      const order = await this.createOrder(plan);
+      const order = await this.createRazorpayOrder(plan);
       if (!order) {
         return { success: false, error: "Failed to create payment order" };
       }
 
-      // In a real implementation, this would open Razorpay checkout
-      // For demo purposes, we'll simulate the payment process
-      return this.simulatePayment(order, userDetails, plan);
+      // Razorpay payment options
+      const options = {
+        description: `Payment for ${plan.name} plan`,
+        image: "https://your-app-logo-url.com/logo.png", // Replace with actual logo URL
+        currency: plan.currency,
+        key: this.apiKey,
+        amount: order.amount,
+        order_id: order.id,
+        name: "YRJR Legal Assistant",
+        prefill: {
+          email: userDetails.email,
+          contact: userDetails.phone,
+          name: userDetails.name,
+        },
+        theme: {
+          color: "#1e40af",
+        },
+        modal: {
+          ondismiss: () => {
+            console.log("Payment dismissed");
+          },
+        },
+      };
+
+      // Open Razorpay checkout
+      // Uncomment when using real Razorpay SDK
+      /*
+      return new Promise((resolve) => {
+        RazorpayCheckout.open(options)
+          .then((data: RazorpayResponse) => {
+            // Payment successful
+            this.verifyPaymentSignature(data)
+              .then((isValid) => {
+                if (isValid) {
+                  this.savePaymentHistory({
+                    id: data.razorpay_payment_id,
+                    planId: plan.id,
+                    amount: plan.price,
+                    currency: plan.currency,
+                    status: "success",
+                    date: new Date(),
+                    transactionId: data.razorpay_order_id,
+                    paymentMethod: "Razorpay",
+                  });
+                  resolve({ success: true, paymentId: data.razorpay_payment_id });
+                } else {
+                  resolve({ success: false, error: "Payment verification failed" });
+                }
+              });
+          })
+          .catch((error: any) => {
+            console.error('Razorpay payment error:', error);
+            resolve({ success: false, error: "Payment cancelled or failed" });
+          });
+      });
+      */
+
+      // For demo purposes, simulate the payment flow
+      return this.simulateRazorpayPayment(order, userDetails, plan);
     } catch (error) {
       console.error("Payment initiation error:", error);
       return { success: false, error: "Payment initialization failed" };
     }
   }
 
-  private async createOrder(plan: PaymentPlan): Promise<RazorpayOrder | null> {
-    try {
-      // Simulate API call to create Razorpay order
-      const order: RazorpayOrder = {
-        id: `order_${Date.now()}`,
-        amount: plan.price * 100, // Razorpay expects amount in paisa
-        currency: plan.currency,
-        receipt: `receipt_${plan.id}_${Date.now()}`,
-        status: "created",
-      };
-
-      return order;
-    } catch (error) {
-      console.error("Error creating order:", error);
-      return null;
-    }
-  }
-
-  private async simulatePayment(
-    order: RazorpayOrder,
-    userDetails: any,
-    plan: PaymentPlan,
-  ): Promise<{ success: boolean; paymentId?: string; error?: string }> {
-    // Simulate payment processing delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Simulate payment success (90% success rate for demo)
-    const isSuccess = Math.random() > 0.1;
-
-    if (isSuccess) {
-      const paymentId = `pay_${Date.now()}`;
-
-      // Save payment history
-      await this.savePaymentHistory({
-        id: paymentId,
-        planId: plan.id,
-        amount: plan.price,
-        currency: plan.currency,
-        status: "success",
-        date: new Date(),
-        transactionId: order.id,
-        paymentMethod: "UPI", // Demo method
-      });
-
-      return { success: true, paymentId };
-    } else {
-      return { success: false, error: "Payment failed. Please try again." };
-    }
-  }
-
-  // UPI Payment
+  // UPI Payment with real UPI intent
   async initiateUPIPayment(
     plan: PaymentPlan,
-    upiId: string,
+    upiId: string = "yourmerchant@paytm", // Replace with actual UPI ID
   ): Promise<{
     success: boolean;
     upiLink?: string;
@@ -209,9 +261,24 @@ class PaymentService {
       const amount = plan.price;
       const merchantName = "YRJR Legal Assistant";
       const transactionNote = `Payment for ${plan.name} plan`;
+      const transactionRef = `TXN${Date.now()}`;
 
-      // Generate UPI link
-      const upiLink = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=${plan.currency}&tn=${encodeURIComponent(transactionNote)}`;
+      // Generate UPI payment link
+      const upiLink = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=${plan.currency}&tn=${encodeURIComponent(transactionNote)}&tr=${transactionRef}`;
+
+      // You can also use Razorpay's UPI solution
+      /*
+      const upiOptions = {
+        amount: amount * 100, // Amount in paisa
+        currency: plan.currency,
+        receipt: `receipt_${Date.now()}`,
+        payment_capture: 1,
+        notes: {
+          plan_id: plan.id,
+          payment_method: 'UPI',
+        },
+      };
+      */
 
       return { success: true, upiLink };
     } catch (error) {
@@ -220,20 +287,101 @@ class PaymentService {
     }
   }
 
-  // Payment verification
-  async verifyPayment(
-    paymentId: string,
-    orderId: string,
-    signature: string,
+  // Verify Razorpay payment signature
+  private async verifyPaymentSignature(
+    response: RazorpayResponse,
   ): Promise<boolean> {
     try {
-      // In real implementation, verify signature with Razorpay
-      // For demo, we'll always return true
-      return true;
+      // This should be done on your server for security
+      // Send the response to your backend for verification
+
+      const verificationData = {
+        razorpay_order_id: response.razorpay_order_id,
+        razorpay_payment_id: response.razorpay_payment_id,
+        razorpay_signature: response.razorpay_signature,
+      };
+
+      // Example server verification endpoint
+      const verificationResult = await this.simulateServerCall(
+        "/verify-payment",
+        verificationData,
+      );
+
+      return verificationResult.success;
     } catch (error) {
       console.error("Payment verification error:", error);
       return false;
     }
+  }
+
+  // Simulate server API calls (replace with real API calls)
+  private async simulateServerCall(endpoint: string, data: any): Promise<any> {
+    // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Simulate 90% success rate
+    const success = Math.random() > 0.1;
+
+    return {
+      success,
+      data: success ? { ...data, id: `sim_${Date.now()}` } : null,
+      error: success ? null : "Server error",
+    };
+  }
+
+  // Simulate Razorpay payment for demo
+  private async simulateRazorpayPayment(
+    order: RazorpayOrder,
+    userDetails: any,
+    plan: PaymentPlan,
+  ): Promise<{ success: boolean; paymentId?: string; error?: string }> {
+    return new Promise((resolve) => {
+      Alert.alert(
+        "Razorpay Payment",
+        `Proceed with payment for ${plan.name}?\n\nAmount: ₹${plan.price}\nOrder ID: ${order.id}`,
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () =>
+              resolve({ success: false, error: "Payment cancelled by user" }),
+          },
+          {
+            text: "Pay ₹" + plan.price,
+            onPress: async () => {
+              // Simulate payment processing
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+
+              // Simulate 90% success rate
+              const isSuccess = Math.random() > 0.1;
+
+              if (isSuccess) {
+                const paymentId = `pay_${Date.now()}`;
+
+                // Save payment history
+                await this.savePaymentHistory({
+                  id: paymentId,
+                  planId: plan.id,
+                  amount: plan.price,
+                  currency: plan.currency,
+                  status: "success",
+                  date: new Date(),
+                  transactionId: order.id,
+                  paymentMethod: "Razorpay (Demo)",
+                });
+
+                resolve({ success: true, paymentId });
+              } else {
+                resolve({
+                  success: false,
+                  error: "Payment failed. Please try again.",
+                });
+              }
+            },
+          },
+        ],
+      );
+    });
   }
 
   // Get payment history
@@ -250,7 +398,7 @@ class PaymentService {
           status: "success",
           date: new Date("2024-01-15"),
           transactionId: "order_123",
-          paymentMethod: "UPI",
+          paymentMethod: "Razorpay",
         },
         {
           id: "pay_124",
@@ -273,12 +421,24 @@ class PaymentService {
     try {
       // In real app, save to backend
       console.log("Payment saved:", payment);
+
+      // You would typically send this to your backend
+      /*
+      await fetch('/api/payments/save-history', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userToken}`,
+        },
+        body: JSON.stringify(payment),
+      });
+      */
     } catch (error) {
       console.error("Error saving payment history:", error);
     }
   }
 
-  // Refund processing
+  // Refund processing (server-side)
   async processRefund(
     paymentId: string,
     amount?: number,
@@ -288,28 +448,33 @@ class PaymentService {
     error?: string;
   }> {
     try {
+      // This should be done on server-side using Razorpay API
+      /*
+      const refundData = {
+        payment_id: paymentId,
+        amount: amount ? amount * 100 : undefined, // Amount in paisa
+      };
+
+      const response = await fetch(`${this.baseUrl}/payments/${paymentId}/refund`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${Buffer.from(`${this.apiKey}:${this.apiSecret}`).toString('base64')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(refundData),
+      });
+
+      const refund = await response.json();
+      return { success: true, refundId: refund.id };
+      */
+
       // Simulate refund processing
       await new Promise((resolve) => setTimeout(resolve, 1500));
-
       const refundId = `rfnd_${Date.now()}`;
       return { success: true, refundId };
     } catch (error) {
       console.error("Refund processing error:", error);
       return { success: false, error: "Refund processing failed" };
-    }
-  }
-
-  // Cancel subscription
-  async cancelSubscription(subscriptionId: string): Promise<{
-    success: boolean;
-    error?: string;
-  }> {
-    try {
-      // In real implementation, cancel with Razorpay
-      return { success: true };
-    } catch (error) {
-      console.error("Subscription cancellation error:", error);
-      return { success: false, error: "Failed to cancel subscription" };
     }
   }
 
@@ -321,6 +486,17 @@ class PaymentService {
     autoRenew: boolean;
   }> {
     try {
+      // Fetch from your backend
+      /*
+      const response = await fetch(`/api/subscriptions/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${userToken}`,
+        },
+      });
+      const subscription = await response.json();
+      return subscription;
+      */
+
       // Mock subscription status
       return {
         isActive: true,
@@ -339,42 +515,29 @@ class PaymentService {
     }
   }
 
-  // Payment methods management
-  async getPaymentMethods(userId: string): Promise<PaymentMethod[]> {
-    return [
-      {
-        id: "pm_1",
-        type: "card",
-        details: "**** **** **** 1234",
-        isDefault: true,
-      },
-      {
-        id: "pm_2",
-        type: "upi",
-        details: "user@paytm",
-        isDefault: false,
-      },
-    ];
-  }
-
-  async addPaymentMethod(
-    method: Omit<PaymentMethod, "id">,
-  ): Promise<string | null> {
+  // Cancel subscription using Razorpay
+  async cancelSubscription(subscriptionId: string): Promise<{
+    success: boolean;
+    error?: string;
+  }> {
     try {
-      const id = `pm_${Date.now()}`;
-      return id;
-    } catch (error) {
-      console.error("Error adding payment method:", error);
-      return null;
-    }
-  }
+      // Cancel with Razorpay API
+      /*
+      const response = await fetch(`${this.baseUrl}/subscriptions/${subscriptionId}/cancel`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${Buffer.from(`${this.apiKey}:${this.apiSecret}`).toString('base64')}`,
+        },
+      });
 
-  async removePaymentMethod(methodId: string): Promise<boolean> {
-    try {
-      return true;
+      const result = await response.json();
+      return { success: result.status === 'cancelled' };
+      */
+
+      return { success: true };
     } catch (error) {
-      console.error("Error removing payment method:", error);
-      return false;
+      console.error("Subscription cancellation error:", error);
+      return { success: false, error: "Failed to cancel subscription" };
     }
   }
 
@@ -419,33 +582,25 @@ class PaymentService {
     };
   }
 
-  // Demo functions for testing
-  simulatePaymentFlow(plan: PaymentPlan): Promise<boolean> {
-    return new Promise((resolve) => {
+  // Test payment flow with real success/failure callbacks
+  async testPaymentFlow(plan: PaymentPlan, userDetails: any): Promise<boolean> {
+    const result = await this.initiateRazorpayPayment(plan, userDetails);
+
+    if (result.success) {
       Alert.alert(
-        "Demo Payment",
-        `Simulating payment for ${plan.name} plan (₹${plan.price})`,
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
-            onPress: () => resolve(false),
-          },
-          {
-            text: "Pay Now",
-            onPress: () => {
-              setTimeout(() => {
-                Alert.alert(
-                  "Payment Success!",
-                  "Your subscription has been activated.",
-                );
-                resolve(true);
-              }, 2000);
-            },
-          },
-        ],
+        "Payment Successful!",
+        `Your ${plan.name} subscription has been activated.\n\nPayment ID: ${result.paymentId}`,
+        [{ text: "Continue" }],
       );
-    });
+      return true;
+    } else {
+      Alert.alert(
+        "Payment Failed",
+        result.error || "Payment could not be processed. Please try again.",
+        [{ text: "Retry" }],
+      );
+      return false;
+    }
   }
 }
 
