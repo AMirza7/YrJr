@@ -286,6 +286,15 @@ export default function HomeScreen() {
           <Text style={styles.profileButtonText}>👤 {t("profile")}</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.subscriptionButton}
+          onPress={() => router.push("/subscription")}
+        >
+          <Text style={styles.subscriptionButtonText}>
+            ⭐ {t("subscription")}
+          </Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>🚪 {t("logout")}</Text>
         </TouchableOpacity>
@@ -415,6 +424,18 @@ const styles = StyleSheet.create({
   },
   profileButtonText: {
     color: "#374151",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  subscriptionButton: {
+    backgroundColor: "#1e40af",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  subscriptionButtonText: {
+    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
