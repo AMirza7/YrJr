@@ -47,9 +47,11 @@ export default function RootLayout() {
     <LocalizationProvider>
       <ThemeProvider>
         <StatusBar style="auto" />
-        <Stack screenOptions={{
-          headerShown: false,
-        }}>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
           <Stack.Screen name="index" />
           <Stack.Screen name="landing" />
           <Stack.Screen name="login" />
@@ -74,8 +76,6 @@ export default function RootLayout() {
         </Stack>
       </ThemeProvider>
     </LocalizationProvider>
-  );
-    </Suspense>
   );
 }
 
