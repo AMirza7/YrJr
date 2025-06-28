@@ -351,25 +351,16 @@ export default function SignupScreen() {
             ))}
           </View>
 
-          {/* Legal Professional Details */}
+          {/* Legal Professional Details - Optional for post-signup */}
           {shouldShowLegalFields && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>
-                Legal Professional Details
+                Legal Professional Details (Optional)
               </Text>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Bar Council Number *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your Bar Council registration number"
-                  value={formData.barCouncilNumber}
-                  onChangeText={(text) =>
-                    setFormData((prev) => ({ ...prev, barCouncilNumber: text }))
-                  }
-                  autoCapitalize="characters"
-                />
-              </View>
+              <Text style={styles.sectionDescription}>
+                You can complete these details after signup to access advanced
+                features
+              </Text>
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Years of Practice</Text>
