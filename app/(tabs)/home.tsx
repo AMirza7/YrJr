@@ -10,7 +10,11 @@ import {
 import { router } from "expo-router";
 import { storage } from "@/services/storage";
 import { User } from "@/types";
-import { getRoleColor, getRolePermissions } from "@/constants/tabs";
+import {
+  getRoleColor,
+  getRolePermissions,
+  getVisibleTabs,
+} from "@/constants/tabs";
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import { dataService } from "@/services/dataService";
 
