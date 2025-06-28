@@ -1,345 +1,218 @@
-export const INDIAN_LANGUAGES = [
-  { code: "en", name: "English", nativeName: "English" },
-  { code: "hi", name: "Hindi", nativeName: "हिन्दी" },
-  { code: "bn", name: "Bengali", nativeName: "বাংলা" },
-  { code: "te", name: "Telugu", nativeName: "తెలుగు" },
-  { code: "mr", name: "Marathi", nativeName: "मराठी" },
-  { code: "ta", name: "Tamil", nativeName: "தமிழ்" },
-  { code: "gu", name: "Gujarati", nativeName: "ગુજરાતી" },
-  { code: "ur", name: "Urdu", nativeName: "اردو" },
-  { code: "kn", name: "Kannada", nativeName: "ಕನ್ನಡ" },
-  { code: "ml", name: "Malayalam", nativeName: "മലയാളം" },
-  { code: "or", name: "Odia", nativeName: "ଓଡ଼ିଆ" },
-  { code: "pa", name: "Punjabi", nativeName: "ਪੰਜਾਬੀ" },
-  { code: "as", name: "Assamese", nativeName: "অসমীয়া" },
-];
+export const LEGAL_SECTIONS = {
+  IPC: [
+    {
+      section: "302",
+      title: "Murder",
+      description:
+        "Whoever commits murder shall be punished with death, or imprisonment for life, and shall also be liable to fine.",
+    },
+    {
+      section: "304",
+      title: "Culpable homicide not amounting to murder",
+      description:
+        "Whoever commits culpable homicide not amounting to murder shall be punished with imprisonment for life, or imprisonment of either description for a term which may extend to ten years, and shall also be liable to fine, if the act by which the death is caused is done with the intention of causing death, or of causing such bodily injury as is likely to cause death.",
+    },
+    {
+      section: "354",
+      title:
+        "Assault or criminal force to woman with intent to outrage her modesty",
+      description:
+        "Whoever assaults or uses criminal force to any woman, intending to outrage or knowing it to be likely that he will thereby outrage her modesty, shall be punished with imprisonment of either description for a term which shall not be less than one year but which may extend to five years, and shall also be liable to fine.",
+    },
+    {
+      section: "376",
+      title: "Rape",
+      description:
+        "A man is said to commit 'rape' if he has sexual intercourse with a woman under circumstances falling under any of the six following descriptions...",
+    },
+    {
+      section: "420",
+      title: "Cheating and dishonestly inducing delivery of property",
+      description:
+        "Whoever cheats and thereby dishonestly induces the person deceived to deliver any property to any person, or to make, alter or destroy the whole or any part of a valuable security, or anything which is signed or sealed, and which is capable of being converted into a valuable security, shall be punished with imprisonment of either description for a term which may extend to seven years, and shall also be liable to fine.",
+    },
+  ],
+  BNS: [
+    {
+      section: "103",
+      title: "Murder",
+      description:
+        "Whoever commits murder shall be punished with death or imprisonment for life, and shall also be liable to fine.",
+    },
+    {
+      section: "105",
+      title: "Culpable homicide not amounting to murder",
+      description:
+        "Whoever commits culpable homicide not amounting to murder shall be punished with imprisonment for life, or imprisonment of either description for a term which may extend to ten years, and shall also be liable to fine.",
+    },
+    {
+      section: "74",
+      title:
+        "Assault or criminal force to woman with intent to outrage her modesty",
+      description:
+        "Whoever assaults or uses criminal force to any woman, intending to outrage or knowing it to be likely that he will thereby outrage her modesty, shall be punished with imprisonment of either description for a term which shall not be less than one year but which may extend to five years, and shall also be liable to fine.",
+    },
+    {
+      section: "63",
+      title: "Rape",
+      description:
+        "A man is said to commit 'rape' if he penetrates his penis, to any extent, into the vagina, mouth, urethra or anus of a woman or makes her to do so with him or any other person...",
+    },
+    {
+      section: "318",
+      title: "Cheating",
+      description:
+        "Whoever cheats shall be punished with imprisonment of either description for a term which may extend to one year, or with fine, or with both.",
+    },
+  ],
+};
 
-export const USER_ROLES = [
+export const LEGAL_TEMPLATES = [
   {
-    id: "lawyer",
-    title: "Lawyer",
-    description: "Practicing advocate with Bar Council registration",
-    icon: "briefcase",
-    color: "#8B5CF6",
-    requiresVerification: true,
-  },
-  {
-    id: "junior_lawyer",
-    title: "Junior Lawyer",
-    description: "Recently qualified lawyer with limited experience",
-    icon: "academic-cap",
-    color: "#06B6D4",
-    requiresVerification: true,
-  },
-  {
-    id: "lawyer_assistant",
-    title: "Lawyer Assistant",
-    description: "Legal assistant supporting lawyer activities",
-    icon: "user-group",
-    color: "#10B981",
-    requiresVerification: false,
-  },
-  {
-    id: "law_office_helper",
-    title: "Law Office Helper",
-    description: "Administrative support in legal offices",
-    icon: "clipboard-document",
-    color: "#F59E0B",
-    requiresVerification: false,
-  },
-  {
-    id: "law_student",
-    title: "Law Student",
-    description: "Currently pursuing law degree",
-    icon: "book-open",
-    color: "#EF4444",
-    requiresVerification: false,
-  },
-];
+    id: "1",
+    category: "Criminal Law",
+    title: "FIR Template",
+    description: "First Information Report template for criminal cases",
+    content: `FIRST INFORMATION REPORT
+Under Section 154 Cr.P.C.
 
-export const SUBSCRIPTION_PLANS = [
-  {
-    id: "monthly",
-    title: "Monthly Plan",
-    price: 299,
-    duration: "1 month",
-    features: [
-      "Access to all court orders",
-      "Basic search functionality",
-      "Community access",
-      "Daily quiz",
-      "Email support",
-    ],
-    popular: false,
+District: [DISTRICT_NAME]
+Police Station: [POLICE_STATION]
+FIR No: [FIR_NUMBER]
+Date: [DATE]
+Time: [TIME]
+
+Details of Complainant:
+Name: [COMPLAINANT_NAME]
+Father's/Husband's Name: [FATHER_HUSBAND_NAME]
+Address: [ADDRESS]
+Mobile: [MOBILE_NUMBER]
+
+Details of Incident:
+Date & Time of Incident: [INCIDENT_DATE_TIME]
+Place of Incident: [INCIDENT_PLACE]
+Brief Description: [INCIDENT_DESCRIPTION]
+
+Sections Applied: [SECTIONS]
+
+Station House Officer
+[POLICE_STATION]`,
   },
   {
-    id: "quarterly",
-    title: "Quarterly Plan",
-    price: 799,
-    duration: "3 months",
-    originalPrice: 897,
-    features: [
-      "All Monthly features",
-      "Advanced search filters",
-      "Voice assistant",
-      "Priority messaging",
-      "Case tracker",
-      "Phone support",
-    ],
-    popular: true,
+    id: "2",
+    category: "Civil Law",
+    title: "Legal Notice",
+    description: "Legal notice template for civil disputes",
+    content: `LEGAL NOTICE
+
+To,
+[RECIPIENT_NAME]
+[RECIPIENT_ADDRESS]
+
+SUBJECT: Legal Notice under Section 80 of Civil Procedure Code, 1908
+
+Dear Sir/Madam,
+
+I, [SENDER_NAME], son/daughter of [FATHER_NAME], resident of [SENDER_ADDRESS], through my advocate [ADVOCATE_NAME], do hereby serve upon you this legal notice for the following reasons:
+
+1. FACTS OF THE CASE:
+[CASE_FACTS]
+
+2. CAUSE OF ACTION:
+[CAUSE_OF_ACTION]
+
+3. DEMAND:
+[DEMANDS]
+
+Take notice that if you fail to comply with the above demands within 30 days of receipt of this notice, my client shall be constrained to initiate appropriate legal proceedings against you for recovery of the amount along with interest and costs.
+
+Yours faithfully,
+[ADVOCATE_NAME]
+Advocate for [SENDER_NAME]`,
   },
   {
-    id: "yearly",
-    title: "Yearly Plan",
-    price: 2999,
-    duration: "12 months",
-    originalPrice: 3588,
-    features: [
-      "All Quarterly features",
-      "Unlimited document storage",
-      "AI-powered insights",
-      "Custom legal templates",
-      "Priority customer support",
-      "Legal consultation credits",
-    ],
-    popular: false,
+    id: "3",
+    category: "Corporate Law",
+    title: "Board Resolution",
+    description: "Corporate board resolution template",
+    content: `BOARD RESOLUTION
+
+[COMPANY_NAME]
+CIN: [CIN_NUMBER]
+
+RESOLUTION PASSED AT THE MEETING OF THE BOARD OF DIRECTORS
+
+Date: [DATE]
+Time: [TIME]
+Venue: [VENUE]
+
+RESOLVED THAT:
+
+[RESOLUTION_CONTENT]
+
+This resolution was passed by the Board of Directors at their meeting held on [DATE].
+
+Chairman: [CHAIRMAN_NAME]
+Signature: ________________
+
+Company Secretary: [SECRETARY_NAME]
+Signature: ________________`,
   },
 ];
 
 export const COURT_TYPES = [
-  "Supreme Court",
+  "Supreme Court of India",
   "High Court",
   "District Court",
   "Sessions Court",
-  "Lok Adalat",
+  "Magistrate Court",
   "Family Court",
   "Consumer Court",
   "Labour Court",
-  "Revenue Court",
-  "Motor Accident Claims Tribunal",
+  "Tribunal",
 ];
 
-export const LEGAL_SECTIONS = [
-  {
-    code: "IPC",
-    name: "Indian Penal Code",
-    description: "Criminal law provisions",
-  },
-  {
-    code: "CrPC",
-    name: "Criminal Procedure Code",
-    description: "Criminal procedure guidelines",
-  },
-  {
-    code: "BNS",
-    name: "Bharatiya Nyaya Sanhita",
-    description: "New criminal law code",
-  },
-  {
-    code: "BNSS",
-    name: "Bharatiya Nagarik Suraksha Sanhita",
-    description: "New criminal procedure code",
-  },
-  {
-    code: "CPC",
-    name: "Civil Procedure Code",
-    description: "Civil procedure guidelines",
-  },
-  {
-    code: "Evidence Act",
-    name: "Indian Evidence Act",
-    description: "Rules of evidence",
-  },
-  {
-    code: "Constitution",
-    name: "Indian Constitution",
-    description: "Fundamental law of India",
-  },
-];
-
-export const LEGAL_CATEGORIES = [
-  "Criminal Law",
-  "Civil Law",
-  "Family Law",
-  "Corporate Law",
-  "Labour Law",
-  "Property Law",
-  "Constitutional Law",
-  "Tax Law",
-  "Consumer Protection",
-  "Environmental Law",
+export const CASE_TYPES = [
+  "Criminal",
+  "Civil",
+  "Constitutional",
+  "Corporate",
+  "Family",
+  "Labour",
+  "Tax",
+  "Consumer",
+  "Environmental",
   "Intellectual Property",
-  "Banking Law",
 ];
 
-export const SPECIALIZATIONS = [
-  "Criminal Defense",
-  "Civil Litigation",
-  "Family Law",
-  "Corporate Law",
-  "Immigration Law",
-  "Real Estate",
-  "Personal Injury",
-  "Employment Law",
-  "Tax Law",
-  "Intellectual Property",
-  "Environmental Law",
-  "Banking & Finance",
-  "Constitutional Law",
-  "Consumer Protection",
-  "Media & Entertainment",
-  "Cyber Law",
+export const CASE_STATUS = [
+  "Filed",
+  "Under Investigation",
+  "Charge Sheet Filed",
+  "Trial in Progress",
+  "Arguments Completed",
+  "Judgment Reserved",
+  "Judgment Delivered",
+  "Appeal Filed",
+  "Disposed",
+  "Closed",
 ];
 
-export const LEGAL_PROCESSES = [
-  {
-    id: "fir",
-    title: "How to File FIR",
-    category: "Criminal Law",
-    steps: [
-      "Go to the nearest police station",
-      "Provide detailed information about the incident",
-      "Ensure FIR is registered and get a copy",
-      "Keep all related documents safe",
-    ],
-    timeRequired: "1-2 hours",
-    documents: ["Identity proof", "Address proof", "Evidence (if any)"],
-  },
-  {
-    id: "bail",
-    title: "Bail Application Process",
-    category: "Criminal Law",
-    steps: [
-      "File bail application in appropriate court",
-      "Prepare supporting documents",
-      "Present case before magistrate/judge",
-      "Comply with bail conditions if granted",
-    ],
-    timeRequired: "1-7 days",
-    documents: ["Bail application", "Surety documents", "Identity proof"],
-  },
-  {
-    id: "divorce",
-    title: "Divorce Procedure",
-    category: "Family Law",
-    steps: [
-      "File divorce petition in family court",
-      "Serve notice to spouse",
-      "Attend court hearings",
-      "Complete legal formalities",
-    ],
-    timeRequired: "6 months - 2 years",
-    documents: ["Marriage certificate", "Identity proof", "Address proof"],
-  },
+export const PRIORITY_LEVELS = [
+  { value: "high", label: "High Priority", color: "#ef4444" },
+  { value: "medium", label: "Medium Priority", color: "#f59e0b" },
+  { value: "low", label: "Low Priority", color: "#10b981" },
 ];
 
-export const HOME_SECTIONS = [
-  {
-    id: "legal_pinboard",
-    title: "Legal Pinboard",
-    description: "Pin important notes and updates",
-    icon: "push-pin",
-    color: "#8B5CF6",
-    route: "/(main)/legal-pinboard",
-  },
-  {
-    id: "case_timeline",
-    title: "Case Timeline",
-    description: "Interactive case progress tracker",
-    icon: "timeline",
-    color: "#3B82F6",
-    route: "/(main)/case-timeline",
-  },
-  {
-    id: "secure_vault",
-    title: "Secure Vault",
-    description: "Encrypted notes with biometric access",
-    icon: "shield-checkmark",
-    color: "#10B981",
-    route: "/(main)/secure-vault",
-  },
-  {
-    id: "section_comparator",
-    title: "IPC vs BNS",
-    description: "Compare legal sections side-by-side",
-    icon: "git-compare",
-    color: "#F59E0B",
-    route: "/(main)/section-comparator",
-  },
-  {
-    id: "flashcards",
-    title: "Legal Flashcards",
-    description: "Micro-learning for law students",
-    icon: "school",
-    color: "#EC4899",
-    route: "/(main)/flashcards",
-  },
-  {
-    id: "client_folders",
-    title: "Client Folders",
-    description: "Organize cases by client",
-    icon: "folder",
-    color: "#06B6D4",
-    route: "/(main)/client-folders",
-  },
-  {
-    id: "court_orders",
-    title: "Court Orders",
-    description: "Recent court orders and judgments",
-    icon: "document-text",
-    color: "#EF4444",
-    route: "/(main)/(tabs)/court-orders",
-  },
-  {
-    id: "messaging",
-    title: "Messaging",
-    description: "Connect with legal professionals",
-    icon: "chatbubbles",
-    color: "#84CC16",
-    route: "/(main)/(tabs)/messages",
-  },
-];
-
-export const QUIZ_CATEGORIES = [
-  "Constitutional Law",
-  "Criminal Law",
-  "Civil Law",
-  "Family Law",
-  "Corporate Law",
-  "Labour Law",
-  "Property Law",
-  "Tax Law",
-  "Evidence Law",
-  "Procedure Code",
-];
-
-export const INDIAN_STATES = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
+export const PINBOARD_TAGS = [
+  "Urgent",
+  "Review",
+  "Follow-up",
+  "Court Date",
+  "Documentation",
+  "Client Meeting",
+  "Research",
+  "Filing",
+  "Payment",
+  "Appeal",
 ];

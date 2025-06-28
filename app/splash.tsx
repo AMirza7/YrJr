@@ -3,20 +3,13 @@ import { View, Text, StyleSheet, Animated } from "react-native";
 import { router } from "expo-router";
 import { storage } from "@/services/storage";
 
-export default function Index() {
+export default function SplashScreen() {
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.3));
-  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Small delay to ensure layout is mounted
-    const timer = setTimeout(() => {
-      setIsReady(true);
-      startAnimations();
-      checkAuthStatus();
-    }, 100);
-
-    return () => clearTimeout(timer);
+    startAnimations();
+    checkAuthStatus();
   }, []);
 
   const startAnimations = () => {
@@ -55,20 +48,9 @@ export default function Index() {
       }
     } catch (error) {
       console.error("Auth check error:", error);
-      setTimeout(() => {
-        router.replace("/login");
-      }, 100);
+      router.replace("/login");
     }
   };
-
-  // Don't render anything until we're ready
-  if (!isReady) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.logo}>⚖️</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>

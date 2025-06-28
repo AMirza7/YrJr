@@ -1,237 +1,160 @@
-import React, { useState, useRef } from "react";
+import { useState } from "react";
 import {
   View,
-  TouchableOpacity,
-  StyleSheet,
-  Animated,
-  Dimensions,
   Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Alert,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import {
-  LegalTheme,
-  FontSizes,
-  Spacing,
-  BorderRadius,
-  Shadows,
-} from "@/constants/Theme";
-import { useColorScheme } from "@/hooks/useColorScheme";
-
-interface FABAction {
-  id: string;
-  label: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  onPress: () => void;
-  color?: string;
-}
 
 interface FloatingActionButtonProps {
-  actions?: FABAction[];
-  position?: "bottomRight" | "bottomLeft" | "bottomCenter";
-  size?: "small" | "large";
+  userRole: string;
 }
 
-export function FloatingActionButton({
-  actions,
-  position = "bottomRight",
-  size = "large",
+export default function FloatingActionButton({
+  userRole,
 }: FloatingActionButtonProps) {
-  const colorScheme = useColorScheme();
-  const theme = LegalTheme[colorScheme ?? "light"];
   const [isOpen, setIsOpen] = useState(false);
-  const animation = useRef(new Animated.Value(0)).current;
-  const opacityAnimation = useRef(new Animated.Value(0)).current;
+  const [animation] = useState(new Animated.Value(0));
 
-  const defaultActions: FABAction[] = [
+  const quickActions = [
     {
-      id: "scan",
-      label: "Scan Document",
-      icon: "scan",
-      onPress: () => {
-        router.push("/(main)/document-scanner");
-        toggleFAB();
-      },
-      color: theme.success,
+      icon: "📌",
+      label: "New Pinboard",
+      action: () => router.push("/(tabs)/pinboard"),
+      roles: ["lawyer", "junior_lawyer", "lawyer_assistant"],
     },
     {
-      id: "ai",
-      label: "Ask AI",
-      icon: "chatbubble-ellipses",
-      onPress: () => {
-        router.push("/(main)/ai-assistant");
-        toggleFAB();
-      },
-      color: theme.primary,
+      icon: "🔐",
+      label: "Secure Note",
+      action: () => router.push("/(tabs)/notes"),
+      roles: [
+        "lawyer",
+        "junior_lawyer",
+        "lawyer_assistant",
+        "law_office_helper",
+      ],
     },
     {
-      id: "help",
-      label: "Help & Support",
-      icon: "help-circle",
-      onPress: () => {
-        router.push("/(main)/help-support");
-        toggleFAB();
-      },
-      color: theme.info,
+      icon: "📄",
+      label: "Template",
+      action: () => router.push("/templates"),
+      roles: [
+        "lawyer",
+        "junior_lawyer",
+        "lawyer_assistant",
+        "law_office_helper",
+        "law_student",
+      ],
     },
     {
-      id: "message",
-      label: "New Message",
-      icon: "mail",
-      onPress: () => {
-        router.push("/(main)/(tabs)/messages");
-        toggleFAB();
-      },
-      color: theme.secondary,
+      icon: "⚖️",
+      label: "AI Compare",
+      action: () => router.push("/ai-comparator"),
+      roles: ["lawyer", "junior_lawyer", "law_student"],
+    },
+    {
+      icon: "🧠",
+      label: "Flashcards",
+      action: () => router.push("/flashcards"),
+      roles: [
+        "lawyer",
+        "junior_lawyer",
+        "lawyer_assistant",
+        "law_office_helper",
+        "law_student",
+      ],
     },
   ];
 
-  const fabActions = actions || defaultActions;
+  const availableActions = quickActions.filter((action) =>
+    action.roles.includes(userRole),
+  );
 
-  const toggleFAB = () => {
+  const toggleMenu = () => {
     const toValue = isOpen ? 0 : 1;
 
-    Animated.parallel([
-      Animated.spring(animation, {
-        toValue,
-        useNativeDriver: true,
-        tension: 80,
-        friction: 8,
-      }),
-      Animated.timing(opacityAnimation, {
-        toValue,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    Animated.spring(animation, {
+      toValue,
+      useNativeDriver: true,
+      tension: 100,
+      friction: 8,
+    }).start();
 
     setIsOpen(!isOpen);
   };
 
-  const getPositionStyle = () => {
-    const baseStyle = {
-      position: "absolute" as const,
-      bottom: Spacing.xl + 20,
-    };
-
-    switch (position) {
-      case "bottomLeft":
-        return { ...baseStyle, left: Spacing.md };
-      case "bottomCenter":
-        return { ...baseStyle, alignSelf: "center" as const };
-      case "bottomRight":
-      default:
-        return { ...baseStyle, right: Spacing.md };
-    }
+  const handleActionPress = (action: () => void) => {
+    action();
+    toggleMenu();
   };
 
-  const mainButtonSize = size === "large" ? 60 : 48;
-  const actionButtonSize = size === "large" ? 48 : 40;
-
   return (
-    <View style={[styles.container, getPositionStyle()]}>
+    <View style={styles.container}>
       {/* Action Buttons */}
-      {fabActions.map((action, index) => {
+      {availableActions.map((action, index) => {
         const translateY = animation.interpolate({
           inputRange: [0, 1],
-          outputRange: [0, -(60 + index * 60)],
+          outputRange: [0, -(60 * (index + 1))],
+        });
+
+        const opacity = animation.interpolate({
+          inputRange: [0, 0.5, 1],
+          outputRange: [0, 0.5, 1],
+        });
+
+        const scale = animation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
         });
 
         return (
           <Animated.View
-            key={action.id}
+            key={action.label}
             style={[
-              styles.actionContainer,
+              styles.actionButton,
               {
-                transform: [{ translateY }],
-                opacity: opacityAnimation,
+                transform: [{ translateY }, { scale }],
+                opacity,
               },
             ]}
           >
-            <Text
-              style={[
-                styles.actionLabel,
-                {
-                  color: theme.text,
-                  backgroundColor: theme.surface,
-                  borderColor: theme.border,
-                },
-              ]}
-            >
-              {action.label}
-            </Text>
             <TouchableOpacity
-              style={[
-                styles.actionButton,
-                {
-                  backgroundColor: action.color || theme.primary,
-                  width: actionButtonSize,
-                  height: actionButtonSize,
-                  borderRadius: actionButtonSize / 2,
-                },
-                Shadows.md,
-              ]}
-              onPress={action.onPress}
-              activeOpacity={0.8}
+              style={styles.actionButtonTouchable}
+              onPress={() => handleActionPress(action.action)}
             >
-              <Ionicons
-                name={action.icon}
-                size={size === "large" ? 24 : 20}
-                color="white"
-              />
+              <Text style={styles.actionIcon}>{action.icon}</Text>
             </TouchableOpacity>
+            <Text style={styles.actionLabel}>{action.label}</Text>
           </Animated.View>
         );
       })}
 
-      {/* Main FAB Button */}
-      <TouchableOpacity
-        style={[
-          styles.mainButton,
-          {
-            backgroundColor: theme.primary,
-            width: mainButtonSize,
-            height: mainButtonSize,
-            borderRadius: mainButtonSize / 2,
-          },
-          Shadows.lg,
-        ]}
-        onPress={toggleFAB}
-        activeOpacity={0.8}
-      >
+      {/* Main FAB */}
+      <TouchableOpacity style={styles.fab} onPress={toggleMenu}>
         <Animated.View
-          style={[
-            styles.mainButtonIcon,
-            {
-              transform: [
-                {
-                  rotate: animation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ["0deg", "45deg"],
-                  }),
-                },
-              ],
-            },
-          ]}
+          style={{
+            transform: [
+              {
+                rotate: animation.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ["0deg", "45deg"],
+                }),
+              },
+            ],
+          }}
         >
-          <Ionicons
-            name="add"
-            size={size === "large" ? 32 : 24}
-            color="white"
-          />
+          <Text style={styles.fabIcon}>+</Text>
         </Animated.View>
       </TouchableOpacity>
 
       {/* Backdrop */}
       {isOpen && (
         <TouchableOpacity
-          style={[
-            styles.backdrop,
-            {
-              backgroundColor: theme.overlay,
-            },
-          ]}
-          onPress={toggleFAB}
+          style={styles.backdrop}
+          onPress={toggleMenu}
           activeOpacity={1}
         />
       )}
@@ -241,44 +164,68 @@ export function FloatingActionButton({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
+    position: "absolute",
+    bottom: 90,
+    right: 20,
     zIndex: 1000,
   },
-  actionContainer: {
+  fab: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#7c3aed",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: Spacing.sm,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  fabIcon: {
+    fontSize: 24,
+    color: "#fff",
+    fontWeight: "300",
+  },
+  actionButton: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
     flexDirection: "row",
     alignItems: "center",
   },
+  actionButtonTouchable: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  actionIcon: {
+    fontSize: 20,
+  },
   actionLabel: {
-    fontSize: FontSizes.sm,
+    marginRight: 12,
+    backgroundColor: "#111827",
+    color: "#fff",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 12,
     fontWeight: "500",
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.md,
-    marginRight: Spacing.sm,
-    borderWidth: 1,
-    minWidth: 100,
-    textAlign: "center",
-  },
-  actionButton: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  mainButton: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  mainButtonIcon: {
-    justifyContent: "center",
-    alignItems: "center",
   },
   backdrop: {
     position: "absolute",
-    top: -Dimensions.get("window").height,
-    left: -Dimensions.get("window").width / 2,
-    width: Dimensions.get("window").width * 2,
-    height: Dimensions.get("window").height * 2,
-    zIndex: -1,
+    top: -1000,
+    left: -1000,
+    right: -1000,
+    bottom: -1000,
+    backgroundColor: "transparent",
   },
 });
