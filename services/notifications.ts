@@ -123,9 +123,13 @@ class NotificationService {
       } else {
         // For mobile/native environment
         try {
-          storedData = await storage.get(this.NOTIFICATIONS_KEY);
+          // Use AsyncStorage directly since storage service doesn't have generic get/set
+          const { default: AsyncStorage } = await import(
+            "@react-native-async-storage/async-storage"
+          );
+          storedData = await AsyncStorage.getItem(this.NOTIFICATIONS_KEY);
         } catch (err) {
-          console.log("Storage service not available, using mock data");
+          console.log("AsyncStorage not available, using mock data");
         }
       }
 
@@ -152,12 +156,16 @@ class NotificationService {
       } else {
         // For mobile/native environment
         try {
-          await storage.set(
+          // Use AsyncStorage directly since storage service doesn't have generic get/set
+          const { default: AsyncStorage } = await import(
+            "@react-native-async-storage/async-storage"
+          );
+          await AsyncStorage.setItem(
             this.NOTIFICATIONS_KEY,
             JSON.stringify(this.notifications),
           );
         } catch (err) {
-          console.log("Storage service not available for saving");
+          console.log("AsyncStorage not available for saving");
         }
       }
     } catch (error) {
@@ -175,9 +183,13 @@ class NotificationService {
       } else {
         // For mobile/native environment
         try {
-          storedData = await storage.get(this.SETTINGS_KEY);
+          // Use AsyncStorage directly since storage service doesn't have generic get/set
+          const { default: AsyncStorage } = await import(
+            "@react-native-async-storage/async-storage"
+          );
+          storedData = await AsyncStorage.getItem(this.SETTINGS_KEY);
         } catch (err) {
-          console.log("Storage service not available, using default settings");
+          console.log("AsyncStorage not available, using default settings");
         }
       }
 
@@ -201,9 +213,16 @@ class NotificationService {
       } else {
         // For mobile/native environment
         try {
-          await storage.set(this.SETTINGS_KEY, JSON.stringify(this.settings));
+          // Use AsyncStorage directly since storage service doesn't have generic get/set
+          const { default: AsyncStorage } = await import(
+            "@react-native-async-storage/async-storage"
+          );
+          await AsyncStorage.setItem(
+            this.SETTINGS_KEY,
+            JSON.stringify(this.settings),
+          );
         } catch (err) {
-          console.log("Storage service not available for saving settings");
+          console.log("AsyncStorage not available for saving settings");
         }
       }
     } catch (error) {
