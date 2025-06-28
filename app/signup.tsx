@@ -100,17 +100,17 @@ export default function SignupScreen() {
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
-      Alert.alert("Error", "Please enter your full name");
+      Alert.alert(t("error"), t("enterName"));
       return false;
     }
 
     if (!validateEmail(formData.email)) {
-      Alert.alert("Error", "Please enter a valid email address");
+      Alert.alert(t("error"), t("invalidEmail"));
       return false;
     }
 
     if (!validatePhone(formData.phone)) {
-      Alert.alert("Error", "Please enter a valid 10-digit phone number");
+      Alert.alert(t("error"), t("invalidPhone"));
       return false;
     }
 
@@ -121,19 +121,18 @@ export default function SignupScreen() {
     }
 
     if (formData.password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
+      Alert.alert(t("error"), t("passwordsNotMatch"));
       return false;
     }
 
-    // Additional validation for lawyers
-    if (
-      (formData.role === "lawyer" || formData.role === "junior_lawyer") &&
-      !formData.barCouncilNumber
-    ) {
-      Alert.alert("Error", "Bar Council Number is required for lawyers");
+    // Check terms acceptance
+    if (!termsAccepted) {
+      setTermsError(true);
+      Alert.alert(t("error"), t("agreeToTerms") + " required to continue");
       return false;
     }
 
+    setTermsError(false);
     return true;
   };
 
