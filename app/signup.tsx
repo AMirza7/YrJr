@@ -161,12 +161,6 @@ export default function SignupScreen() {
       } else {
         Alert.alert("Signup Failed", result.error || "Please try again.");
       }
-              onPress: () => router.replace("/login"),
-            },
-          ],
-        );
-      } else {
-        Alert.alert("Error", response.message || "Signup failed");
       }
     } catch (error) {
       Alert.alert("Error", "Something went wrong. Please try again.");
