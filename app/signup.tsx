@@ -23,6 +23,9 @@ import {
   getRoleIcon,
   ROLE_DESCRIPTIONS,
 } from "@/constants/roles";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLocalization } from "@/contexts/LocalizationContext";
+import TermsCheckbox from "@/components/auth/TermsCheckbox";
 
 export default function SignupScreen() {
   const [formData, setFormData] = useState<SignupData>({
