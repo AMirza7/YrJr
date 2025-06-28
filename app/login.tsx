@@ -6,11 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  ScrollView,
 } from "react-native";
 import { router } from "expo-router";
-import { DEMO_ACCOUNTS } from "@/constants/auth";
-import { storage } from "@/services/storage";
-import { User } from "@/types";
+import { authService } from "@/services/auth";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -25,84 +24,108 @@ export default function LoginScreen() {
 
     setLoading(true);
 
-    // Check demo accounts
-    const demoAccount = DEMO_ACCOUNTS.find(
-      (account) => account.email === email && account.password === password,
-    );
+    try {
+      const response = await authService.login(email, password);
 
-    if (!demoAccount) {
-      Alert.alert("Error", "Invalid credentials");
+      if (response.success && response.user) {
+        // Navigate based on role
+        if (response.user.role === "admin") {
+          router.replace("/admin");
+        } else {
+          router.replace("/(tabs)");
+        }
+      } else {
+        Alert.alert("Error", response.message || "Invalid credentials");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Login failed. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // Create user and save
-    const user: User = {
-      id: `demo_${demoAccount.role}_${Date.now()}`,
-      email: demoAccount.email,
-      name: demoAccount.name,
-      role: demoAccount.role,
-      isVerified: true,
-    };
-
-    await storage.setUser(user);
-    await storage.setToken(`token_${user.id}`);
-
-    setLoading(false);
-    // Add small delay to ensure navigation completes properly
-    setTimeout(() => {
-      router.replace("/(tabs)");
-    }, 100);
   };
 
+  const demoCredentials = authService.getDemoCredentials();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
-      <Text style={styles.subtitle}>Sign in to your account</Text>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity
-        style={[styles.button, { opacity: loading ? 0.7 : 1 }]}
-        onPress={handleLogin}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "Signing In..." : "Sign In"}
-        </Text>
-      </TouchableOpacity>
-
-      <View style={styles.demo}>
-        <Text style={styles.demoTitle}>Demo Accounts:</Text>
-        {DEMO_ACCOUNTS.map((account) => (
-          <TouchableOpacity
-            key={account.role}
-            style={styles.demoButton}
-            onPress={() => {
-              setEmail(account.email);
-              setPassword(account.password);
-            }}
-          >
-            <Text style={styles.demoText}>{account.displayTitle}</Text>
-          </TouchableOpacity>
-        ))}
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Welcome Back</Text>
+        <Text style={styles.subtitle}>Sign in to your account</Text>
       </View>
-    </View>
+
+      <View style={styles.form}>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <TouchableOpacity
+          style={[styles.button, { opacity: loading ? 0.7 : 1 }]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? "Signing In..." : "Sign In"}
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.authActions}>
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert(
+                "Feature Coming",
+                "Password reset will be available soon",
+              )
+            }
+          >
+            <Text style={styles.linkText}>Forgot Password?</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/signup")}>
+            <Text style={styles.linkText}>Create Account</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.demo}>
+          <Text style={styles.demoTitle}>Demo Accounts:</Text>
+          {demoCredentials.map((account, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.demoButton,
+                account.role === "admin" && styles.adminDemoButton,
+              ]}
+              onPress={() => {
+                setEmail(account.email);
+                setPassword(account.password);
+              }}
+            >
+              <Text
+                style={[
+                  styles.demoText,
+                  account.role === "admin" && styles.adminDemoText,
+                ]}
+              >
+                {account.description}
+              </Text>
+              <Text style={styles.demoEmail}>{account.email}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
