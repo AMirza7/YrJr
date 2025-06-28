@@ -52,24 +52,13 @@ const config = {
     },
 
     // Plugin configurations (only load what's needed)
-    plugins: [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          image: "./assets/splash.png",
-          imageWidth: 200,
-          resizeMode: "contain",
-          backgroundColor: "#1e40af",
-        },
-      ],
-    ],
+    plugins: ["expo-router"],
 
-    // Experimental features for performance
-    experiments: {
-      turboModules: true,
-      newArchEnabled: true,
-    },
+    // Experimental features for performance (disabled for stability)
+    // experiments: {
+    //   turboModules: true,
+    //   newArchEnabled: true,
+    // },
 
     // Bundle splitting and lazy loading
     extra: {
