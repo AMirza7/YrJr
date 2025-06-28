@@ -1,54 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
-import { storage } from "@/services/storage";
-import { User } from "@/types";
-import BackButton from "@/components/navigation/BackButton";
-import {
-  paymentService,
-  PaymentPlan,
-  PaymentHistory,
-} from "@/services/payment";
+import { useLocalization } from "@/contexts/LocalizationContext";
+import { User, SubscriptionTier } from "@/types";
+import { SUBSCRIPTION_FEATURES, SUBSCRIPTION_PRICING } from "@/constants/roles";
 
 export default function SubscriptionScreen() {
+  const { t } = useLocalization();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [plans, setPlans] = useState<PaymentPlan[]>([]);
-  const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
-  const [selectedPlan, setSelectedPlan] = useState<string>("pro");
-  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    loadUser();
+    checkAuthAndLoadUser();
   }, []);
 
-  const loadUser = async () => {
+  const checkAuthAndLoadUser = async () => {
     try {
-      const currentUser = await storage.getUser();
+      const currentUser = await authService.getCurrentUser();
       if (!currentUser) {
-        router.replace("/login");
+        Alert.alert(
+          "Authentication Required",
+          "Please sign in to manage your subscription",
+          [{ text: "OK", onPress: () => router.replace("/login") }],
+        );
         return;
       }
       setUser(currentUser);
-      setSelectedPlan(currentUser.subscriptionTier);
-
-      // Load payment plans and history
-      const availablePlans = paymentService.getAvailablePlans();
-      const history = await paymentService.getPaymentHistory(
-        currentUser.id || "demo",
-      );
-
-      setPlans(availablePlans);
-      setPaymentHistory(history);
     } catch (error) {
       router.replace("/login");
     } finally {
@@ -56,370 +41,300 @@ export default function SubscriptionScreen() {
     }
   };
 
-  const handleUpgrade = async (planId: string) => {
+  const handleUpgrade = async (tier: SubscriptionTier) => {
     if (!user) return;
 
-    const plan = plans.find((p) => p.id === planId);
-    if (!plan) return;
-
-    if (planId === user.subscriptionTier) {
-      Alert.alert("Already Subscribed", "You already have this plan active.");
-      return;
+    try {
+      Alert.alert(
+        "Upgrade Subscription",
+        `Upgrade to ${tier.charAt(0).toUpperCase() + tier.slice(1)} plan?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Continue",
+            onPress: async () => {
+              // Simulate payment process
+              Alert.alert(
+                "Payment",
+                "This will redirect to payment gateway in production",
+                [
+                  {
+                    text: "Simulate Success",
+                    onPress: async () => {
+                      try {
+                        await authService.updateUser({
+                          subscriptionTier: tier,
+                        });
+                        setUser((prev) =>
+                          prev ? { ...prev, subscriptionTier: tier } : null,
+                        );
+                        Alert.alert(
+                          "Success",
+                          `Successfully upgraded to ${tier} plan!`,
+                        );
+                      } catch (error) {
+                        Alert.alert("Error", "Failed to upgrade subscription");
+                      }
+                    },
+                  },
+                  { text: "Cancel", style: "cancel" },
+                ],
+              );
+            },
+          },
+        ],
+      );
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
     }
+  };
 
-    if (plan.price === 0) {
-      // Free plan - direct upgrade
-      const updatedUser = { ...user, subscriptionTier: planId as any };
-      await storage.setUser(updatedUser);
-      setUser(updatedUser);
-      Alert.alert("Success!", "Your plan has been updated successfully.");
-      return;
-    }
+  const handleDowngrade = () => {
+    if (!user) return;
 
-    // Paid plan - initiate payment
     Alert.alert(
-      "Upgrade Subscription",
-      `Upgrade to ${plan.name} plan for ${paymentService.formatCurrency(plan.price)}?`,
+      "Downgrade Subscription",
+      "Are you sure you want to downgrade to Free plan? You will lose access to premium features.",
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Pay with Razorpay",
-          onPress: () => handleRazorpayPayment(plan),
-        },
-        {
-          text: "Pay with UPI",
-          onPress: () => handleUPIPayment(plan),
+          text: "Downgrade",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await authService.updateUser({
+                subscriptionTier: "free",
+              });
+              setUser((prev) =>
+                prev ? { ...prev, subscriptionTier: "free" } : null,
+              );
+              Alert.alert("Success", "Downgraded to Free plan");
+            } catch (error) {
+              Alert.alert("Error", "Failed to downgrade subscription");
+            }
+          },
         },
       ],
     );
   };
 
-  const handleRazorpayPayment = async (plan: PaymentPlan) => {
-    if (!user) return;
-
-    setProcessing(true);
-    try {
-      const userDetails = {
-        name: user.name,
-        email: user.email,
-        phone: user.phone || "+91-9999999999", // Fallback phone
-      };
-
-      // Use real Razorpay integration
-      const result = await paymentService.initiateRazorpayPayment(
-        plan,
-        userDetails,
-      );
-
-      if (result.success) {
-        // Update user subscription
-        const updatedUser = { ...user, subscriptionTier: plan.id as any };
-        await storage.setUser(updatedUser);
-        setUser(updatedUser);
-
-        // Reload payment history
-        const history = await paymentService.getPaymentHistory(
-          user.id || "demo",
-        );
-        setPaymentHistory(history);
-
-        Alert.alert(
-          "Payment Successful!",
-          `Your ${plan.name} subscription is now active.\n\nPayment ID: ${result.paymentId}`,
-          [{ text: "Continue" }],
-        );
-      } else {
-        Alert.alert(
-          "Payment Failed",
-          result.error || "Payment could not be processed.",
-        );
-      }
-    } catch (error) {
-      Alert.alert(
-        "Payment Error",
-        "Failed to process payment. Please try again.",
-      );
-    } finally {
-      setProcessing(false);
+  const getPlanColor = (tier: SubscriptionTier, current: boolean) => {
+    if (current) return "#10B981";
+    switch (tier) {
+      case "free":
+        return "#6B7280";
+      case "pro":
+        return "#1E40AF";
+      case "premium":
+        return "#7C3AED";
+      default:
+        return "#6B7280";
     }
-  };
-
-  const handleUPIPayment = async (plan: PaymentPlan) => {
-    if (!user) return;
-
-    setProcessing(true);
-    try {
-      const result = await paymentService.initiateUPIPayment(plan);
-
-      if (result.success && result.upiLink) {
-        Alert.alert("UPI Payment", "Opening UPI app for payment...", [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
-          {
-            text: "Open UPI App",
-            onPress: async () => {
-              // In real app, this would open the UPI app
-              // Linking.openURL(result.upiLink);
-              Alert.alert(
-                "Demo Mode",
-                "UPI payment simulation completed successfully!",
-              );
-
-              // Simulate successful payment
-              const updatedUser = { ...user, subscriptionTier: plan.id as any };
-              await storage.setUser(updatedUser);
-              setUser(updatedUser);
-
-              // Reload payment history
-              const history = await paymentService.getPaymentHistory(
-                user.id || "demo",
-              );
-              setPaymentHistory(history);
-            },
-          },
-        ]);
-      } else {
-        Alert.alert(
-          "Error",
-          result.error || "Failed to generate UPI payment link",
-        );
-      }
-    } catch (error) {
-      Alert.alert("Error", "UPI payment failed. Please try again.");
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const PlanCard = ({ plan }: { plan: PaymentPlan }) => {
-    const isCurrentPlan = user?.subscriptionTier === plan.id;
-    const planColor = plan.popular
-      ? "#3b82f6"
-      : plan.price === 0
-        ? "#6b7280"
-        : "#7c3aed";
-
-    return (
-      <View
-        style={[
-          styles.planCard,
-          { borderColor: planColor },
-          isCurrentPlan && styles.currentPlan,
-          plan.popular && styles.recommendedPlan,
-        ]}
-      >
-        {plan.popular && (
-          <View
-            style={[styles.recommendedBadge, { backgroundColor: planColor }]}
-          >
-            <Text style={styles.recommendedText}>MOST POPULAR</Text>
-          </View>
-        )}
-
-        {plan.discountPercentage && (
-          <View style={styles.discountBadge}>
-            <Text style={styles.discountText}>
-              Save {plan.discountPercentage}%
-            </Text>
-          </View>
-        )}
-
-        <View style={styles.planHeader}>
-          <Text style={[styles.planName, { color: planColor }]}>
-            {plan.name}
-          </Text>
-          <View style={styles.priceContainer}>
-            <Text style={[styles.planPrice, { color: planColor }]}>
-              {paymentService.formatCurrency(plan.price)}
-            </Text>
-            <Text style={styles.planPeriod}>/{plan.duration}</Text>
-          </View>
-
-          {plan.discountPercentage && (
-            <Text style={styles.originalPrice}>
-              Was:{" "}
-              {paymentService.formatCurrency(
-                plan.price +
-                  paymentService.calculateDiscount(
-                    plan.price,
-                    plan.discountPercentage,
-                  ),
-              )}
-            </Text>
-          )}
-        </View>
-
-        <View style={styles.featuresSection}>
-          <Text style={styles.featuresTitle}>✅ Features:</Text>
-          {plan.features.map((feature, index) => (
-            <Text key={index} style={styles.featureText}>
-              • {feature}
-            </Text>
-          ))}
-        </View>
-
-        <TouchableOpacity
-          style={[
-            styles.planButton,
-            { backgroundColor: planColor },
-            isCurrentPlan && styles.currentPlanButton,
-          ]}
-          onPress={() => handleUpgrade(plan.id)}
-          disabled={processing || isCurrentPlan}
-        >
-          <Text style={styles.planButtonText}>
-            {isCurrentPlan
-              ? "✓ Current Plan"
-              : plan.price === 0
-                ? "Switch to Free"
-                : `Upgrade - ${paymentService.formatCurrency(plan.price)}`}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
   };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={styles.loadingText}>Loading subscription plans...</Text>
+        <Text style={styles.loadingText}>{t("loading")}</Text>
       </View>
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
+  const plans: Array<{
+    tier: SubscriptionTier;
+    name: string;
+    price: string;
+    features: string[];
+    recommended?: boolean;
+  }> = [
+    {
+      tier: "free",
+      name: t("freePlan"),
+      price: "₹0/month",
+      features: SUBSCRIPTION_FEATURES.free,
+    },
+    {
+      tier: "pro",
+      name: t("proPlan"),
+      price: `₹${SUBSCRIPTION_PRICING.pro.monthly}/month`,
+      features: SUBSCRIPTION_FEATURES.pro,
+      recommended: true,
+    },
+    {
+      tier: "premium",
+      name: t("premiumPlan"),
+      price: `₹${SUBSCRIPTION_PRICING.premium.monthly}/month`,
+      features: SUBSCRIPTION_FEATURES.premium,
+    },
+  ];
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Header */}
       <View style={styles.header}>
-        <BackButton title="Settings" color="#fff" />
-        <Text style={styles.title}>Subscription Plans</Text>
-        <Text style={styles.subtitle}>
-          Choose the perfect plan for your legal practice
-        </Text>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Text style={styles.backButtonText}>← {t("back")}</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>{t("subscription")}</Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Current Subscription Status */}
-        {user && (
-          <View style={styles.currentSubscriptionCard}>
-            <Text style={styles.currentSubscriptionTitle}>Current Plan</Text>
-            <View style={styles.currentSubscriptionInfo}>
-              <Text style={styles.currentPlanName}>
-                {plans.find((p) => p.id === user.subscriptionTier)?.name ||
-                  "Basic"}
-              </Text>
-              <Text style={styles.currentPlanPrice}>
-                {paymentService.formatCurrency(
-                  plans.find((p) => p.id === user.subscriptionTier)?.price || 0,
-                )}
-                /month
-              </Text>
+      {/* Current Plan */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t("currentPlan")}</Text>
+        <View style={styles.currentPlanCard}>
+          <View style={styles.currentPlanHeader}>
+            <Text style={styles.currentPlanName}>
+              {user.subscriptionTier.charAt(0).toUpperCase() +
+                user.subscriptionTier.slice(1)}{" "}
+              Plan
+            </Text>
+            <View
+              style={[
+                styles.currentPlanBadge,
+                {
+                  backgroundColor: getPlanColor(user.subscriptionTier, true),
+                },
+              ]}
+            >
+              <Text style={styles.currentPlanBadgeText}>Active</Text>
             </View>
-            <Text style={styles.currentPlanStatus}>
-              ✅ Active • Renews automatically
-            </Text>
           </View>
-        )}
-
-        {/* Payment Methods Info */}
-        <View style={styles.paymentMethodsCard}>
-          <Text style={styles.paymentMethodsTitle}>💳 Payment Methods</Text>
-          <Text style={styles.paymentMethodsText}>
-            We support multiple payment options:
+          <Text style={styles.currentPlanDescription}>
+            {user.subscriptionTier === "free" &&
+              "Free access with basic features"}
+            {user.subscriptionTier === "pro" &&
+              "Professional plan with advanced features"}
+            {user.subscriptionTier === "premium" &&
+              "Premium plan with all features included"}
           </Text>
-          <View style={styles.paymentOptionsList}>
-            <Text style={styles.paymentOption}>
-              🔒 Razorpay (Cards, UPI, Net Banking)
-            </Text>
-            <Text style={styles.paymentOption}>📱 Direct UPI Payment</Text>
-            <Text style={styles.paymentOption}>
-              💼 Corporate/Business Payments
-            </Text>
-            <Text style={styles.paymentOption}>🔄 Auto-renewal Support</Text>
-          </View>
-        </View>
 
-        {/* Plans Grid */}
-        <View style={styles.plansSection}>
-          <Text style={styles.plansSectionTitle}>Available Plans</Text>
-          {plans.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} />
-          ))}
-        </View>
-
-        {/* Payment History */}
-        {paymentHistory.length > 0 && (
-          <View style={styles.historySection}>
-            <Text style={styles.historySectionTitle}>Payment History</Text>
-            {paymentHistory.slice(0, 3).map((payment) => (
-              <View key={payment.id} style={styles.historyItem}>
-                <View style={styles.historyInfo}>
-                  <Text style={styles.historyPlan}>
-                    {plans.find((p) => p.id === payment.planId)?.name ||
-                      "Unknown Plan"}
-                  </Text>
-                  <Text style={styles.historyDate}>
-                    {payment.date.toLocaleDateString()}
-                  </Text>
-                </View>
-                <View style={styles.historyAmount}>
-                  <Text style={styles.historyPrice}>
-                    {paymentService.formatCurrency(payment.amount)}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.historyStatus,
-                      {
-                        color:
-                          payment.status === "success"
-                            ? "#059669"
-                            : payment.status === "pending"
-                              ? "#f59e0b"
-                              : "#dc2626",
-                      },
-                    ]}
-                  >
-                    {payment.status.toUpperCase()}
-                  </Text>
-                </View>
-              </View>
-            ))}
-            <TouchableOpacity style={styles.viewAllHistoryButton}>
-              <Text style={styles.viewAllHistoryText}>
-                View All Transactions
-              </Text>
+          {user.subscriptionTier !== "free" && (
+            <TouchableOpacity
+              style={styles.downgradeButton}
+              onPress={handleDowngrade}
+            >
+              <Text style={styles.downgradeButtonText}>Downgrade to Free</Text>
             </TouchableOpacity>
-          </View>
-        )}
-
-        {/* Support Section */}
-        <View style={styles.supportSection}>
-          <Text style={styles.supportTitle}>Need Help?</Text>
-          <Text style={styles.supportText}>
-            Have questions about subscriptions or payments? Our support team is
-            here to help.
-          </Text>
-          <TouchableOpacity
-            style={styles.supportButton}
-            onPress={() => router.push("/help-support")}
-          >
-            <Text style={styles.supportButtonText}>💬 Contact Support</Text>
-          </TouchableOpacity>
+          )}
         </View>
-      </ScrollView>
+      </View>
 
-      {/* Processing Overlay */}
-      {processing && (
-        <View style={styles.processingOverlay}>
-          <View style={styles.processingContainer}>
-            <ActivityIndicator size="large" color="#3b82f6" />
-            <Text style={styles.processingText}>Processing payment...</Text>
+      {/* Available Plans */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Available Plans</Text>
+        {plans.map((plan, index) => {
+          const isCurrent = plan.tier === user.subscriptionTier;
+          const canUpgrade =
+            (user.subscriptionTier === "free" && plan.tier !== "free") ||
+            (user.subscriptionTier === "pro" && plan.tier === "premium");
+
+          return (
+            <View
+              key={index}
+              style={[
+                styles.planCard,
+                isCurrent && styles.currentPlan,
+                plan.recommended && !isCurrent && styles.recommendedPlan,
+              ]}
+            >
+              {plan.recommended && !isCurrent && (
+                <View style={styles.recommendedBadge}>
+                  <Text style={styles.recommendedText}>Recommended</Text>
+                </View>
+              )}
+
+              <View style={styles.planHeader}>
+                <Text style={styles.planName}>{plan.name}</Text>
+                <Text
+                  style={[
+                    styles.planPrice,
+                    { color: getPlanColor(plan.tier, isCurrent) },
+                  ]}
+                >
+                  {plan.price}
+                </Text>
+              </View>
+
+              <View style={styles.planFeatures}>
+                {plan.features.map((feature, featureIndex) => (
+                  <View key={featureIndex} style={styles.featureRow}>
+                    <Text style={styles.featureIcon}>✅</Text>
+                    <Text style={styles.featureText}>{feature}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {isCurrent ? (
+                <View style={styles.currentPlanButton}>
+                  <Text style={styles.currentPlanButtonText}>Current Plan</Text>
+                </View>
+              ) : canUpgrade ? (
+                <TouchableOpacity
+                  style={[
+                    styles.upgradeButton,
+                    { backgroundColor: getPlanColor(plan.tier, false) },
+                  ]}
+                  onPress={() => handleUpgrade(plan.tier)}
+                >
+                  <Text style={styles.upgradeButtonText}>
+                    {plan.tier === "pro"
+                      ? "Upgrade to Pro"
+                      : "Upgrade to Premium"}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.unavailableButton}>
+                  <Text style={styles.unavailableButtonText}>
+                    {user.subscriptionTier === "premium" &&
+                    plan.tier !== "premium"
+                      ? "Downgrade Available"
+                      : "Not Available"}
+                  </Text>
+                </View>
+              )}
+            </View>
+          );
+        })}
+      </View>
+
+      {/* Benefits */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Why Upgrade?</Text>
+        <View style={styles.benefitsCard}>
+          <View style={styles.benefitItem}>
+            <Text style={styles.benefitIcon}>🚀</Text>
+            <Text style={styles.benefitText}>
+              Unlimited access to all legal tools
+            </Text>
+          </View>
+          <View style={styles.benefitItem}>
+            <Text style={styles.benefitIcon}>🔐</Text>
+            <Text style={styles.benefitText}>
+              Advanced security with biometric vault
+            </Text>
+          </View>
+          <View style={styles.benefitItem}>
+            <Text style={styles.benefitIcon}>⚖️</Text>
+            <Text style={styles.benefitText}>
+              AI-powered legal research and comparison
+            </Text>
+          </View>
+          <View style={styles.benefitItem}>
+            <Text style={styles.benefitIcon}>📱</Text>
+            <Text style={styles.benefitText}>
+              Priority support and regular updates
+            </Text>
           </View>
         </View>
-      )}
-    </View>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -432,331 +347,220 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#f9fafb",
   },
   loadingText: {
-    marginTop: 16,
     fontSize: 16,
-    color: "#6b7280",
+    color: "#6B7280",
   },
   header: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#1E40AF",
     padding: 20,
     paddingTop: 50,
+  },
+  backButton: {
+    marginBottom: 16,
+  },
+  backButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 8,
-    marginTop: 10,
   },
-  subtitle: {
-    fontSize: 16,
-    color: "rgba(255,255,255,0.8)",
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  currentSubscriptionCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+  section: {
     padding: 20,
+    paddingBottom: 0,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: "#059669",
+  },
+  currentPlanCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  currentSubscriptionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#059669",
-    marginBottom: 8,
-  },
-  currentSubscriptionInfo: {
+  currentPlanHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 8,
   },
   currentPlanName: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#111827",
-  },
-  currentPlanPrice: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#059669",
-  },
-  currentPlanStatus: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-  paymentMethodsCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  paymentMethodsTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#111827",
-    marginBottom: 8,
   },
-  paymentMethodsText: {
+  currentPlanBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  currentPlanBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  currentPlanDescription: {
     fontSize: 14,
-    color: "#6b7280",
-    marginBottom: 12,
-  },
-  paymentOptionsList: {
-    gap: 6,
-  },
-  paymentOption: {
-    fontSize: 14,
-    color: "#374151",
-  },
-  plansSection: {
-    marginBottom: 24,
-  },
-  plansSectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#111827",
+    color: "#6B7280",
     marginBottom: 16,
+  },
+  downgradeButton: {
+    borderWidth: 1,
+    borderColor: "#EF4444",
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignSelf: "flex-start",
+  },
+  downgradeButtonText: {
+    color: "#EF4444",
+    fontSize: 12,
+    fontWeight: "500",
   },
   planCard: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 20,
     marginBottom: 16,
-    borderWidth: 2,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 2,
+    elevation: 2,
     position: "relative",
   },
   currentPlan: {
-    backgroundColor: "#f0fdf4",
+    borderColor: "#10B981",
+    borderWidth: 2,
   },
   recommendedPlan: {
-    borderWidth: 3,
+    borderColor: "#1E40AF",
+    borderWidth: 2,
   },
   recommendedBadge: {
     position: "absolute",
-    top: -10,
+    top: -8,
     left: 20,
     right: 20,
-    borderRadius: 12,
+    backgroundColor: "#1E40AF",
+    borderRadius: 8,
     paddingVertical: 4,
     paddingHorizontal: 12,
     alignItems: "center",
+    zIndex: 1,
   },
   recommendedText: {
     color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  discountBadge: {
-    position: "absolute",
-    top: 16,
-    right: 16,
-    backgroundColor: "#dc2626",
-    borderRadius: 12,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  discountText: {
-    color: "#fff",
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "600",
   },
   planHeader: {
     marginBottom: 16,
-    marginTop: 10,
+    marginTop: 8,
   },
   planName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  priceContainer: {
-    flexDirection: "row",
-    alignItems: "baseline",
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 4,
   },
   planPrice: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "bold",
   },
-  planPeriod: {
-    fontSize: 16,
-    color: "#6b7280",
-    marginLeft: 4,
-  },
-  originalPrice: {
-    fontSize: 14,
-    color: "#6b7280",
-    textDecorationLine: "line-through",
-  },
-  featuresSection: {
+  planFeatures: {
     marginBottom: 20,
   },
-  featuresTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
+  featureRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
+  },
+  featureIcon: {
+    fontSize: 12,
+    marginRight: 8,
   },
   featureText: {
     fontSize: 14,
     color: "#374151",
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  planButton: {
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  currentPlanButton: {
-    backgroundColor: "#6b7280",
-  },
-  planButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  historySection: {
-    marginBottom: 24,
-  },
-  historySectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#111827",
-    marginBottom: 16,
-  },
-  historyItem: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  historyInfo: {
     flex: 1,
   },
-  historyPlan: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 2,
-  },
-  historyDate: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-  historyAmount: {
-    alignItems: "flex-end",
-  },
-  historyPrice: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 2,
-  },
-  historyStatus: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  viewAllHistoryButton: {
+  upgradeButton: {
     paddingVertical: 12,
-    alignItems: "center",
-  },
-  viewAllHistoryText: {
-    fontSize: 14,
-    color: "#3b82f6",
-    fontWeight: "500",
-  },
-  supportSection: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  supportTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 8,
-  },
-  supportText: {
-    fontSize: 14,
-    color: "#6b7280",
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  supportButton: {
-    backgroundColor: "#f3f4f6",
-    paddingVertical: 12,
+    paddingHorizontal: 24,
     borderRadius: 8,
     alignItems: "center",
   },
-  supportButtonText: {
-    color: "#374151",
+  upgradeButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  currentPlanButton: {
+    backgroundColor: "#F3F4F6",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  currentPlanButtonText: {
+    color: "#6B7280",
     fontSize: 14,
     fontWeight: "500",
   },
-  processingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
+  unavailableButton: {
+    backgroundColor: "#F9FAFB",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
     alignItems: "center",
   },
-  processingContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 24,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  processingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: "#111827",
+  unavailableButtonText: {
+    color: "#9CA3AF",
+    fontSize: 14,
     fontWeight: "500",
+  },
+  benefitsCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  benefitItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  benefitIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  benefitText: {
+    fontSize: 14,
+    color: "#374151",
+    flex: 1,
   },
 });
