@@ -37,10 +37,14 @@ export default function SplashScreen() {
       const token = await storage.getToken();
 
       if (user && token) {
-        // Redirect to role-specific dashboard
-        router.replace(`/${user.role}/dashboard`);
+        // Add small delay to ensure layout is fully mounted before navigation
+        setTimeout(() => {
+          router.replace("/(tabs)");
+        }, 100);
       } else {
-        router.replace("/login");
+        setTimeout(() => {
+          router.replace("/login");
+        }, 100);
       }
     } catch (error) {
       console.error("Auth check error:", error);

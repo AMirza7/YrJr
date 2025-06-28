@@ -49,8 +49,10 @@ export default function LoginScreen() {
     await storage.setToken(`token_${user.id}`);
 
     setLoading(false);
-    // Redirect to role-specific dashboard
-    router.replace(`/${user.role}/dashboard`);
+    // Add small delay to ensure navigation completes properly
+    setTimeout(() => {
+      router.replace("/(tabs)");
+    }, 100);
   };
 
   return (
