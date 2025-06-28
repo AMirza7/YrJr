@@ -88,7 +88,49 @@ export default function SettingsScreen() {
       }
 
       setUser(currentUser);
-      setPreferences(currentUser.preferences);
+
+      // Merge user preferences with defaults to ensure all properties exist
+      const defaultPreferences = {
+        theme: "light" as ThemeMode,
+        language: "en" as Language,
+        notifications: {
+          push: true,
+          email: true,
+          caseUpdates: true,
+          reminders: true,
+          marketing: false,
+        },
+        privacy: {
+          profileVisible: true,
+          contactInfoVisible: false,
+          showOnlineStatus: true,
+        },
+        security: {
+          biometricEnabled: false,
+          twoFactorEnabled: false,
+          autoLockEnabled: true,
+          autoLockMinutes: 5,
+        },
+      };
+
+      const mergedPreferences = {
+        ...defaultPreferences,
+        ...currentUser.preferences,
+        notifications: {
+          ...defaultPreferences.notifications,
+          ...(currentUser.preferences?.notifications || {}),
+        },
+        privacy: {
+          ...defaultPreferences.privacy,
+          ...(currentUser.preferences?.privacy || {}),
+        },
+        security: {
+          ...defaultPreferences.security,
+          ...(currentUser.preferences?.security || {}),
+        },
+      };
+
+      setPreferences(mergedPreferences);
 
       // Check biometric status
       const isBiometricEnabled = await biometricService.isBiometricEnabled();
