@@ -547,69 +547,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#6b7280",
   },
-  pricingSection: {
+  benefitsSection: {
     backgroundColor: "#f9fafb",
     padding: 20,
     paddingVertical: 40,
   },
-  pricingCards: {
+  benefitsGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-between",
-    gap: 16,
   },
-  pricingCard: {
-    flex: 1,
+  benefitItem: {
+    width: (width - 60) / 2,
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 20,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    position: "relative",
-  },
-  popularCard: {
-    borderColor: "#1e40af",
-    borderWidth: 2,
-  },
-  popularBadge: {
-    position: "absolute",
-    top: -10,
-    left: 20,
-    right: 20,
-    backgroundColor: "#1e40af",
-    borderRadius: 12,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
+    marginBottom: 16,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  popularText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
+  benefitIcon: {
+    fontSize: 32,
+    marginBottom: 12,
   },
-  planName: {
-    fontSize: 18,
+  benefitTitle: {
+    fontSize: 16,
     fontWeight: "600",
     color: "#111827",
-    marginBottom: 8,
-    marginTop: 10,
-  },
-  planPrice: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1e40af",
+    textAlign: "center",
     marginBottom: 8,
   },
-  planDescription: {
-    fontSize: 14,
+  benefitDescription: {
+    fontSize: 12,
     color: "#6b7280",
-    marginBottom: 16,
-  },
-  planFeatures: {
-    gap: 8,
-  },
-  planFeature: {
-    fontSize: 14,
-    color: "#374151",
+    textAlign: "center",
+    lineHeight: 18,
   },
   ctaSection: {
     backgroundColor: "#1e40af",
