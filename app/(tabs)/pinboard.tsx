@@ -455,6 +455,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     paddingTop: 50,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
   },
@@ -462,43 +465,211 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#111827",
-    marginBottom: 4,
   },
-  subtitle: {
-    fontSize: 14,
-    color: "#7c3aed",
+  addButton: {
+    backgroundColor: "#7c3aed",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  filtersContainer: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+    backgroundColor: "#f9fafb",
+  },
+  filterRow: {
+    marginBottom: 8,
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    marginRight: 8,
+  },
+  filterChipText: {
+    fontSize: 12,
     fontWeight: "500",
   },
-  content: {
+  listContainer: {
+    padding: 16,
+  },
+  itemCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  itemHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  priorityIndicator: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  priorityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  priorityText: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#6b7280",
+  },
+  deleteButton: {
+    padding: 4,
+  },
+  deleteText: {
+    fontSize: 16,
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 4,
+  },
+  itemDescription: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  tagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 12,
+  },
+  tag: {
+    backgroundColor: "#f3f4f6",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 6,
+    marginBottom: 4,
+  },
+  tagText: {
+    fontSize: 10,
+    color: "#374151",
+    fontWeight: "500",
+  },
+  itemFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  itemDate: {
+    fontSize: 12,
+    color: "#9ca3af",
+  },
+  completeButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  completeText: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  modalContainer: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     padding: 20,
+    paddingTop: 50,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
   },
-  featureIcon: {
-    fontSize: 64,
-    marginBottom: 20,
-  },
-  featureTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#111827",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  featureDescription: {
-    fontSize: 16,
+  modalCancel: {
     color: "#6b7280",
-    textAlign: "center",
-    marginBottom: 24,
-    lineHeight: 24,
+    fontSize: 16,
   },
-  featureList: {
-    alignSelf: "flex-start",
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
   },
-  featureItem: {
-    fontSize: 14,
-    color: "#374151",
+  modalSave: {
+    color: "#7c3aed",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 8,
+    marginTop: 16,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#f9fafb",
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
+  },
+  prioritySelector: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  priorityOption: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    marginHorizontal: 4,
+    alignItems: "center",
+  },
+  priorityOptionText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  tagsSelector: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  tagOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  tagOptionText: {
+    fontSize: 12,
+    fontWeight: "500",
   },
 });
