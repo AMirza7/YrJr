@@ -1,57 +1,30 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User } from "@/types/auth";
+import { User } from "@/types";
 
-const STORAGE_KEYS = {
+const KEYS = {
   USER: "user_data",
   TOKEN: "auth_token",
 };
 
-class StorageService {
+export const storage = {
   async setUser(user: User): Promise<void> {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-    } catch (error) {
-      console.error("Error saving user:", error);
-      throw new Error("Failed to save user data");
-    }
-  }
+    await AsyncStorage.setItem(KEYS.USER, JSON.stringify(user));
+  },
 
   async getUser(): Promise<User | null> {
-    try {
-      const userData = await AsyncStorage.getItem(STORAGE_KEYS.USER);
-      return userData ? JSON.parse(userData) : null;
-    } catch (error) {
-      console.error("Error getting user:", error);
-      return null;
-    }
-  }
+    const userData = await AsyncStorage.getItem(KEYS.USER);
+    return userData ? JSON.parse(userData) : null;
+  },
 
   async setToken(token: string): Promise<void> {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, token);
-    } catch (error) {
-      console.error("Error saving token:", error);
-      throw new Error("Failed to save token");
-    }
-  }
+    await AsyncStorage.setItem(KEYS.TOKEN, token);
+  },
 
   async getToken(): Promise<string | null> {
-    try {
-      return await AsyncStorage.getItem(STORAGE_KEYS.TOKEN);
-    } catch (error) {
-      console.error("Error getting token:", error);
-      return null;
-    }
-  }
+    return await AsyncStorage.getItem(KEYS.TOKEN);
+  },
 
   async clearAuth(): Promise<void> {
-    try {
-      await AsyncStorage.multiRemove([STORAGE_KEYS.USER, STORAGE_KEYS.TOKEN]);
-    } catch (error) {
-      console.error("Error clearing auth:", error);
-      throw new Error("Failed to clear auth data");
-    }
-  }
-}
-
-export const storage = new StorageService();
+    await AsyncStorage.multiRemove([KEYS.USER, KEYS.TOKEN]);
+  },
+};

@@ -1,1 +1,0 @@
-// Legacy biometric auth component

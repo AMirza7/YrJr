@@ -1,1 +1,0 @@
-// Legacy secure notes component

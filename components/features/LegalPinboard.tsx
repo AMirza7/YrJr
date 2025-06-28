@@ -1,1 +1,0 @@
-// Legacy pinboard component
