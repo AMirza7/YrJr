@@ -26,6 +26,8 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import TermsCheckbox from "@/components/auth/TermsCheckbox";
+import PasswordInput from "@/components/ui/PasswordInput";
+import PhoneInput from "@/components/ui/PhoneInput";
 
 export default function SignupScreen() {
   const { theme } = useTheme();
@@ -45,7 +47,6 @@ export default function SignupScreen() {
 
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [selectedSpecializations, setSelectedSpecializations] = useState<
     string[]
   >([]);
@@ -128,7 +129,7 @@ export default function SignupScreen() {
     // Check terms acceptance
     if (!termsAccepted) {
       setTermsError(true);
-      Alert.alert(t("error"), t("agreeToTerms") + " required to continue");
+      Alert.alert(t("error"), t("acceptTermsRequired"));
       return false;
     }
 
@@ -258,56 +259,48 @@ export default function SignupScreen() {
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Phone Number *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter 10-digit mobile number"
-                value={formData.phone}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    phone: text.replace(/\D/g, ""),
-                  }))
-                }
-                keyboardType="phone-pad"
-                maxLength={10}
-              />
-            </View>
+            <PhoneInput
+              label={t("phoneNumber") + " *"}
+              value={formData.phone}
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, phone: text }))
+              }
+              error={
+                !validatePhone(formData.phone) && formData.phone.length > 0
+              }
+              errorMessage={
+                formData.phone.length > 0 && !validatePhone(formData.phone)
+                  ? t("invalidPhone")
+                  : undefined
+              }
+              placeholder="XXXXX-XXXXX"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password *</Text>
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  style={styles.passwordInput}
-                  placeholder="Create a strong password"
-                  value={formData.password}
-                  onChangeText={(text) =>
-                    setFormData((prev) => ({ ...prev, password: text }))
-                  }
-                  secureTextEntry={!showPassword}
-                />
-                <TouchableOpacity
-                  style={styles.passwordToggle}
-                  onPress={() => setShowPassword(!showPassword)}
-                >
-                  <Text style={styles.passwordToggleText}>
-                    {showPassword ? "🙈" : "👁️"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+            <PasswordInput
+              label={t("password") + " *"}
+              value={formData.password}
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, password: text }))
+              }
+              placeholder="Create a strong password"
+            />
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Confirm Password *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry={!showPassword}
-              />
-            </View>
+            <PasswordInput
+              label={t("confirmPassword") + " *"}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Confirm your password"
+              error={
+                confirmPassword.length > 0 &&
+                formData.password !== confirmPassword
+              }
+              errorMessage={
+                confirmPassword.length > 0 &&
+                formData.password !== confirmPassword
+                  ? t("passwordsNotMatch")
+                  : undefined
+              }
+            />
           </View>
 
           {/* Role Selection */}
@@ -542,25 +535,7 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: "top",
   },
-  passwordContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
-    backgroundColor: "#fff",
-  },
-  passwordInput: {
-    flex: 1,
-    padding: 12,
-    fontSize: 16,
-  },
-  passwordToggle: {
-    padding: 12,
-  },
-  passwordToggleText: {
-    fontSize: 18,
-  },
+
   roleOption: {
     borderWidth: 1,
     borderRadius: 12,
