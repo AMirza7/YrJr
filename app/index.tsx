@@ -44,7 +44,8 @@ export default function Index() {
       const token = await storage.getToken();
 
       if (user && token) {
-        router.replace("/(tabs)");
+        // Redirect to role-specific dashboard
+        router.replace(`/${user.role}/dashboard`);
       } else {
         router.replace("/login");
       }
