@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLocalization } from "@/contexts/LocalizationContext";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
