@@ -10,15 +10,20 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLocalization } from "@/contexts/LocalizationContext";
 
 export default function LoginScreen() {
+  const { theme } = useTheme();
+  const { t } = useLocalization();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert("Error", "Please enter email and password");
+      Alert.alert(t("error"), t("enterEmail") + " and " + t("enterPassword"));
       return;
     }
 
@@ -35,10 +40,10 @@ export default function LoginScreen() {
           router.replace("/(tabs)");
         }
       } else {
-        Alert.alert("Error", response.message || "Invalid credentials");
+        Alert.alert(t("error"), response.message || t("invalidCredentials"));
       }
     } catch (error) {
-      Alert.alert("Error", "Login failed. Please try again.");
+      Alert.alert(t("error"), t("loginFailed"));
     } finally {
       setLoading(false);
     }

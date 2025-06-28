@@ -23,8 +23,14 @@ import {
   getRoleIcon,
   ROLE_DESCRIPTIONS,
 } from "@/constants/roles";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useLocalization } from "@/contexts/LocalizationContext";
+import TermsCheckbox from "@/components/auth/TermsCheckbox";
 
 export default function SignupScreen() {
+  const { theme } = useTheme();
+  const { t } = useLocalization();
+
   const [formData, setFormData] = useState<SignupData>({
     name: "",
     email: "",
@@ -43,31 +49,33 @@ export default function SignupScreen() {
   const [selectedSpecializations, setSelectedSpecializations] = useState<
     string[]
   >([]);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsError, setTermsError] = useState(false);
 
   const roles: { value: UserRole; label: string; description: string }[] = [
     {
       value: "law_student",
-      label: "Law Student",
+      label: t("lawStudent"),
       description: "Currently studying law",
     },
     {
       value: "law_office_helper",
-      label: "Office Helper",
+      label: t("lawOfficeHelper"),
       description: "Administrative support",
     },
     {
       value: "lawyer_assistant",
-      label: "Legal Assistant",
+      label: t("lawyerAssistant"),
       description: "Supporting legal professionals",
     },
     {
       value: "junior_lawyer",
-      label: "Junior Lawyer",
+      label: t("juniorLawyer"),
       description: "Early career lawyer",
     },
     {
       value: "lawyer",
-      label: "Senior Lawyer",
+      label: t("seniorLawyer"),
       description: "Experienced legal practitioner",
     },
   ];
@@ -92,17 +100,17 @@ export default function SignupScreen() {
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
-      Alert.alert("Error", "Please enter your full name");
+      Alert.alert(t("error"), t("enterName"));
       return false;
     }
 
     if (!validateEmail(formData.email)) {
-      Alert.alert("Error", "Please enter a valid email address");
+      Alert.alert(t("error"), t("invalidEmail"));
       return false;
     }
 
     if (!validatePhone(formData.phone)) {
-      Alert.alert("Error", "Please enter a valid 10-digit phone number");
+      Alert.alert(t("error"), t("invalidPhone"));
       return false;
     }
 
@@ -113,19 +121,18 @@ export default function SignupScreen() {
     }
 
     if (formData.password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
+      Alert.alert(t("error"), t("passwordsNotMatch"));
       return false;
     }
 
-    // Additional validation for lawyers
-    if (
-      (formData.role === "lawyer" || formData.role === "junior_lawyer") &&
-      !formData.barCouncilNumber
-    ) {
-      Alert.alert("Error", "Bar Council Number is required for lawyers");
+    // Check terms acceptance
+    if (!termsAccepted) {
+      setTermsError(true);
+      Alert.alert(t("error"), t("agreeToTerms") + " required to continue");
       return false;
     }
 
+    setTermsError(false);
     return true;
   };
 
@@ -145,9 +152,15 @@ export default function SignupScreen() {
       const result = await authService.signup(formData);
 
       if (result.success) {
+        // For lawyers, redirect to profile completion after email verification
+        const isLawyer =
+          formData.role === "lawyer" || formData.role === "junior_lawyer";
+
         Alert.alert(
-          "Account Created!",
-          "Let's verify your email and phone number to secure your account.",
+          t("success"),
+          isLawyer
+            ? "Account created! Please verify your email, then complete your professional profile."
+            : "Let's verify your email and phone number to secure your account.",
           [
             {
               text: "Verify Email First",
@@ -157,14 +170,15 @@ export default function SignupScreen() {
                   params: {
                     email: formData.email,
                     phone: formData.phone,
-                    nextStep: "phone",
+                    nextStep: isLawyer ? "profile-completion" : "phone",
+                    role: formData.role,
                   },
                 }),
             },
           ],
         );
       } else {
-        Alert.alert("Signup Failed", result.error || "Please try again.");
+        Alert.alert(t("error"), result.message || t("signupFailed"));
       }
     } catch (error) {
       Alert.alert("Error", "Something went wrong. Please try again.");
@@ -195,9 +209,15 @@ export default function SignupScreen() {
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => router.back()}
+            onPress={() => {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.replace("/landing");
+              }
+            }}
           >
-            <Text style={styles.backButtonText}>← Back</Text>
+            <Text style={styles.backButtonText}>← {t("back")}</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Join the legal community</Text>
@@ -337,25 +357,16 @@ export default function SignupScreen() {
             ))}
           </View>
 
-          {/* Legal Professional Details */}
+          {/* Legal Professional Details - Optional for post-signup */}
           {shouldShowLegalFields && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>
-                Legal Professional Details
+                Legal Professional Details (Optional)
               </Text>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>Bar Council Number *</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your Bar Council registration number"
-                  value={formData.barCouncilNumber}
-                  onChangeText={(text) =>
-                    setFormData((prev) => ({ ...prev, barCouncilNumber: text }))
-                  }
-                  autoCapitalize="characters"
-                />
-              </View>
+              <Text style={styles.sectionDescription}>
+                You can complete these details after signup to access advanced
+                features
+              </Text>
 
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Years of Practice</Text>
@@ -425,13 +436,11 @@ export default function SignupScreen() {
 
           {/* Terms and Conditions */}
           <View style={styles.section}>
-            <View style={styles.termsContainer}>
-              <Text style={styles.termsText}>
-                By creating an account, you agree to our{" "}
-                <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
-                <Text style={styles.termsLink}>Privacy Policy</Text>
-              </Text>
-            </View>
+            <TermsCheckbox
+              isChecked={termsAccepted}
+              onToggle={setTermsAccepted}
+              error={termsError}
+            />
           </View>
 
           <TouchableOpacity

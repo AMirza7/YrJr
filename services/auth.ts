@@ -267,13 +267,25 @@ export const authService = {
 
   async logout(): Promise<void> {
     try {
+      // Clear all auth-related data
       await AsyncStorage.multiRemove([
         KEYS.USER,
         KEYS.TOKEN,
         KEYS.BIOMETRIC_ENABLED,
+        KEYS.LAST_LOGIN,
       ]);
+
+      // Clear any other sensitive data
+      await AsyncStorage.removeItem("app_session_data");
+      await AsyncStorage.removeItem("user_preferences");
     } catch (error) {
       console.error("Error during logout:", error);
+      // Even if there's an error, ensure we clear what we can
+      try {
+        await AsyncStorage.clear();
+      } catch (clearError) {
+        console.error("Error clearing AsyncStorage:", clearError);
+      }
     }
   },
 
