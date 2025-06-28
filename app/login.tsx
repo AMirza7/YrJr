@@ -49,7 +49,7 @@ export default function LoginScreen() {
     await storage.setToken(`token_${user.id}`);
 
     setLoading(false);
-    router.replace("/dashboard");
+    router.replace("/(tabs)");
   };
 
   return (
