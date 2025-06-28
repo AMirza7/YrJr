@@ -142,15 +142,25 @@ export default function SignupScreen() {
             : undefined,
       };
 
-      const response = await authService.signup(signupData);
+      const result = await authService.signup(formData);
 
-      if (response.success) {
+      if (result.success) {
         Alert.alert(
-          "Success",
-          response.message || "Account created successfully!",
+          "Account Created!",
+          "Please check your email to verify your account before logging in.",
           [
             {
-              text: "OK",
+              text: "Verify Email",
+              onPress: () => router.push({
+                pathname: "/verify-email",
+                params: { email: formData.email }
+              })
+            },
+          ]
+        );
+      } else {
+        Alert.alert("Signup Failed", result.error || "Please try again.");
+      }
               onPress: () => router.replace("/login"),
             },
           ],
