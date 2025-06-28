@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 export default function LoginScreen() {
   const { theme } = useTheme();
