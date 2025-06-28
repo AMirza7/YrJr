@@ -26,8 +26,13 @@ export default function TabLayout() {
     }
   };
 
-  // If no user or no visible tabs, show minimal layout
-  if (!user || visibleTabs.length === 0) {
+  // If no user, redirect to login
+  if (!user) {
+    return null; // Will trigger redirect in individual tab screens
+  }
+
+  // If no visible tabs, show minimal layout
+  if (visibleTabs.length === 0) {
     return (
       <Tabs
         screenOptions={{
