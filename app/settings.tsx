@@ -12,6 +12,8 @@ import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { User, ThemeMode, Language } from "@/types";
 import BackButton from "@/components/navigation/BackButton";
+import BiometricAuth from "@/components/auth/BiometricAuth";
+import { biometricService } from "@/services/biometric";
 
 const LANGUAGES = [
   { code: "en", name: "English", emoji: "🇺🇸" },
@@ -45,6 +47,11 @@ const THEMES = [
 export default function SettingsScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [biometricModalVisible, setBiometricModalVisible] = useState(false);
+  const [biometricModalMode, setBiometricModalMode] = useState<
+    "setup" | "authenticate"
+  >("setup");
   const [preferences, setPreferences] = useState({
     theme: "light" as ThemeMode,
     language: "en" as Language,
@@ -59,6 +66,12 @@ export default function SettingsScreen() {
       profileVisible: true,
       contactInfoVisible: false,
       showOnlineStatus: true,
+    },
+    security: {
+      biometricEnabled: false,
+      twoFactorEnabled: false,
+      autoLockEnabled: true,
+      autoLockMinutes: 5,
     },
   });
 
@@ -76,6 +89,10 @@ export default function SettingsScreen() {
 
       setUser(currentUser);
       setPreferences(currentUser.preferences);
+
+      // Check biometric status
+      const isBiometricEnabled = await biometricService.isBiometricEnabled();
+      setBiometricEnabled(isBiometricEnabled);
     } catch (error) {
       router.replace("/login");
     } finally {
@@ -127,6 +144,46 @@ export default function SettingsScreen() {
       privacy: { ...preferences.privacy, [key]: value },
     };
     updatePreferences(newPreferences);
+  };
+
+  const handleSecurityToggle = (key: string, value: boolean) => {
+    const newPreferences = {
+      ...preferences,
+      security: { ...preferences.security, [key]: value },
+    };
+    updatePreferences(newPreferences);
+  };
+
+  const handleBiometricToggle = (value: boolean) => {
+    if (value) {
+      setBiometricModalMode("setup");
+      setBiometricModalVisible(true);
+    } else {
+      Alert.alert(
+        "Disable Biometric Authentication",
+        "Are you sure you want to disable biometric authentication?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Disable",
+            style: "destructive",
+            onPress: async () => {
+              const success = await biometricService.disableBiometric();
+              if (success) {
+                setBiometricEnabled(false);
+                handleSecurityToggle("biometricEnabled", false);
+              }
+            },
+          },
+        ],
+      );
+    }
+  };
+
+  const handleBiometricSetupSuccess = () => {
+    setBiometricEnabled(true);
+    handleSecurityToggle("biometricEnabled", true);
+    setBiometricModalVisible(false);
   };
 
   const handleLogout = () => {
@@ -433,6 +490,63 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* Security Settings */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🔒 Security</Text>
+          <View style={styles.settingCard}>
+            <View style={styles.switchItem}>
+              <View style={styles.switchContent}>
+                <Text style={styles.switchTitle}>Biometric Authentication</Text>
+                <Text style={styles.switchDescription}>
+                  Use fingerprint or face recognition to secure your app
+                </Text>
+              </View>
+              <Switch
+                value={biometricEnabled}
+                onValueChange={handleBiometricToggle}
+                trackColor={{ false: "#f3f4f6", true: "#10b981" }}
+                thumbColor="#fff"
+              />
+            </View>
+
+            <View style={styles.switchItem}>
+              <View style={styles.switchContent}>
+                <Text style={styles.switchTitle}>
+                  Two-Factor Authentication
+                </Text>
+                <Text style={styles.switchDescription}>
+                  Add an extra layer of security with 2FA
+                </Text>
+              </View>
+              <Switch
+                value={preferences.security.twoFactorEnabled}
+                onValueChange={(value) =>
+                  handleSecurityToggle("twoFactorEnabled", value)
+                }
+                trackColor={{ false: "#f3f4f6", true: "#10b981" }}
+                thumbColor="#fff"
+              />
+            </View>
+
+            <View style={styles.switchItem}>
+              <View style={styles.switchContent}>
+                <Text style={styles.switchTitle}>Auto-Lock</Text>
+                <Text style={styles.switchDescription}>
+                  Automatically lock the app after inactivity
+                </Text>
+              </View>
+              <Switch
+                value={preferences.security.autoLockEnabled}
+                onValueChange={(value) =>
+                  handleSecurityToggle("autoLockEnabled", value)
+                }
+                trackColor={{ false: "#f3f4f6", true: "#10b981" }}
+                thumbColor="#fff"
+              />
+            </View>
+          </View>
+        </View>
+
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>⚙️ Quick Actions</Text>
@@ -524,6 +638,16 @@ export default function SettingsScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      {/* Biometric Authentication Modal */}
+      <BiometricAuth
+        visible={biometricModalVisible}
+        onClose={() => setBiometricModalVisible(false)}
+        onSuccess={handleBiometricSetupSuccess}
+        mode={biometricModalMode}
+        title="Secure Your Legal Data"
+        message="Use biometric authentication to protect your sensitive legal documents and case information."
+      />
     </View>
   );
 }
