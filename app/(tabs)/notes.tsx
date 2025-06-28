@@ -440,10 +440,65 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9fafb",
   },
+  authContainer: {
+    flex: 1,
+    backgroundColor: "#f9fafb",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  authIcon: {
+    fontSize: 80,
+    marginBottom: 20,
+  },
+  authTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#111827",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  authDescription: {
+    fontSize: 16,
+    color: "#6b7280",
+    textAlign: "center",
+    marginBottom: 40,
+    lineHeight: 24,
+  },
+  securityFeatures: {
+    marginBottom: 40,
+  },
+  securityFeature: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  featureIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  featureText: {
+    fontSize: 16,
+    color: "#374151",
+  },
+  authenticateButton: {
+    backgroundColor: "#dc2626",
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 12,
+  },
+  authenticateButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   header: {
     backgroundColor: "#fff",
     padding: 20,
     paddingTop: 50,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
   },
@@ -451,43 +506,242 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#111827",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  lockButton: {
+    backgroundColor: "#f3f4f6",
+    padding: 8,
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  lockButtonText: {
+    fontSize: 16,
+  },
+  addButton: {
+    backgroundColor: "#dc2626",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  searchContainer: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+  },
+  searchInput: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: "#f9fafb",
+  },
+  listContainer: {
+    padding: 16,
+  },
+  noteCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  noteHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  noteTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    flex: 1,
+  },
+  noteIcons: {
+    flexDirection: "row",
+  },
+  encryptionIcon: {
+    fontSize: 16,
+    marginLeft: 4,
+  },
+  privateIcon: {
+    fontSize: 16,
+    marginLeft: 4,
+  },
+  notePreview: {
+    fontSize: 14,
+    color: "#6b7280",
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  noteTagsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 8,
+  },
+  noteTag: {
+    backgroundColor: "#f3f4f6",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 6,
     marginBottom: 4,
   },
-  subtitle: {
-    fontSize: 14,
-    color: "#dc2626",
+  noteTagText: {
+    fontSize: 10,
+    color: "#374151",
     fontWeight: "500",
   },
-  content: {
+  moreTagsText: {
+    fontSize: 10,
+    color: "#9ca3af",
+    alignSelf: "center",
+  },
+  noteDate: {
+    fontSize: 12,
+    color: "#9ca3af",
+  },
+  modalContainer: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#fff",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     padding: 20,
+    paddingTop: 50,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
   },
-  featureIcon: {
-    fontSize: 64,
+  modalCancel: {
+    color: "#6b7280",
+    fontSize: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  modalSave: {
+    color: "#dc2626",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#f9fafb",
+  },
+  textArea: {
+    height: 120,
+    textAlignVertical: "top",
+  },
+  securityOptions: {
+    marginVertical: 16,
+  },
+  securityOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 12,
+    justifyContent: "center",
+  },
+  securityIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  securityOptionText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  tagsSelector: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  tagOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  tagOptionText: {
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  noteContentText: {
+    fontSize: 16,
+    color: "#111827",
+    lineHeight: 24,
     marginBottom: 20,
   },
-  featureTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#111827",
-    marginBottom: 12,
-    textAlign: "center",
+  viewTagsContainer: {
+    marginBottom: 20,
   },
-  featureDescription: {
-    fontSize: 16,
-    color: "#6b7280",
-    textAlign: "center",
-    marginBottom: 24,
-    lineHeight: 24,
-  },
-  featureList: {
-    alignSelf: "flex-start",
-  },
-  featureItem: {
+  viewTagsTitle: {
     fontSize: 14,
+    fontWeight: "600",
     color: "#374151",
     marginBottom: 8,
+  },
+  viewTags: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  viewTag: {
+    backgroundColor: "#dc2626",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 6,
+    marginBottom: 4,
+  },
+  viewTagText: {
+    fontSize: 10,
+    color: "#fff",
+    fontWeight: "500",
+  },
+  noteMetadata: {
+    borderTopWidth: 1,
+    borderTopColor: "#e5e7eb",
+    paddingTop: 16,
+  },
+  metadataText: {
+    fontSize: 12,
+    color: "#9ca3af",
+    marginBottom: 4,
+  },
+  encryptedText: {
+    fontSize: 12,
+    color: "#dc2626",
+    fontWeight: "600",
+    marginTop: 8,
   },
 });
