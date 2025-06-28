@@ -197,9 +197,41 @@ export default function NotificationCenter() {
       <View style={styles.filtersContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.categoryFilters}>
-            {categories.map((category) =>
-              renderCategoryFilter({ item: category, key: category.value }),
-            )}
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category.value}
+                style={[
+                  styles.categoryChip,
+                  {
+                    backgroundColor:
+                      selectedCategory === category.value
+                        ? "#7c3aed"
+                        : "#f3f4f6",
+                  },
+                ]}
+                onPress={() => setSelectedCategory(category.value)}
+              >
+                <Text style={styles.categoryIcon}>{category.icon}</Text>
+                <Text
+                  style={[
+                    styles.categoryLabel,
+                    {
+                      color:
+                        selectedCategory === category.value
+                          ? "#fff"
+                          : "#374151",
+                    },
+                  ]}
+                >
+                  {category.label}
+                </Text>
+                {category.value === "all" && unreadCount > 0 && (
+                  <View style={styles.categoryBadge}>
+                    <Text style={styles.categoryBadgeText}>{unreadCount}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
           </View>
         </ScrollView>
       </View>
