@@ -430,13 +430,11 @@ export default function SignupScreen() {
 
           {/* Terms and Conditions */}
           <View style={styles.section}>
-            <View style={styles.termsContainer}>
-              <Text style={styles.termsText}>
-                By creating an account, you agree to our{" "}
-                <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
-                <Text style={styles.termsLink}>Privacy Policy</Text>
-              </Text>
-            </View>
+            <TermsCheckbox
+              isChecked={termsAccepted}
+              onToggle={setTermsAccepted}
+              error={termsError}
+            />
           </View>
 
           <TouchableOpacity
