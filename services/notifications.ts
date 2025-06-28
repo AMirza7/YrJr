@@ -112,26 +112,44 @@ class NotificationService {
 
   private async loadStoredNotifications() {
     try {
-      const notificationsJson = await storage.get(this.NOTIFICATIONS_KEY);
-      if (notificationsJson) {
-        this.notifications = JSON.parse(notificationsJson);
+      // Check if we're in web environment
+      if (typeof window !== 'undefined') {
+        const storedData = localStorage.getItem(this.NOTIFICATIONS_KEY);
+        if (storedData) {
+          this.notifications = JSON.parse(storedData);
+        } else {
+          this.notifications = this.getMockNotifications();
+          await this.saveNotifications();
+        }
       } else {
-        // Load mock notifications for demo
-        this.notifications = this.getMockNotifications();
-        await this.saveNotifications();
+        // For mobile/native environment
+        const storedData = await storage.get(this.NOTIFICATIONS_KEY);
+        if (storedData) {
+          this.notifications = JSON.parse(storedData);
+        } else {
+          this.notifications = this.getMockNotifications();
+          await this.saveNotifications();
+        }
       }
     } catch (error) {
       console.error("Error loading stored notifications:", error);
       this.notifications = this.getMockNotifications();
     }
   }
+  }
 
   private async saveNotifications() {
     try {
-      await storage.set(
-        this.NOTIFICATIONS_KEY,
-        JSON.stringify(this.notifications),
-      );
+      // Check if we're in web environment
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(this.NOTIFICATIONS_KEY, JSON.stringify(this.notifications));
+      } else {
+        // For mobile/native environment
+        await storage.set(
+          this.NOTIFICATIONS_KEY,
+          JSON.stringify(this.notifications),
+        );
+      }
     } catch (error) {
       console.error("Error saving notifications:", error);
     }
