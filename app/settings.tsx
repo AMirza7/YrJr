@@ -561,7 +561,7 @@ export default function SettingsScreen() {
                 </Text>
               </View>
               <Switch
-                value={preferences.security.twoFactorEnabled}
+                value={preferences.security?.twoFactorEnabled || false}
                 onValueChange={(value) =>
                   handleSecurityToggle("twoFactorEnabled", value)
                 }
@@ -578,7 +578,7 @@ export default function SettingsScreen() {
                 </Text>
               </View>
               <Switch
-                value={preferences.security.autoLockEnabled}
+                value={preferences.security?.autoLockEnabled || false}
                 onValueChange={(value) =>
                   handleSecurityToggle("autoLockEnabled", value)
                 }
