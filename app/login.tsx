@@ -69,12 +69,11 @@ export default function LoginScreen() {
           autoCapitalize="none"
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
+        <PasswordInput
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          placeholder={t("password")}
+          containerStyle={{ marginBottom: 0 }}
         />
 
         <TouchableOpacity
