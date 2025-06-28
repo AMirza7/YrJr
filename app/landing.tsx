@@ -352,4 +352,76 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  footer: {
+    backgroundColor: "#111827",
+    paddingTop: 40,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+  },
+  footerContent: {
+    marginBottom: 30,
+  },
+  footerBrand: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  footerLogo: {
+    fontSize: 40,
+    marginBottom: 8,
+  },
+  footerBrandName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 4,
+  },
+  footerTagline: {
+    fontSize: 14,
+    color: "#9ca3af",
+    textAlign: "center",
+  },
+  footerLinks: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+  },
+  footerColumn: {
+    flex: 1,
+    minWidth: 100,
+    marginBottom: 20,
+  },
+  footerColumnTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    marginBottom: 12,
+  },
+  footerLink: {
+    fontSize: 14,
+    color: "#9ca3af",
+    marginBottom: 8,
+    paddingVertical: 2,
+  },
+  footerContact: {
+    fontSize: 14,
+    color: "#9ca3af",
+    marginBottom: 6,
+  },
+  footerBottom: {
+    borderTopWidth: 1,
+    borderTopColor: "#374151",
+    paddingTop: 20,
+    alignItems: "center",
+  },
+  footerCopyright: {
+    fontSize: 14,
+    color: "#6b7280",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  footerBuilt: {
+    fontSize: 12,
+    color: "#9ca3af",
+    textAlign: "center",
+  },
 });
