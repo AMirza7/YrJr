@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { authService } from "@/services/auth";
@@ -17,52 +18,136 @@ export default function VerifyEmailScreen() {
     phone?: string;
     nextStep?: string;
   }>();
-  const [verificationCode, setVerificationCode] = useState("");
+  const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [countdown, setCountdown] = useState(60);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const inputRefs = useRef<(TextInput | null)[]>([]);
 
   useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    if (timeLeft > 0) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
     }
-  }, [countdown]);
+  }, [timeLeft]);
 
-  const handleVerifyEmail = async () => {
-    if (!verificationCode.trim()) {
-      Alert.alert("Error", "Please enter the verification code");
+  useEffect(() => {
+    // Auto-send verification email when component mounts
+    if (email) {
+      sendVerificationEmail();
+    }
+  }, [email]);
+
+  const sendVerificationEmail = async () => {
+    if (!email) return;
+
+    try {
+      setResendLoading(true);
+      const result = await authService.sendEmailVerification(email);
+
+      if (result.success) {
+        setTimeLeft(300);
+        Alert.alert(
+          "Verification Email Sent",
+          `Please check your email at ${email} for the verification code.${result.verificationCode ? `\n\nFor demo: ${result.verificationCode}` : ""}`,
+        );
+      } else {
+        Alert.alert(
+          "Error",
+          result.error || "Failed to send verification email",
+        );
+      }
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "Failed to send verification email. Please try again.",
+      );
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  const handleCodeChange = (value: string, index: number) => {
+    if (value.length > 1) {
+      // Handle paste operation
+      const pastedCode = value.slice(0, 6).split("");
+      const newCode = [...code];
+      pastedCode.forEach((digit, i) => {
+        if (i < 6) newCode[i] = digit;
+      });
+      setCode(newCode);
+
+      // Focus the next empty input or the last input
+      const nextIndex = Math.min(pastedCode.length, 5);
+      inputRefs.current[nextIndex]?.focus();
       return;
     }
 
+    const newCode = [...code];
+    newCode[index] = value;
+    setCode(newCode);
+
+    // Auto-focus next input
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyPress = (event: any, index: number) => {
+    if (event.nativeEvent.key === "Backspace" && !code[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    const verificationCode = code.join("");
+
     if (verificationCode.length !== 6) {
-      Alert.alert("Error", "Please enter a valid 6-digit code");
+      Alert.alert("Error", "Please enter the complete 6-digit code");
+      return;
+    }
+
+    if (!email) {
+      Alert.alert("Error", "Email address not found");
       return;
     }
 
     setLoading(true);
     try {
-      // Mock verification - in real app this would call the backend
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const result = await authService.verifyEmail(email, verificationCode);
 
-      // Simulate 90% success rate
-      const isSuccess = Math.random() > 0.1;
-
-      if (isSuccess) {
-        Alert.alert(
-          "Email Verified!",
-          "Your email has been successfully verified. You can now log in.",
-          [
-            {
-              text: "Continue to Login",
-              onPress: () => router.replace("/login"),
-            },
-          ],
-        );
+      if (result.success) {
+        if (nextStep === "phone" && phone) {
+          Alert.alert(
+            "Email Verified!",
+            "Great! Now let's verify your phone number to complete the setup.",
+            [
+              {
+                text: "Verify Phone",
+                onPress: () =>
+                  router.push({
+                    pathname: "/verify-phone",
+                    params: { phone },
+                  }),
+              },
+            ],
+          );
+        } else {
+          Alert.alert(
+            "Email Verified!",
+            "Your email has been successfully verified. You can now log in to your account.",
+            [
+              {
+                text: "Continue to Login",
+                onPress: () => router.replace("/login"),
+              },
+            ],
+          );
+        }
       } else {
         Alert.alert(
           "Verification Failed",
-          "Invalid verification code. Please try again.",
+          result.error || "Invalid verification code",
         );
       }
     } catch (error) {
@@ -72,28 +157,24 @@ export default function VerifyEmailScreen() {
     }
   };
 
-  const handleResendCode = async () => {
-    if (countdown > 0) return;
-
-    setResending(true);
-    try {
-      // Mock resend API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      Alert.alert(
-        "Code Sent",
-        "A new verification code has been sent to your email.",
-      );
-      setCountdown(60);
-    } catch (error) {
-      Alert.alert("Error", "Failed to resend verification code.");
-    } finally {
-      setResending(false);
-    }
+  const handleResendCode = () => {
+    if (timeLeft > 0) return;
+    sendVerificationEmail();
   };
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const isCodeComplete = code.every((digit) => digit.length === 1);
+
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -101,242 +182,222 @@ export default function VerifyEmailScreen() {
         >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
+        <Text style={styles.title}>Verify Email Address</Text>
+        <Text style={styles.subtitle}>
+          Enter the 6-digit code sent to{"\n"}
+          <Text style={styles.emailAddress}>{email}</Text>
+        </Text>
       </View>
 
       <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Text style={styles.icon}>📧</Text>
+        <View style={styles.codeContainer}>
+          <Text style={styles.label}>Enter Verification Code</Text>
+          <View style={styles.codeInputContainer}>
+            {code.map((digit, index) => (
+              <TextInput
+                key={index}
+                ref={(ref) => (inputRefs.current[index] = ref)}
+                style={[styles.codeInput, digit && styles.codeInputFilled]}
+                value={digit}
+                onChangeText={(value) => handleCodeChange(value, index)}
+                onKeyPress={(event) => handleKeyPress(event, index)}
+                keyboardType="numeric"
+                maxLength={1}
+                selectTextOnFocus
+                textAlign="center"
+              />
+            ))}
+          </View>
         </View>
 
-        <Text style={styles.title}>Verify Your Email</Text>
-        <Text style={styles.subtitle}>
-          We've sent a 6-digit verification code to
-        </Text>
-        <Text style={styles.email}>{email}</Text>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Verification Code</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter 6-digit code"
-            value={verificationCode}
-            onChangeText={setVerificationCode}
-            keyboardType="numeric"
-            maxLength={6}
-            autoCapitalize="none"
-            textAlign="center"
-            fontSize={20}
-            letterSpacing={4}
-          />
+        <View style={styles.resendContainer}>
+          {timeLeft > 0 ? (
+            <Text style={styles.timerText}>
+              Resend code in {formatTime(timeLeft)}
+            </Text>
+          ) : (
+            <TouchableOpacity
+              onPress={handleResendCode}
+              disabled={resendLoading}
+              style={styles.resendButton}
+            >
+              <Text style={styles.resendButtonText}>
+                {resendLoading ? "Sending..." : "Resend Code"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <TouchableOpacity
-          style={[styles.verifyButton, loading && styles.buttonDisabled]}
-          onPress={handleVerifyEmail}
-          disabled={loading}
+          style={[
+            styles.verifyButton,
+            {
+              opacity: isCodeComplete && !loading ? 1 : 0.6,
+            },
+          ]}
+          onPress={handleVerifyCode}
+          disabled={!isCodeComplete || loading}
         >
-          {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <Text style={styles.verifyButtonText}>Verify Email</Text>
-          )}
+          <Text style={styles.verifyButtonText}>
+            {loading ? "Verifying..." : "Verify Email"}
+          </Text>
         </TouchableOpacity>
 
-        <View style={styles.resendContainer}>
-          <Text style={styles.resendText}>Didn't receive the code?</Text>
-          <TouchableOpacity
-            onPress={handleResendCode}
-            disabled={countdown > 0 || resending}
-            style={styles.resendButton}
-          >
-            {resending ? (
-              <ActivityIndicator size="small" color="#3b82f6" />
-            ) : (
-              <Text
-                style={[
-                  styles.resendButtonText,
-                  countdown > 0 && styles.resendButtonTextDisabled,
-                ]}
-              >
-                {countdown > 0 ? `Resend in ${countdown}s` : "Resend Code"}
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>📱 Check your email</Text>
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoIcon}>📧</Text>
           <Text style={styles.infoText}>
-            • Check your inbox and spam folder{"\n"}• The code expires in 10
-            minutes{"\n"}• You can request a new code if needed
+            Please check your email inbox and spam folder for the verification
+            code.
+            {nextStep === "phone" &&
+              " After email verification, we'll verify your phone number."}
           </Text>
         </View>
 
-        <View style={styles.supportContainer}>
-          <Text style={styles.supportText}>
-            Having trouble? Contact our support team
+        <View style={styles.helpContainer}>
+          <Text style={styles.helpTitle}>Didn't receive the email?</Text>
+          <Text style={styles.helpText}>
+            • Check your spam/junk folder{"\n"}• Ensure the email address is
+            correct{"\n"}• Try resending the code{"\n"}• Contact support if
+            issues persist
           </Text>
-          <TouchableOpacity
-            style={styles.supportButton}
-            onPress={() =>
-              Alert.alert(
-                "Support",
-                "Email: support@yrjr.app\nPhone: +91-9876543210",
-              )
-            }
-          >
-            <Text style={styles.supportButtonText}>Get Help</Text>
-          </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9fafb",
+    backgroundColor: "#fff",
   },
   header: {
-    backgroundColor: "#fff",
+    backgroundColor: "#1e40af",
     padding: 20,
     paddingTop: 50,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
   },
   backButton: {
-    alignSelf: "flex-start",
+    marginBottom: 20,
   },
   backButtonText: {
+    color: "#fff",
     fontSize: 16,
-    color: "#3b82f6",
     fontWeight: "500",
   },
-  content: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-  },
-  iconContainer: {
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  icon: {
-    fontSize: 64,
-  },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#111827",
-    textAlign: "center",
-    marginBottom: 12,
+    color: "#fff",
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "#6b7280",
-    textAlign: "center",
-    marginBottom: 4,
+    color: "rgba(255,255,255,0.9)",
+    lineHeight: 22,
   },
-  email: {
-    fontSize: 16,
+  emailAddress: {
     fontWeight: "600",
-    color: "#3b82f6",
-    textAlign: "center",
-    marginBottom: 32,
+    fontSize: 18,
   },
-  inputContainer: {
-    marginBottom: 24,
+  content: {
+    flex: 1,
+    padding: 20,
   },
-  inputLabel: {
+  codeContainer: {
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  label: {
     fontSize: 16,
     fontWeight: "500",
     color: "#374151",
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderWidth: 2,
-    borderColor: "#e5e7eb",
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 20,
-    fontWeight: "600",
+    marginBottom: 16,
     textAlign: "center",
-    letterSpacing: 4,
+  },
+  codeInputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  codeInput: {
+    width: 48,
+    height: 56,
+    borderWidth: 2,
+    borderColor: "#d1d5db",
+    borderRadius: 12,
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#111827",
+    backgroundColor: "#f9fafb",
+  },
+  codeInputFilled: {
+    borderColor: "#1e40af",
+    backgroundColor: "#f0f9ff",
+  },
+  resendContainer: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  timerText: {
+    fontSize: 14,
+    color: "#6b7280",
+  },
+  resendButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  resendButtonText: {
+    fontSize: 14,
+    color: "#1e40af",
+    fontWeight: "500",
   },
   verifyButton: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#1e40af",
+    paddingVertical: 16,
     borderRadius: 12,
-    padding: 16,
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 30,
   },
   verifyButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  resendContainer: {
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  resendText: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginBottom: 8,
-  },
-  resendButton: {
-    padding: 8,
-  },
-  resendButtonText: {
-    fontSize: 14,
-    color: "#3b82f6",
-    fontWeight: "500",
-  },
-  resendButtonTextDisabled: {
-    color: "#9ca3af",
-  },
-  infoBox: {
+  infoContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
     backgroundColor: "#f0f9ff",
-    borderRadius: 12,
     padding: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: "#dbeafe",
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#0ea5e9",
+    marginBottom: 20,
   },
-  infoTitle: {
+  infoIcon: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1e40af",
-    marginBottom: 8,
+    marginRight: 8,
+    marginTop: 2,
   },
   infoText: {
+    flex: 1,
     fontSize: 14,
-    color: "#3b82f6",
+    color: "#0369a1",
     lineHeight: 20,
   },
-  supportContainer: {
-    alignItems: "center",
+  helpContainer: {
+    backgroundColor: "#f9fafb",
+    padding: 16,
+    borderRadius: 12,
   },
-  supportText: {
+  helpTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 8,
+  },
+  helpText: {
     fontSize: 14,
     color: "#6b7280",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  supportButton: {
-    backgroundColor: "#059669",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  supportButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "500",
+    lineHeight: 20,
   },
 });
