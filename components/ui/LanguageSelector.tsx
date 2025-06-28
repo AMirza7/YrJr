@@ -6,181 +6,275 @@ import {
   StyleSheet,
   Modal,
   ScrollView,
+  Alert,
 } from "react-native";
-import { useLocalization } from "@/contexts/LocalizationContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useLocalization } from "@/contexts/LocalizationContext";
 import { Language } from "@/types";
 
 interface LanguageSelectorProps {
-  showLabel?: boolean;
+  showTitle?: boolean;
   compact?: boolean;
+  style?: any;
 }
 
 export default function LanguageSelector({
-  showLabel = true,
+  showTitle = true,
   compact = false,
+  style,
 }: LanguageSelectorProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const { language, setLanguage, t, supportedLanguages } = useLocalization();
   const { theme } = useTheme();
+  const { language, setLanguage, t, supportedLanguages, isRTL } =
+    useLocalization();
+  const [modalVisible, setModalVisible] = useState(false);
 
   const currentLanguage = supportedLanguages.find(
     (lang) => lang.code === language,
   );
 
-  const handleLanguageSelect = (newLanguage: Language) => {
-    setLanguage(newLanguage);
-    setIsVisible(false);
+  const handleLanguageChange = async (newLanguage: Language) => {
+    try {
+      await setLanguage(newLanguage);
+      setModalVisible(false);
+
+      Alert.alert(
+        t("success"),
+        `Language changed to ${supportedLanguages.find((l) => l.code === newLanguage)?.nativeName}`,
+        [{ text: t("done"), style: "default" }],
+      );
+    } catch (error) {
+      Alert.alert(t("error"), t("somethingWentWrong"));
+    }
   };
 
   const styles = StyleSheet.create({
     container: {
-      flexDirection: "row",
-      alignItems: "center",
+      marginVertical: compact ? 8 : 16,
+    },
+    title: {
+      fontSize: compact ? 14 : 16,
+      fontWeight: "600",
+      color: theme.colors.text,
+      marginBottom: 8,
+      textAlign: isRTL ? "right" : "left",
     },
     selector: {
-      flexDirection: "row",
+      flexDirection: isRTL ? "row-reverse" : "row",
       alignItems: "center",
-      paddingHorizontal: compact ? 8 : 12,
-      paddingVertical: compact ? 6 : 8,
-      borderRadius: theme.borderRadius.md,
+      backgroundColor: theme.colors.surface,
       borderWidth: 1,
       borderColor: theme.colors.border,
-      backgroundColor: theme.colors.surface,
+      borderRadius: 8,
+      padding: compact ? 8 : 12,
     },
-    selectorText: {
-      fontSize: compact ? theme.typography.sizes.sm : theme.typography.sizes.md,
-      color: theme.colors.text,
-      marginLeft: 4,
-      fontWeight: theme.typography.weights.medium,
-    },
-    label: {
-      fontSize: theme.typography.sizes.sm,
-      color: theme.colors.textSecondary,
-      marginRight: 8,
-    },
-    modal: {
+    languageInfo: {
       flex: 1,
-      backgroundColor: "rgba(0,0,0,0.5)",
+      flexDirection: isRTL ? "row-reverse" : "row",
+      alignItems: "center",
+    },
+    flag: {
+      fontSize: compact ? 16 : 20,
+      marginRight: isRTL ? 0 : 8,
+      marginLeft: isRTL ? 8 : 0,
+    },
+    languageText: {
+      fontSize: compact ? 12 : 14,
+      color: theme.colors.text,
+      fontWeight: "500",
+    },
+    languageSubtext: {
+      fontSize: compact ? 10 : 12,
+      color: theme.colors.textSecondary,
+      marginTop: 2,
+    },
+    arrow: {
+      fontSize: 14,
+      color: theme.colors.textSecondary,
+      transform: [{ rotate: isRTL ? "180deg" : "0deg" }],
+    },
+
+    // Modal styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
       justifyContent: "center",
       alignItems: "center",
     },
     modalContent: {
       backgroundColor: theme.colors.surface,
-      borderRadius: theme.borderRadius.lg,
-      margin: 20,
-      maxHeight: "80%",
-      minWidth: 280,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.25,
-      shadowRadius: 8,
-      elevation: 8,
-    },
-    modalHeader: {
+      borderRadius: 16,
       padding: 20,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
+      width: "80%",
+      maxHeight: "70%",
     },
     modalTitle: {
-      fontSize: theme.typography.sizes.lg,
-      fontWeight: theme.typography.weights.semibold,
+      fontSize: 18,
+      fontWeight: "bold",
       color: theme.colors.text,
+      marginBottom: 16,
       textAlign: "center",
     },
-    languageList: {
-      maxHeight: 400,
-    },
-    languageItem: {
-      flexDirection: "row",
+    languageOption: {
+      flexDirection: isRTL ? "row-reverse" : "row",
       alignItems: "center",
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.border,
+      padding: 12,
+      borderRadius: 8,
+      marginBottom: 8,
     },
-    languageItemSelected: {
-      backgroundColor: theme.colors.primary + "10",
+    selectedLanguage: {
+      backgroundColor: theme.colors.primary + "20",
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
     },
-    languageFlag: {
+    optionFlag: {
       fontSize: 20,
-      marginRight: 12,
+      marginRight: isRTL ? 0 : 12,
+      marginLeft: isRTL ? 12 : 0,
     },
-    languageInfo: {
+    optionText: {
       flex: 1,
     },
-    languageName: {
-      fontSize: theme.typography.sizes.md,
-      fontWeight: theme.typography.weights.medium,
+    optionName: {
+      fontSize: 16,
+      fontWeight: "500",
       color: theme.colors.text,
     },
-    languageNative: {
-      fontSize: theme.typography.sizes.sm,
+    optionNative: {
+      fontSize: 14,
       color: theme.colors.textSecondary,
       marginTop: 2,
     },
     selectedIndicator: {
+      fontSize: 16,
       color: theme.colors.primary,
-      fontSize: 18,
     },
     closeButton: {
-      padding: 20,
+      backgroundColor: theme.colors.border,
+      padding: 12,
+      borderRadius: 8,
       alignItems: "center",
-      borderTopWidth: 1,
-      borderTopColor: theme.colors.border,
+      marginTop: 16,
     },
     closeButtonText: {
-      fontSize: theme.typography.sizes.md,
-      color: theme.colors.textSecondary,
-      fontWeight: theme.typography.weights.medium,
+      fontSize: 14,
+      color: theme.colors.text,
+      fontWeight: "500",
     },
   });
 
+  if (compact) {
+    return (
+      <View style={[styles.container, style]}>
+        <TouchableOpacity
+          style={styles.selector}
+          onPress={() => setModalVisible(true)}
+        >
+          <View style={styles.languageInfo}>
+            <Text style={styles.flag}>{currentLanguage?.flag}</Text>
+            <Text style={styles.languageText}>
+              {currentLanguage?.nativeName}
+            </Text>
+          </View>
+          <Text style={styles.arrow}>›</Text>
+        </TouchableOpacity>
+
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => setModalVisible(false)}
+          >
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{t("selectLanguage")}</Text>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {supportedLanguages.map((lang) => (
+                  <TouchableOpacity
+                    key={lang.code}
+                    style={[
+                      styles.languageOption,
+                      language === lang.code && styles.selectedLanguage,
+                    ]}
+                    onPress={() => handleLanguageChange(lang.code)}
+                  >
+                    <Text style={styles.optionFlag}>{lang.flag}</Text>
+                    <View style={styles.optionText}>
+                      <Text style={styles.optionName}>{lang.name}</Text>
+                      <Text style={styles.optionNative}>{lang.nativeName}</Text>
+                    </View>
+                    {language === lang.code && (
+                      <Text style={styles.selectedIndicator}>✓</Text>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>{t("close")}</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      {showLabel && <Text style={styles.label}>{t("selectLanguage")}</Text>}
+    <View style={[styles.container, style]}>
+      {showTitle && <Text style={styles.title}>{t("languageSettings")}</Text>}
 
       <TouchableOpacity
         style={styles.selector}
-        onPress={() => setIsVisible(true)}
+        onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.selectorText}>
-          {currentLanguage?.flag}{" "}
-          {compact
-            ? currentLanguage?.code.toUpperCase()
-            : currentLanguage?.name}
-        </Text>
+        <View style={styles.languageInfo}>
+          <Text style={styles.flag}>{currentLanguage?.flag}</Text>
+          <View>
+            <Text style={styles.languageText}>{currentLanguage?.name}</Text>
+            <Text style={styles.languageSubtext}>
+              {currentLanguage?.nativeName}
+            </Text>
+          </View>
+        </View>
+        <Text style={styles.arrow}>›</Text>
       </TouchableOpacity>
 
       <Modal
-        visible={isVisible}
+        visible={modalVisible}
         transparent
-        animationType="fade"
-        onRequestClose={() => setIsVisible(false)}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
       >
         <TouchableOpacity
-          style={styles.modal}
+          style={styles.modalOverlay}
           activeOpacity={1}
-          onPress={() => setIsVisible(false)}
+          onPress={() => setModalVisible(false)}
         >
           <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t("selectLanguage")}</Text>
-            </View>
+            <Text style={styles.modalTitle}>{t("selectLanguage")}</Text>
 
-            <ScrollView style={styles.languageList}>
+            <ScrollView showsVerticalScrollIndicator={false}>
               {supportedLanguages.map((lang) => (
                 <TouchableOpacity
                   key={lang.code}
                   style={[
-                    styles.languageItem,
-                    language === lang.code && styles.languageItemSelected,
+                    styles.languageOption,
+                    language === lang.code && styles.selectedLanguage,
                   ]}
-                  onPress={() => handleLanguageSelect(lang.code)}
+                  onPress={() => handleLanguageChange(lang.code)}
                 >
-                  <Text style={styles.languageFlag}>{lang.flag}</Text>
-                  <View style={styles.languageInfo}>
-                    <Text style={styles.languageName}>{lang.name}</Text>
-                    <Text style={styles.languageNative}>{lang.nativeName}</Text>
+                  <Text style={styles.optionFlag}>{lang.flag}</Text>
+                  <View style={styles.optionText}>
+                    <Text style={styles.optionName}>{lang.name}</Text>
+                    <Text style={styles.optionNative}>{lang.nativeName}</Text>
                   </View>
                   {language === lang.code && (
                     <Text style={styles.selectedIndicator}>✓</Text>
@@ -191,9 +285,9 @@ export default function LanguageSelector({
 
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => setIsVisible(false)}
+              onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.closeButtonText}>{t("cancel")}</Text>
+              <Text style={styles.closeButtonText}>{t("close")}</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

@@ -278,11 +278,25 @@ export const authService = {
       // Clear any other sensitive data
       await AsyncStorage.removeItem("app_session_data");
       await AsyncStorage.removeItem("user_preferences");
+      await AsyncStorage.removeItem("secure_notes_auth");
+      await AsyncStorage.removeItem("cached_user_data");
+      await AsyncStorage.removeItem("feature_flags");
+
+      // Clear any pinboard or case data
+      await AsyncStorage.removeItem("pinboard_items");
+      await AsyncStorage.removeItem("case_timeline_data");
+      await AsyncStorage.removeItem("flashcard_progress");
+
+      console.log("Logout completed successfully - all data cleared");
     } catch (error) {
       console.error("Error during logout:", error);
       // Even if there's an error, ensure we clear what we can
       try {
-        await AsyncStorage.clear();
+        // Clear all storage as fallback
+        const allKeys = await AsyncStorage.getAllKeys();
+        if (allKeys.length > 0) {
+          await AsyncStorage.multiRemove(allKeys);
+        }
       } catch (clearError) {
         console.error("Error clearing AsyncStorage:", clearError);
       }

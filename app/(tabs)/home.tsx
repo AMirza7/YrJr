@@ -8,17 +8,20 @@ import {
   Alert,
 } from "react-native";
 import { router } from "expo-router";
-import { storage } from "@/services/storage";
+import { authService } from "@/services/auth";
 import { User } from "@/types";
 import {
   getRoleColor,
   getRolePermissions,
   getVisibleTabs,
 } from "@/constants/tabs";
+import { useLocalization } from "@/contexts/LocalizationContext";
 import FloatingActionButton from "@/components/ui/FloatingActionButton";
 import { dataService } from "@/services/dataService";
+import LanguageSelector from "@/components/ui/LanguageSelector";
 
 export default function HomeScreen() {
+  const { t } = useLocalization();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [userStats, setUserStats] = useState<any>(null);
@@ -30,10 +33,10 @@ export default function HomeScreen() {
 
   const loadUser = async () => {
     try {
-      const userData = await storage.getUser();
+      const userData = await authService.getCurrentUser();
       if (!userData) {
         // Use setTimeout to avoid navigation during render
-        setTimeout(() => router.replace("/login"), 0);
+        setTimeout(() => router.replace("/landing"), 0);
         return;
       }
       setUser(userData);
@@ -46,21 +49,32 @@ export default function HomeScreen() {
     } catch (error) {
       console.error("Error loading user:", error);
       // Use setTimeout to avoid navigation during render
-      setTimeout(() => router.replace("/login"), 0);
+      setTimeout(() => router.replace("/landing"), 0);
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert(t("logout"), t("logoutConfirm"), [
+      { text: t("cancel"), style: "cancel" },
       {
-        text: "Logout",
+        text: t("logout"),
         style: "destructive",
         onPress: async () => {
-          await storage.clearAuth();
-          router.replace("/login");
+          try {
+            await authService.logout();
+            Alert.alert(t("success"), t("logoutSuccess"), [
+              {
+                text: t("done"),
+                onPress: () => router.replace("/landing"),
+              },
+            ]);
+          } catch (error) {
+            console.error("Logout error:", error);
+            // Force navigation even if logout fails
+            router.replace("/landing");
+          }
         },
       },
     ]);
@@ -84,78 +98,85 @@ export default function HomeScreen() {
 
   const quickActions = [
     {
-      title: "Legal Pinboard",
+      title: t("legalPinboard"),
       icon: "📌",
       available: permissions.canAccessPinboard,
       route: "/(tabs)/pinboard",
     },
     {
-      title: "Case Timeline",
+      title: t("caseTimeline"),
       icon: "⏱️",
       available: permissions.canAccessCaseTimeline,
       route: "/(tabs)/timeline",
     },
     {
-      title: "Secure Notes",
+      title: t("secureNotes"),
       icon: "🔐",
       available: permissions.canAccessSecureNotes,
       route: "/(tabs)/notes",
     },
     {
-      title: "Search Legal",
+      title: t("searchLegal"),
       icon: "🔍",
       available: true,
       route: "/(tabs)/search",
     },
-  ];
+  ].filter((action) => action.available); // Only show available actions
 
   const advancedFeatures = [
     {
-      title: "AI Comparator",
+      title: t("aiComparator"),
       icon: "⚖️",
       available: permissions.canAccessAIComparator,
       route: "/ai-comparator",
       description: "Compare IPC vs BNS",
     },
     {
-      title: "Templates Hub",
+      title: t("templatesHub"),
       icon: "📋",
       available: permissions.canAccessTemplates,
       route: "/templates",
       description: "Legal document templates",
     },
     {
-      title: "Flashcards",
+      title: t("flashcards"),
       icon: "🧠",
       available: permissions.canAccessFlashcards,
       route: "/flashcards",
       description: "Study legal concepts",
     },
     {
-      title: "Notifications",
+      title: t("notifications"),
       icon: "🔔",
       available: permissions.canAccessNotifications,
       route: "/notifications",
       description: "Recent updates",
     },
-  ];
+  ].filter((feature) => feature.available); // Only show available features
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.greeting}>Good morning,</Text>
-        <Text style={styles.userName}>{user.name}</Text>
-        <View style={[styles.roleCard, { backgroundColor: roleColor + "20" }]}>
-          <Text style={[styles.roleText, { color: roleColor }]}>
-            {user.role.replace("_", " ").toUpperCase()}
-          </Text>
+        <View style={styles.headerTop}>
+          <View style={styles.greetingSection}>
+            <Text style={styles.greeting}>{t("welcome")},</Text>
+            <Text style={styles.userName}>{user.name}</Text>
+            <View
+              style={[styles.roleCard, { backgroundColor: roleColor + "20" }]}
+            >
+              <Text style={[styles.roleText, { color: roleColor }]}>
+                {user.role.replace("_", " ").toUpperCase()}
+              </Text>
+            </View>
+          </View>
+          <LanguageSelector compact style={{ marginTop: 8 }} />
         </View>
       </View>
 
       {/* Quick Actions */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <Text style={styles.sectionTitle}>{t("quickActions")}</Text>
         <View style={styles.actionsGrid}>
           {quickActions.map((action, index) => (
             <TouchableOpacity
@@ -182,7 +203,7 @@ export default function HomeScreen() {
       {/* User Stats */}
       {userStats && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Overview</Text>
+          <Text style={styles.sectionTitle}>{t("yourOverview")}</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Text style={styles.statNumber}>{userStats.activeCases}</Text>
@@ -207,41 +228,34 @@ export default function HomeScreen() {
       )}
 
       {/* Advanced Features */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Advanced Features</Text>
-        <View style={styles.featuresGrid}>
-          {advancedFeatures.map((feature, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.featureCard,
-                { opacity: feature.available ? 1 : 0.5 },
-              ]}
-              onPress={() =>
-                feature.available && router.push(feature.route as any)
-              }
-              disabled={!feature.available}
-            >
-              <Text style={styles.featureIcon}>{feature.icon}</Text>
-              <Text style={styles.featureTitle}>{feature.title}</Text>
-              <Text style={styles.featureDescription}>
-                {feature.description}
-              </Text>
-              {!feature.available && (
-                <Text style={styles.unavailableText}>Not available</Text>
-              )}
-            </TouchableOpacity>
-          ))}
+      {advancedFeatures.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t("advancedFeatures")}</Text>
+          <View style={styles.featuresGrid}>
+            {advancedFeatures.map((feature, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.featureCard}
+                onPress={() => router.push(feature.route as any)}
+              >
+                <Text style={styles.featureIcon}>{feature.icon}</Text>
+                <Text style={styles.featureTitle}>{feature.title}</Text>
+                <Text style={styles.featureDescription}>
+                  {feature.description}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-      </View>
+      )}
 
       {/* Recent Notifications */}
       {recentNotifications.length > 0 && (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Updates</Text>
+            <Text style={styles.sectionTitle}>{t("recentUpdates")}</Text>
             <TouchableOpacity onPress={() => router.push("/notifications")}>
-              <Text style={styles.viewAllText}>View All</Text>
+              <Text style={styles.viewAllText}>{t("viewAll")}</Text>
             </TouchableOpacity>
           </View>
           {recentNotifications.map((notification, index) => (
@@ -269,11 +283,20 @@ export default function HomeScreen() {
           style={styles.profileButton}
           onPress={() => router.push("/(tabs)/profile")}
         >
-          <Text style={styles.profileButtonText}>👤 View Profile</Text>
+          <Text style={styles.profileButtonText}>👤 {t("profile")}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.subscriptionButton}
+          onPress={() => router.push("/subscription")}
+        >
+          <Text style={styles.subscriptionButtonText}>
+            ⭐ {t("subscription")}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>🚪 Logout</Text>
+          <Text style={styles.logoutText}>🚪 {t("logout")}</Text>
         </TouchableOpacity>
       </View>
 
@@ -302,6 +325,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     paddingTop: 50,
+  },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  greetingSection: {
+    flex: 1,
   },
   greeting: {
     fontSize: 16,
@@ -393,6 +424,18 @@ const styles = StyleSheet.create({
   },
   profileButtonText: {
     color: "#374151",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  subscriptionButton: {
+    backgroundColor: "#1e40af",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  subscriptionButtonText: {
+    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },

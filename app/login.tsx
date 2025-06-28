@@ -12,6 +12,7 @@ import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 export default function LoginScreen() {
   const { theme } = useTheme();
@@ -68,12 +69,11 @@ export default function LoginScreen() {
           autoCapitalize="none"
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
+        <PasswordInput
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          placeholder={t("password")}
+          containerStyle={{ marginBottom: 0 }}
         />
 
         <TouchableOpacity

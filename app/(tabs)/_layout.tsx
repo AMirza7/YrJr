@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import { Text, View } from "react-native";
+import { Text, View, Platform } from "react-native";
 import { useEffect, useState } from "react";
 import { authService } from "@/services/auth";
 import { User } from "@/types";
@@ -26,8 +26,13 @@ export default function TabLayout() {
     }
   };
 
-  // If no user or no visible tabs, show minimal layout
-  if (!user || visibleTabs.length === 0) {
+  // If no user, redirect to login
+  if (!user) {
+    return null; // Will trigger redirect in individual tab screens
+  }
+
+  // If no visible tabs, show minimal layout
+  if (visibleTabs.length === 0) {
     return (
       <Tabs
         screenOptions={{
@@ -64,11 +69,20 @@ export default function TabLayout() {
           paddingBottom: 5,
           paddingTop: 5,
           height: 60,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          elevation: 8,
+          ...Platform.select({
+            ios: {
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+            },
+            android: {
+              elevation: 8,
+            },
+            default: {
+              boxShadow: "0px -2px 4px rgba(0, 0, 0, 0.1)",
+            },
+          }),
         },
         tabBarLabelStyle: {
           fontSize: 12,

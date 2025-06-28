@@ -40,11 +40,36 @@ export interface NotificationCategory {
   color: string;
 }
 
+export interface NotificationSettings {
+  pushEnabled: boolean;
+  emailEnabled: boolean;
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
+  categories: {
+    case_update: boolean;
+    payment: boolean;
+    system: boolean;
+    deadline: boolean;
+    reminder: boolean;
+    verification: boolean;
+  };
+  quietHours: {
+    enabled: boolean;
+    startTime: string; // "22:00"
+    endTime: string; // "08:00"
+  };
+  frequency: "immediate" | "hourly" | "daily";
+}
+
 class NotificationService {
   private notifications: NotificationData[] = [];
+  private settings: NotificationSettings;
   private readonly NOTIFICATIONS_KEY = "@yrjr_notifications";
+  private readonly SETTINGS_KEY = "@yrjr_notification_settings";
 
   constructor() {
+    // Initialize default settings
+    this.settings = this.getDefaultSettings();
     this.initializeNotifications();
 
     // Configure notification behavior
@@ -52,16 +77,40 @@ class NotificationService {
       // Only configure on native platforms
       Notifications.setNotificationHandler({
         handleNotification: async () => ({
-          shouldShowAlert: true,
-          shouldPlaySound: true,
+          shouldShowAlert: this.settings.pushEnabled,
+          shouldPlaySound: this.settings.soundEnabled,
           shouldSetBadge: true,
         }),
       });
     }
   }
 
+  private getDefaultSettings(): NotificationSettings {
+    return {
+      pushEnabled: true,
+      emailEnabled: true,
+      soundEnabled: true,
+      vibrationEnabled: true,
+      categories: {
+        case_update: true,
+        payment: true,
+        system: true,
+        deadline: true,
+        reminder: true,
+        verification: true,
+      },
+      quietHours: {
+        enabled: false,
+        startTime: "22:00",
+        endTime: "08:00",
+      },
+      frequency: "immediate",
+    };
+  }
+
   private async initializeNotifications() {
     await this.loadStoredNotifications();
+    await this.loadStoredSettings();
   }
 
   private async loadStoredNotifications() {
@@ -74,9 +123,13 @@ class NotificationService {
       } else {
         // For mobile/native environment
         try {
-          storedData = await storage.get(this.NOTIFICATIONS_KEY);
+          // Use AsyncStorage directly since storage service doesn't have generic get/set
+          const { default: AsyncStorage } = await import(
+            "@react-native-async-storage/async-storage"
+          );
+          storedData = await AsyncStorage.getItem(this.NOTIFICATIONS_KEY);
         } catch (err) {
-          console.log("Storage service not available, using mock data");
+          console.log("AsyncStorage not available, using mock data");
         }
       }
 
@@ -103,16 +156,77 @@ class NotificationService {
       } else {
         // For mobile/native environment
         try {
-          await storage.set(
+          // Use AsyncStorage directly since storage service doesn't have generic get/set
+          const { default: AsyncStorage } = await import(
+            "@react-native-async-storage/async-storage"
+          );
+          await AsyncStorage.setItem(
             this.NOTIFICATIONS_KEY,
             JSON.stringify(this.notifications),
           );
         } catch (err) {
-          console.log("Storage service not available for saving");
+          console.log("AsyncStorage not available for saving");
         }
       }
     } catch (error) {
       console.error("Error saving notifications:", error);
+    }
+  }
+
+  private async loadStoredSettings() {
+    try {
+      let storedData: string | null = null;
+
+      // Check if we're in web environment
+      if (typeof window !== "undefined") {
+        storedData = localStorage.getItem(this.SETTINGS_KEY);
+      } else {
+        // For mobile/native environment
+        try {
+          // Use AsyncStorage directly since storage service doesn't have generic get/set
+          const { default: AsyncStorage } = await import(
+            "@react-native-async-storage/async-storage"
+          );
+          storedData = await AsyncStorage.getItem(this.SETTINGS_KEY);
+        } catch (err) {
+          console.log("AsyncStorage not available, using default settings");
+        }
+      }
+
+      if (storedData) {
+        this.settings = {
+          ...this.getDefaultSettings(),
+          ...JSON.parse(storedData),
+        };
+      }
+    } catch (error) {
+      console.error("Error loading stored settings:", error);
+      this.settings = this.getDefaultSettings();
+    }
+  }
+
+  private async saveSettings() {
+    try {
+      // Check if we're in web environment
+      if (typeof window !== "undefined") {
+        localStorage.setItem(this.SETTINGS_KEY, JSON.stringify(this.settings));
+      } else {
+        // For mobile/native environment
+        try {
+          // Use AsyncStorage directly since storage service doesn't have generic get/set
+          const { default: AsyncStorage } = await import(
+            "@react-native-async-storage/async-storage"
+          );
+          await AsyncStorage.setItem(
+            this.SETTINGS_KEY,
+            JSON.stringify(this.settings),
+          );
+        } catch (err) {
+          console.log("AsyncStorage not available for saving settings");
+        }
+      }
+    } catch (error) {
+      console.error("Error saving settings:", error);
     }
   }
 
@@ -473,6 +587,84 @@ class NotificationService {
     }
 
     return notificationId;
+  }
+
+  // Get notification settings
+  async getSettings(): Promise<NotificationSettings> {
+    return this.settings;
+  }
+
+  // Update notification settings
+  async updateSettings(
+    newSettings: Partial<NotificationSettings>,
+  ): Promise<void> {
+    this.settings = { ...this.settings, ...newSettings };
+    await this.saveSettings();
+  }
+
+  // Get notification type icon
+  getNotificationTypeIcon(type: NotificationData["type"]): string {
+    switch (type) {
+      case "case_update":
+        return "⚖️";
+      case "payment":
+        return "💳";
+      case "system":
+        return "⚙️";
+      case "deadline":
+        return "⏰";
+      case "reminder":
+        return "🔔";
+      case "verification":
+        return "✅";
+      default:
+        return "📢";
+    }
+  }
+
+  // Get notification type color
+  getNotificationTypeColor(type: NotificationData["type"]): string {
+    switch (type) {
+      case "case_update":
+        return "#3b82f6";
+      case "payment":
+        return "#059669";
+      case "system":
+        return "#8b5cf6";
+      case "deadline":
+        return "#f59e0b";
+      case "reminder":
+        return "#ef4444";
+      case "verification":
+        return "#10b981";
+      default:
+        return "#6b7280";
+    }
+  }
+
+  // Get priority color
+  getPriorityColor(priority: NotificationData["priority"]): string {
+    switch (priority) {
+      case "high":
+        return "#ef4444";
+      case "medium":
+        return "#f59e0b";
+      case "low":
+        return "#10b981";
+      default:
+        return "#6b7280";
+    }
+  }
+
+  // Clear all notifications (alias for deleteAllNotifications for compatibility)
+  async clearAllNotifications(): Promise<boolean> {
+    try {
+      await this.deleteAllNotifications();
+      return true;
+    } catch (error) {
+      console.error("Error clearing all notifications:", error);
+      return false;
+    }
   }
 }
 
