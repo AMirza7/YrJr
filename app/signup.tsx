@@ -152,9 +152,15 @@ export default function SignupScreen() {
       const result = await authService.signup(formData);
 
       if (result.success) {
+        // For lawyers, redirect to profile completion after email verification
+        const isLawyer =
+          formData.role === "lawyer" || formData.role === "junior_lawyer";
+
         Alert.alert(
-          "Account Created!",
-          "Let's verify your email and phone number to secure your account.",
+          t("success"),
+          isLawyer
+            ? "Account created! Please verify your email, then complete your professional profile."
+            : "Let's verify your email and phone number to secure your account.",
           [
             {
               text: "Verify Email First",
@@ -164,14 +170,15 @@ export default function SignupScreen() {
                   params: {
                     email: formData.email,
                     phone: formData.phone,
-                    nextStep: "phone",
+                    nextStep: isLawyer ? "profile-completion" : "phone",
+                    role: formData.role,
                   },
                 }),
             },
           ],
         );
       } else {
-        Alert.alert("Signup Failed", result.error || "Please try again.");
+        Alert.alert(t("error"), result.message || t("signupFailed"));
       }
     } catch (error) {
       Alert.alert("Error", "Something went wrong. Please try again.");
