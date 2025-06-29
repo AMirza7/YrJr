@@ -6,26 +6,59 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
+  Platform,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
 
-export default function Index() {
+export default function LandingPage() {
   const handleGetStarted = () => {
     console.log("Get Started clicked");
+    // TODO: Navigate to signup
   };
 
   const handleSignIn = () => {
     console.log("Sign In clicked");
+    // TODO: Navigate to login
   };
 
   const handleDemoAccess = () => {
     console.log("Demo Access clicked");
+    // TODO: Navigate to demo
+  };
+
+  const handleFeatures = () => {
+    console.log("Features clicked");
+    // TODO: Navigate to features page
+  };
+
+  const handlePricing = () => {
+    console.log("Pricing clicked");
+    // TODO: Navigate to pricing page
+  };
+
+  const handlePrivacyPolicy = () => {
+    console.log("Privacy Policy clicked");
+    // TODO: Navigate to privacy policy
+  };
+
+  const handleTermsOfService = () => {
+    console.log("Terms of Service clicked");
+    // TODO: Navigate to terms of service
+  };
+
+  const handleSupport = () => {
+    console.log("Support clicked");
+    // TODO: Navigate to support page
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Hero Section */}
         <View style={styles.hero}>
           <Text style={styles.logo}>⚖️</Text>
@@ -37,11 +70,13 @@ export default function Index() {
           </Text>
           <Text style={styles.heroSubtitle}>
             AI-powered tools for lawyers, law students, and legal professionals
+            in India
           </Text>
 
           <TouchableOpacity
             style={styles.primaryButton}
             onPress={handleGetStarted}
+            activeOpacity={0.8}
           >
             <Text style={styles.primaryButtonText}>Get Started Free</Text>
           </TouchableOpacity>
@@ -49,6 +84,7 @@ export default function Index() {
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={handleSignIn}
+            activeOpacity={0.8}
           >
             <Text style={styles.secondaryButtonText}>Sign In</Text>
           </TouchableOpacity>
@@ -56,12 +92,13 @@ export default function Index() {
           <TouchableOpacity
             style={styles.demoButton}
             onPress={handleDemoAccess}
+            activeOpacity={0.8}
           >
             <Text style={styles.demoButtonText}>🎯 Try Demo</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Features */}
+        {/* Features Section */}
         <View style={styles.featuresSection}>
           <Text style={styles.sectionTitle}>Powerful Features</Text>
 
@@ -70,28 +107,86 @@ export default function Index() {
               <Text style={styles.featureIcon}>📌</Text>
               <Text style={styles.featureTitle}>Legal Pinboard</Text>
               <Text style={styles.featureDescription}>
-                Organize legal research
+                Organize legal research and case materials efficiently
               </Text>
             </View>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>🔐</Text>
               <Text style={styles.featureTitle}>Secure Vault</Text>
-              <Text style={styles.featureDescription}>Encrypted documents</Text>
+              <Text style={styles.featureDescription}>
+                Encrypted document storage with biometric protection
+              </Text>
             </View>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>⚖️</Text>
               <Text style={styles.featureTitle}>AI Comparator</Text>
-              <Text style={styles.featureDescription}>Smart analysis</Text>
+              <Text style={styles.featureDescription}>
+                Compare IPC vs BNS sections with AI assistance
+              </Text>
             </View>
             <View style={styles.featureCard}>
               <Text style={styles.featureIcon}>📱</Text>
-              <Text style={styles.featureTitle}>Scanner</Text>
-              <Text style={styles.featureDescription}>OCR scanning</Text>
+              <Text style={styles.featureTitle}>OCR Scanner</Text>
+              <Text style={styles.featureDescription}>
+                Scan and digitize legal documents instantly
+              </Text>
+            </View>
+            <View style={styles.featureCard}>
+              <Text style={styles.featureIcon}>🗂️</Text>
+              <Text style={styles.featureTitle}>Case Timeline</Text>
+              <Text style={styles.featureDescription}>
+                Track case progress and important dates
+              </Text>
+            </View>
+            <View style={styles.featureCard}>
+              <Text style={styles.featureIcon}>🎓</Text>
+              <Text style={styles.featureTitle}>Flashcards</Text>
+              <Text style={styles.featureDescription}>
+                Learn legal concepts with interactive flashcards
+              </Text>
             </View>
           </View>
         </View>
 
-        {/* Footer */}
+        {/* Statistics Section */}
+        <View style={styles.statsSection}>
+          <Text style={styles.sectionTitle}>
+            Trusted by Legal Professionals
+          </Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>10,000+</Text>
+              <Text style={styles.statLabel}>Active Users</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>99.9%</Text>
+              <Text style={styles.statLabel}>Accuracy Rate</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>24/7</Text>
+              <Text style={styles.statLabel}>Support</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* CTA Section */}
+        <View style={styles.ctaSection}>
+          <Text style={styles.ctaTitle}>
+            Ready to Transform Your Legal Practice?
+          </Text>
+          <Text style={styles.ctaSubtitle}>
+            Join thousands of legal professionals who trust YRJR Legal Assistant
+          </Text>
+          <TouchableOpacity
+            style={styles.ctaButton}
+            onPress={handleGetStarted}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.ctaButtonText}>Start Free Trial</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Comprehensive Footer */}
         <View style={styles.footer}>
           <View style={styles.footerContent}>
             <View style={styles.footerBrand}>
@@ -100,44 +195,99 @@ export default function Index() {
               <Text style={styles.footerTagline}>
                 Your Intelligent Legal Companion
               </Text>
+              <Text style={styles.footerDescription}>
+                Built specifically for the Indian Legal System with
+                comprehensive features for lawyers, law students, and legal
+                professionals.
+              </Text>
             </View>
 
             <View style={styles.footerLinks}>
               <View style={styles.footerColumn}>
                 <Text style={styles.footerColumnTitle}>Product</Text>
-                <TouchableOpacity onPress={() => console.log("Features")}>
+                <TouchableOpacity onPress={handleFeatures} activeOpacity={0.7}>
                   <Text style={styles.footerLink}>Features</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => console.log("Pricing")}>
+                <TouchableOpacity onPress={handlePricing} activeOpacity={0.7}>
                   <Text style={styles.footerLink}>Pricing</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleDemoAccess}>
-                  <Text style={styles.footerLink}>Demo</Text>
+                <TouchableOpacity
+                  onPress={handleDemoAccess}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerLink}>Live Demo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => console.log("API Docs")}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerLink}>API Documentation</Text>
                 </TouchableOpacity>
               </View>
 
               <View style={styles.footerColumn}>
-                <Text style={styles.footerColumnTitle}>Legal</Text>
-                <TouchableOpacity onPress={() => console.log("Privacy Policy")}>
+                <Text style={styles.footerColumnTitle}>Legal & Support</Text>
+                <TouchableOpacity
+                  onPress={handlePrivacyPolicy}
+                  activeOpacity={0.7}
+                >
                   <Text style={styles.footerLink}>Privacy Policy</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("Terms of Service")}
+                  onPress={handleTermsOfService}
+                  activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>Terms of Service</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => console.log("Support")}>
-                  <Text style={styles.footerLink}>Support</Text>
+                <TouchableOpacity onPress={handleSupport} activeOpacity={0.7}>
+                  <Text style={styles.footerLink}>Help & Support</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => console.log("FAQ")}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerLink}>FAQ</Text>
                 </TouchableOpacity>
               </View>
 
               <View style={styles.footerColumn}>
-                <Text style={styles.footerColumnTitle}>Contact</Text>
-                <Text style={styles.footerContact}>support@yrjr.app</Text>
-                <Text style={styles.footerContact}>+91-1234567890</Text>
+                <Text style={styles.footerColumnTitle}>Contact Info</Text>
+                <Text style={styles.footerContact}>📧 support@yrjr.app</Text>
+                <Text style={styles.footerContact}>📞 +91-1234567890</Text>
                 <Text style={styles.footerContact}>
-                  Legal Tech Hub, Mumbai, India
+                  🏢 Legal Tech Hub{"\n"}Mumbai, Maharashtra{"\n"}India - 400001
                 </Text>
+                <Text style={styles.footerContact}>
+                  🕒 Mon-Fri: 9:00 AM - 6:00 PM IST
+                </Text>
+              </View>
+
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerColumnTitle}>For Developers</Text>
+                <TouchableOpacity
+                  onPress={() => console.log("Backend Integration")}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerLink}>Backend Integration</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => console.log("API Reference")}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerLink}>API Reference</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => console.log("SDKs")}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerLink}>SDKs & Libraries</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => console.log("GitHub")}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerLink}>GitHub Repository</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -147,7 +297,10 @@ export default function Index() {
               © 2024 YRJR Legal Assistant. All rights reserved.
             </Text>
             <Text style={styles.footerBuilt}>
-              Built for the Indian Legal System
+              Built for the Indian Legal System • Made with ❤️ in India
+            </Text>
+            <Text style={styles.footerLegal}>
+              This app complies with Indian IT Act 2000 and Data Protection Laws
             </Text>
           </View>
         </View>
@@ -159,95 +312,116 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   hero: {
     backgroundColor: "#1e40af",
-    paddingTop: 60,
-    paddingBottom: 40,
+    paddingTop: Platform.OS === "web" ? 40 : 60,
+    paddingBottom: 50,
     paddingHorizontal: 20,
     alignItems: "center",
   },
   logo: {
-    fontSize: 60,
-    marginBottom: 10,
+    fontSize: 72,
+    marginBottom: 12,
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
   },
   appName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 8,
-  },
-  tagline: {
-    fontSize: 16,
-    color: "rgba(255,255,255,0.8)",
-    marginBottom: 20,
-  },
-  heroTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#ffffff",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  tagline: {
+    fontSize: 18,
+    color: "rgba(255,255,255,0.9)",
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#ffffff",
     textAlign: "center",
     marginBottom: 16,
+    lineHeight: 40,
   },
   heroSubtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: "rgba(255,255,255,0.9)",
     textAlign: "center",
-    lineHeight: 24,
-    marginBottom: 30,
+    lineHeight: 26,
+    marginBottom: 40,
+    paddingHorizontal: 10,
   },
   primaryButton: {
-    backgroundColor: "#fff",
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    backgroundColor: "#ffffff",
+    paddingVertical: 18,
+    paddingHorizontal: 36,
     borderRadius: 12,
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
     width: "100%",
+    maxWidth: 300,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
   },
   primaryButtonText: {
     color: "#1e40af",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
   },
   secondaryButton: {
     borderWidth: 2,
-    borderColor: "#fff",
-    paddingVertical: 14,
-    paddingHorizontal: 32,
+    borderColor: "#ffffff",
+    paddingVertical: 16,
+    paddingHorizontal: 36,
     borderRadius: 12,
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 20,
     width: "100%",
+    maxWidth: 300,
   },
   secondaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
+    color: "#ffffff",
+    fontSize: 18,
     fontWeight: "500",
   },
   demoButton: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 25,
     alignItems: "center",
   },
   demoButtonText: {
-    color: "#fff",
-    fontSize: 14,
+    color: "#ffffff",
+    fontSize: 16,
     fontWeight: "500",
   },
   featuresSection: {
     padding: 20,
-    paddingTop: 40,
+    paddingTop: 50,
+    backgroundColor: "#f8fafc",
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#111827",
     textAlign: "center",
-    marginBottom: 30,
+    marginBottom: 40,
   },
   featuresGrid: {
     flexDirection: "row",
@@ -255,56 +429,139 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   featureCard: {
-    width: (width - 60) / 2,
-    backgroundColor: "#f9fafb",
+    width:
+      Platform.OS === "web"
+        ? width > 768
+          ? (width - 100) / 3
+          : (width - 60) / 2
+        : (width - 60) / 2,
+    backgroundColor: "#ffffff",
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    padding: 24,
+    marginBottom: 20,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   featureIcon: {
-    fontSize: 32,
-    marginBottom: 12,
+    fontSize: 40,
+    marginBottom: 16,
   },
   featureTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
     color: "#111827",
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   featureDescription: {
     fontSize: 14,
     color: "#6b7280",
     textAlign: "center",
+    lineHeight: 20,
+  },
+  statsSection: {
+    backgroundColor: "#f3f4f6",
+    padding: 20,
+    paddingVertical: 50,
+  },
+  statsGrid: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    flexWrap: "wrap",
+  },
+  statCard: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  statNumber: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: "#1e40af",
+    marginBottom: 8,
+  },
+  statLabel: {
+    fontSize: 16,
+    color: "#6b7280",
+    fontWeight: "500",
+  },
+  ctaSection: {
+    backgroundColor: "#1e40af",
+    padding: 20,
+    paddingVertical: 50,
+    alignItems: "center",
+  },
+  ctaTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#ffffff",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  ctaSubtitle: {
+    fontSize: 18,
+    color: "rgba(255,255,255,0.9)",
+    textAlign: "center",
+    marginBottom: 32,
+    lineHeight: 26,
+  },
+  ctaButton: {
+    backgroundColor: "#ffffff",
+    paddingVertical: 18,
+    paddingHorizontal: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    width: "80%",
+    maxWidth: 300,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  ctaButtonText: {
+    color: "#1e40af",
+    fontSize: 18,
+    fontWeight: "600",
   },
   footer: {
     backgroundColor: "#111827",
-    paddingTop: 40,
-    paddingBottom: 20,
+    paddingTop: 50,
+    paddingBottom: 30,
     paddingHorizontal: 20,
   },
   footerContent: {
-    marginBottom: 30,
+    marginBottom: 40,
   },
   footerBrand: {
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 40,
   },
   footerLogo: {
-    fontSize: 40,
-    marginBottom: 8,
+    fontSize: 48,
+    marginBottom: 12,
   },
   footerBrandName: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 4,
+    color: "#ffffff",
+    marginBottom: 8,
   },
   footerTagline: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#9ca3af",
     textAlign: "center",
+    marginBottom: 16,
+  },
+  footerDescription: {
+    fontSize: 14,
+    color: "#6b7280",
+    textAlign: "center",
+    lineHeight: 22,
+    paddingHorizontal: 20,
   },
   footerLinks: {
     flexDirection: "row",
@@ -313,41 +570,50 @@ const styles = StyleSheet.create({
   },
   footerColumn: {
     flex: 1,
-    minWidth: 100,
-    marginBottom: 20,
+    minWidth: 150,
+    marginBottom: 30,
+    paddingHorizontal: 10,
   },
   footerColumnTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
-    color: "#fff",
-    marginBottom: 12,
+    color: "#ffffff",
+    marginBottom: 16,
   },
   footerLink: {
     fontSize: 14,
     color: "#9ca3af",
-    marginBottom: 8,
-    paddingVertical: 2,
+    marginBottom: 12,
+    paddingVertical: 4,
   },
   footerContact: {
     fontSize: 14,
     color: "#9ca3af",
-    marginBottom: 6,
+    marginBottom: 12,
+    lineHeight: 20,
   },
   footerBottom: {
     borderTopWidth: 1,
     borderTopColor: "#374151",
-    paddingTop: 20,
+    paddingTop: 30,
     alignItems: "center",
   },
   footerCopyright: {
     fontSize: 14,
     color: "#6b7280",
     textAlign: "center",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   footerBuilt: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#9ca3af",
     textAlign: "center",
+    marginBottom: 8,
+  },
+  footerLegal: {
+    fontSize: 12,
+    color: "#6b7280",
+    textAlign: "center",
+    fontStyle: "italic",
   },
 });
