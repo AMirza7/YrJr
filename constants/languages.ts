@@ -276,6 +276,21 @@ export const TRANSLATIONS = {
     passwordReset: "Password Reset",
     passwordResetSuccess: "Password reset successfully",
 
+    // OTP and Password Reset
+    forgotPassword: "Forgot Password?",
+    resetPassword: "Reset Password",
+    sendOtp: "Send OTP",
+    verifyOtp: "Verify OTP",
+    enterOtp: "Enter OTP",
+    resendOtp: "Resend OTP",
+    otpSent: "OTP Sent",
+    otpVerified: "OTP Verified",
+    invalidOtp: "Invalid OTP",
+    newPassword: "New Password",
+    confirmNewPassword: "Confirm New Password",
+    passwordReset: "Password Reset",
+    passwordResetSuccess: "Password reset successfully",
+
     // Theme
     chooseTheme: "Choose Theme",
     themePreferences: "Theme Preferences",
@@ -363,7 +378,7 @@ export const TRANSLATIONS = {
     cancel: "रद्द करें",
     continue: "जारी रखें",
     save: "सहेजें",
-    loading: "लोड हो रहा है...",
+    loading: "लोड हो र��ा है...",
     error: "त्रुटि",
     success: "सफलता",
     warning: "चेतावनी",
@@ -416,7 +431,7 @@ export const TRANSLATIONS = {
     welcomeBack: "वापसी पर स्वा���त है",
     signInToAccount: "अपने खाते में साइन इन करें",
     joinLegalCommunity: "कानूनी समुदाय में शामिल ह���ं",
-    showPassword: "पासवर्ड दिखाएं",
+    showPassword: "पा��वर्ड दिखाएं",
     hidePassword: "पासवर्ड छुपाएं",
 
     // Validation
@@ -456,7 +471,7 @@ export const TRANSLATIONS = {
     notifications: "सूचनाएं",
     documentScanner: "दस्तावेज़ ��्कैनर",
     voiceAssistant: "वॉयस असिस्टेंट",
-    calendar: "कैलेंडर",
+    calendar: "कैलें���र",
     analytics: "एनालिटिक्स",
     admin: "एडमिन",
 
@@ -497,7 +512,7 @@ export const TRANSLATIONS = {
     signupFailed: "साइनअप असफल। कृपया फिर से कोशिश करें।",
     invalidCredentials: "अमान्य क्रेडेंशियल",
     somethingWentWrong: "कुछ गलत हुआ। कृपया फिर से कोशिश करें।",
-    networkError: "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें।",
+    networkError: "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जां���ें।",
     sessionExpired: "सत्र समाप्त हो गया। कृपया फिर से लॉगिन करें।",
     accessDenied: "पहुंच अस्वीकार",
     featureNotAvailable: "यह सुविधा आपकी भूमिका के लिए उपलब्ध नहीं है",
@@ -531,6 +546,21 @@ export const TRANSLATIONS = {
     passwordReset: "पासवर्ड रीसेट",
     passwordResetSuccess: "पासवर्ड सफलतापूर्वक रीसेट किया गया",
 
+    // OTP and Password Reset
+    forgotPassword: "पासवर्ड भूल गए?",
+    resetPassword: "पासवर्ड रीसेट करें",
+    sendOtp: "OTP भेजें",
+    verifyOtp: "OTP सत्यापित करें",
+    enterOtp: "OTP दर्ज करें",
+    resendOtp: "OTP दोबारा भेजें",
+    otpSent: "OTP भेजा गया",
+    otpVerified: "OTP सत्यापित",
+    invalidOtp: "अमान्य OTP",
+    newPassword: "नया पासवर्ड",
+    confirmNewPassword: "नया पासवर्ड पुष्टि करें",
+    passwordReset: "पासवर्ड रीसेट",
+    passwordResetSuccess: "पासवर्ड सफलतापूर्वक रीसेट किया गया",
+
     // Theme
     chooseTheme: "थीम चुनें",
     themePreferences: "थीम प्राथमिकताएं",
@@ -540,7 +570,7 @@ export const TRANSLATIONS = {
 
     // Biometric
     biometricAuth: "बायोमेट्रिक प्रमाणीकरण",
-    useBiometric: "प्रमाणीकरण के लिए फिंगरप्रिंट या फेस आईडी का उपयोग करें",
+    useBiometric: "प्रमाण��करण के लिए फिंगरप्रिंट या फेस आईडी का उपयोग करें",
     biometricFailed: "बायोमेट्रिक प्रमाणीकरण असफल",
     biometricNotAvailable: "बायोमेट्रिक प्रमाणीकरण उपलब्ध नहीं",
     enterPasswordInstead: "इसके बजाय पासवर्ड दर्ज करें",
@@ -559,7 +589,7 @@ export const TRANSLATIONS = {
     notesCreated: "बनाए गए नोट्स",
     studyScore: "अध्ययन स्कोर",
     totalUsers: "कुल उपयोगकर्ता",
-    newUsers: "नए उपयोगकर्ता",
+    newUsers: "नए उप���ोगकर्ता",
     revenue: "आय",
     systemHealth: "सिस्टम स्वास्थ्य",
 
@@ -633,7 +663,7 @@ export const TRANSLATIONS = {
     alreadyHaveAccount: "پہلے سے اکاؤنٹ ہے؟",
     dontHaveAccount: "اکاؤنٹ نہیں ہے؟",
     welcomeBack: "واپسی میں خوش آمدید",
-    signInToAccount: "اپنے اکاؤنٹ میں سائن ان کریں",
+    signInToAccount: "اپنے اکا��نٹ میں سائن ان کریں",
     joinLegalCommunity: "قانونی کمیونٹی میں شامل ہوں",
     showPassword: "پاس ورڈ دکھائیں",
     hidePassword: "پاس ورڈ چھپائیں",
