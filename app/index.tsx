@@ -253,7 +253,7 @@ export default function LandingPage() {
                   <Text style={styles.footerLink}>Help & Support</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("FAQ")}
+                  onPress={() => router.push("/help-support")}
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>FAQ</Text>
@@ -262,8 +262,22 @@ export default function LandingPage() {
 
               <View style={styles.footerColumn}>
                 <Text style={styles.footerColumnTitle}>Contact Info</Text>
-                <Text style={styles.footerContact}>📧 support@yrjr.app</Text>
-                <Text style={styles.footerContact}>📞 +91-1234567890</Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    Alert.alert("Contact", "Email: support@yrjr.app")
+                  }
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerContact}>📧 support@yrjr.app</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    Alert.alert("Contact", "Phone: +91-1234567890")
+                  }
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerContact}>📞 +91-1234567890</Text>
+                </TouchableOpacity>
                 <Text style={styles.footerContact}>
                   🏢 Legal Tech Hub{"\n"}Mumbai, Maharashtra{"\n"}India - 400001
                 </Text>
@@ -275,25 +289,45 @@ export default function LandingPage() {
               <View style={styles.footerColumn}>
                 <Text style={styles.footerColumnTitle}>For Developers</Text>
                 <TouchableOpacity
-                  onPress={() => console.log("Backend Integration")}
+                  onPress={() =>
+                    Alert.alert(
+                      "Developer Resources",
+                      "Backend Integration Guide will open soon",
+                    )
+                  }
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>Backend Integration</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("API Reference")}
+                  onPress={() =>
+                    Alert.alert(
+                      "Developer Resources",
+                      "API Reference documentation coming soon",
+                    )
+                  }
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>API Reference</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("SDKs")}
+                  onPress={() =>
+                    Alert.alert(
+                      "Developer Resources",
+                      "SDKs & Libraries will be available soon",
+                    )
+                  }
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>SDKs & Libraries</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("GitHub")}
+                  onPress={() =>
+                    Alert.alert(
+                      "Developer Resources",
+                      "GitHub Repository will be public soon",
+                    )
+                  }
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>GitHub Repository</Text>
