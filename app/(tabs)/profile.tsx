@@ -81,6 +81,25 @@ export default function ProfileScreen() {
   const permissions = getRolePermissions(user.role);
   const roleColor = getRoleColor(user.role);
 
+  const handleProfileAction = (actionTitle: string) => {
+    switch (actionTitle) {
+      case t("settings"):
+        router.push("/settings");
+        break;
+      case t("helpSupport"):
+        router.push("/help-support");
+        break;
+      case t("privacyPolicy"):
+        router.push("/privacy-policy");
+        break;
+      case t("termsAndConditions"):
+        router.push("/terms-of-service");
+        break;
+      default:
+        Alert.alert(actionTitle, t("comingSoon"));
+    }
+  };
+
   const profileActions = [
     { title: t("settings"), icon: "⚙️", available: true },
     { title: t("helpSupport"), icon: "❓", available: true },
@@ -171,7 +190,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             key={index}
             style={styles.actionRow}
-            onPress={() => Alert.alert(action.title, t("comingSoon"))}
+            onPress={() => handleProfileAction(action.title)}
           >
             <Text style={styles.actionIcon}>{action.icon}</Text>
             <Text style={styles.actionText}>{action.title}</Text>
