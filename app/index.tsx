@@ -7,49 +7,59 @@ import {
   ScrollView,
   Dimensions,
   Platform,
+  Alert,
 } from "react-native";
+import { router } from "expo-router";
+import { authService } from "@/services/auth";
 
 const { width } = Dimensions.get("window");
 
 export default function LandingPage() {
   const handleGetStarted = () => {
-    console.log("Get Started clicked");
-    // TODO: Navigate to signup
+    router.push("/signup");
   };
 
   const handleSignIn = () => {
-    console.log("Sign In clicked");
-    // TODO: Navigate to login
+    router.push("/login");
   };
 
-  const handleDemoAccess = () => {
-    console.log("Demo Access clicked");
-    // TODO: Navigate to demo
+  const handleDemoAccess = async () => {
+    try {
+      // Create a demo user session
+      const demoUser = {
+        id: "demo_user",
+        name: "Demo User",
+        email: "demo@yrjr.com",
+        role: "law_student" as const,
+        isVerified: true,
+        subscriptionTier: "pro" as const,
+      };
+
+      await authService.updateUser(demoUser);
+      router.replace("/(tabs)");
+    } catch (error) {
+      Alert.alert("Error", "Unable to start demo. Please try again.");
+    }
   };
 
   const handleFeatures = () => {
-    console.log("Features clicked");
-    // TODO: Navigate to features page
+    router.push("/features");
   };
 
   const handlePricing = () => {
-    console.log("Pricing clicked");
-    // TODO: Navigate to pricing page
+    router.push("/subscription");
   };
 
   const handlePrivacyPolicy = () => {
-    console.log("Privacy Policy clicked");
-    // TODO: Navigate to privacy policy
+    router.push("/privacy-policy");
   };
 
   const handleTermsOfService = () => {
-    console.log("Terms of Service clicked");
-    // TODO: Navigate to terms of service
+    router.push("/terms-of-service");
   };
 
   const handleSupport = () => {
-    console.log("Support clicked");
-    // TODO: Navigate to support page
+    router.push("/help-support");
   };
 
   return (
