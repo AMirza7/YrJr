@@ -25,6 +25,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="admin" />
           <Stack.Screen name="ai-comparator" />
+          <Stack.Screen name="features" />
           <Stack.Screen name="templates" />
           <Stack.Screen name="flashcards" />
           <Stack.Screen name="notifications" />
