@@ -114,6 +114,69 @@ export default function LandingScreen() {
             <Text style={styles.ctaButtonText}>Start Free Trial</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <View style={styles.footerContent}>
+            <View style={styles.footerBrand}>
+              <Text style={styles.footerLogo}>⚖️</Text>
+              <Text style={styles.footerBrandName}>YRJR Legal Assistant</Text>
+              <Text style={styles.footerTagline}>
+                Your Intelligent Legal Companion
+              </Text>
+            </View>
+
+            <View style={styles.footerLinks}>
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerColumnTitle}>Product</Text>
+                <TouchableOpacity onPress={() => router.push("/features")}>
+                  <Text style={styles.footerLink}>Features</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push("/subscription")}>
+                  <Text style={styles.footerLink}>Pricing</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handleDemoAccess}>
+                  <Text style={styles.footerLink}>Demo</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerColumnTitle}>Legal</Text>
+                <TouchableOpacity
+                  onPress={() => router.push("/privacy-policy")}
+                >
+                  <Text style={styles.footerLink}>Privacy Policy</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push("/terms-of-service")}
+                >
+                  <Text style={styles.footerLink}>Terms of Service</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push("/help-support")}>
+                  <Text style={styles.footerLink}>Support</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.footerColumn}>
+                <Text style={styles.footerColumnTitle}>Contact</Text>
+                <Text style={styles.footerContact}>support@yrjr.app</Text>
+                <Text style={styles.footerContact}>+91-1234567890</Text>
+                <Text style={styles.footerContact}>
+                  Legal Tech Hub, Mumbai, India
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.footerBottom}>
+            <Text style={styles.footerCopyright}>
+              © 2024 YRJR Legal Assistant. All rights reserved.
+            </Text>
+            <Text style={styles.footerBuilt}>
+              Built for the Indian Legal System
+            </Text>
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -288,5 +351,77 @@ const styles = StyleSheet.create({
     color: "#1e40af",
     fontSize: 16,
     fontWeight: "600",
+  },
+  footer: {
+    backgroundColor: "#111827",
+    paddingTop: 40,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+  },
+  footerContent: {
+    marginBottom: 30,
+  },
+  footerBrand: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  footerLogo: {
+    fontSize: 40,
+    marginBottom: 8,
+  },
+  footerBrandName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 4,
+  },
+  footerTagline: {
+    fontSize: 14,
+    color: "#9ca3af",
+    textAlign: "center",
+  },
+  footerLinks: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+  },
+  footerColumn: {
+    flex: 1,
+    minWidth: 100,
+    marginBottom: 20,
+  },
+  footerColumnTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+    marginBottom: 12,
+  },
+  footerLink: {
+    fontSize: 14,
+    color: "#9ca3af",
+    marginBottom: 8,
+    paddingVertical: 2,
+  },
+  footerContact: {
+    fontSize: 14,
+    color: "#9ca3af",
+    marginBottom: 6,
+  },
+  footerBottom: {
+    borderTopWidth: 1,
+    borderTopColor: "#374151",
+    paddingTop: 20,
+    alignItems: "center",
+  },
+  footerCopyright: {
+    fontSize: 14,
+    color: "#6b7280",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  footerBuilt: {
+    fontSize: 12,
+    color: "#9ca3af",
+    textAlign: "center",
   },
 });
