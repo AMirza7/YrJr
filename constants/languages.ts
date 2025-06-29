@@ -261,6 +261,28 @@ export const TRANSLATIONS = {
     indianPhoneRequired: "Only Indian phone numbers are supported",
     enterValidPhone: "Please enter a valid Indian phone number",
 
+    // OTP and Password Reset
+    forgotPassword: "Forgot Password?",
+    resetPassword: "Reset Password",
+    sendOtp: "Send OTP",
+    verifyOtp: "Verify OTP",
+    enterOtp: "Enter OTP",
+    resendOtp: "Resend OTP",
+    otpSent: "OTP Sent",
+    otpVerified: "OTP Verified",
+    invalidOtp: "Invalid OTP",
+    newPassword: "New Password",
+    confirmNewPassword: "Confirm New Password",
+    passwordReset: "Password Reset",
+    passwordResetSuccess: "Password reset successfully",
+
+    // Theme
+    chooseTheme: "Choose Theme",
+    themePreferences: "Theme Preferences",
+    lightMode: "Light Mode",
+    darkMode: "Dark Mode",
+    systemMode: "System Mode",
+
     // Biometric
     biometricAuth: "Biometric Authentication",
     useBiometric: "Use fingerprint or face ID to authenticate",
@@ -337,7 +359,7 @@ export const TRANSLATIONS = {
     settings: "सेटिंग्स",
     logout: "लॉग आउट",
     login: "साइन इन",
-    signup: "खात�� बनाएं",
+    signup: "खाता बनाएं",
     cancel: "रद्द करें",
     continue: "जारी रखें",
     save: "सहेजें",
@@ -362,7 +384,7 @@ export const TRANSLATIONS = {
     upload: "अपलोड करें",
     download: "डाउनलोड करें",
     share: "साझा करें",
-    copy: "कॉपी कर���ं",
+    copy: "कॉपी करें",
     paste: "पेस्ट करें",
     cut: "कट करें",
     undo: "पूर्ववत करें",
@@ -390,8 +412,8 @@ export const TRANSLATIONS = {
     signIn: "साइन इन",
     forgotPassword: "पासवर्ड भूल गए?",
     alreadyHaveAccount: "पहले से खाता है?",
-    dontHaveAccount: "खाता नह��ं है?",
-    welcomeBack: "वापसी पर स्वागत है",
+    dontHaveAccount: "खाता नहीं है?",
+    welcomeBack: "वापसी पर स्वा���त है",
     signInToAccount: "अपने खाते में साइन इन करें",
     joinLegalCommunity: "कानूनी समुदाय में शामिल ह���ं",
     showPassword: "पासवर्ड दिखाएं",
@@ -409,7 +431,7 @@ export const TRANSLATIONS = {
 
     // Terms
     agreeToTerms: "मैं नियम और शर्तों से सहमत हूं",
-    termsAndConditions: "नियम और शर्��ें",
+    termsAndConditions: "नियम और शर्तें",
     privacyPolicy: "गोपनीयता नीति",
     byCreatingAccount: "खाता बनाकर, ��प हमारी सहमति देते हैं",
     acceptTermsRequired:
@@ -432,7 +454,7 @@ export const TRANSLATIONS = {
     templatesHub: "टेम्प्लेट हब",
     flashcards: "फ्लैशकार्ड",
     notifications: "सूचनाएं",
-    documentScanner: "दस्तावेज़ स्कैनर",
+    documentScanner: "दस्तावेज़ ��्कैनर",
     voiceAssistant: "वॉयस असिस्टेंट",
     calendar: "कैलेंडर",
     analytics: "एनालिटिक्स",
@@ -485,7 +507,7 @@ export const TRANSLATIONS = {
     // Success Messages
     accountCreated: "खाता सफलतापूर्वक बनाया गया",
     profileUpdated: "प्रोफ़ाइल सफलतापूर्वक अपडेट किया गया",
-    settingsSaved: "सेटिंग्स सफलतापूर्वक सहेजी ��ईं",
+    settingsSaved: "सेटिंग्स सफलतापूर्वक सहेजी गईं",
     emailSent: "ईमेल सफलतापूर्वक भेजा गया",
     phoneVerified: "फोन नंबर सफलतापूर्वक सत्यापित किया गया",
 
@@ -493,6 +515,28 @@ export const TRANSLATIONS = {
     phoneNumberFormat: "फोन नंबर प्रारूप: +91-XXXXXXXXXX",
     indianPhoneRequired: "केवल भारतीय फोन नंबर समर्थित हैं",
     enterValidPhone: "कृपया एक वैध भारतीय फोन नंबर दर्ज करें",
+
+    // OTP and Password Reset
+    forgotPassword: "पासवर्ड भूल गए?",
+    resetPassword: "पासवर्ड रीसेट करें",
+    sendOtp: "OTP भेजें",
+    verifyOtp: "OTP सत्यापित करें",
+    enterOtp: "OTP दर्ज करें",
+    resendOtp: "OTP दोबारा भेजें",
+    otpSent: "OTP भेजा गया",
+    otpVerified: "OTP सत्यापित",
+    invalidOtp: "अमान्य OTP",
+    newPassword: "नया पासवर्ड",
+    confirmNewPassword: "नया पासवर्ड पुष्टि करें",
+    passwordReset: "पासवर्ड रीसेट",
+    passwordResetSuccess: "पासवर्ड सफलतापूर्वक रीसेट किया गया",
+
+    // Theme
+    chooseTheme: "थीम चुनें",
+    themePreferences: "थीम प्राथमिकताएं",
+    lightMode: "लाइट मोड",
+    darkMode: "डार्क मोड",
+    systemMode: "सिस्टम मोड",
 
     // Biometric
     biometricAuth: "बायोमेट्रिक प्रमाणीकरण",
@@ -503,7 +547,7 @@ export const TRANSLATIONS = {
 
     // Quick Actions
     quickActions: "त्वरित क्रियाएं",
-    recentActivity: "हाल की गतिवि���ि",
+    recentActivity: "हाल की गतिविधि",
     upcomingEvents: "आगामी घटनाएं",
     recentUpdates: "हाल की अपडेट",
     yourOverview: "आपका अवलोकन",
@@ -556,7 +600,7 @@ export const TRANSLATIONS = {
     submit: "جمع کریں",
     reset: "ری سیٹ",
     update: "اپ ڈیٹ",
-    upload: "اپ لوڈ",
+    upload: "��پ لوڈ",
     download: "ڈاؤن لوڈ",
     share: "شیئر",
     copy: "کاپی",
