@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   Alert,
@@ -13,25 +12,29 @@ import { authService } from "@/services/auth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import PasswordInput from "@/components/ui/PasswordInput";
+import PhoneInput from "@/components/ui/PhoneInput";
 
 export default function LoginScreen() {
   const { theme } = useTheme();
   const { t } = useLocalization();
 
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert(t("error"), t("enterEmail") + " and " + t("enterPassword"));
+    if (!phone || !password) {
+      Alert.alert(t("error"), t("enterPhone") + " and " + t("enterPassword"));
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await authService.login(email, password);
+      // Convert phone to email format for demo accounts compatibility
+      const phoneToEmail =
+        phone === "9876543210" ? "demo@yrjr.app" : `${phone}@phone.login`;
+      const response = await authService.login(phoneToEmail, password);
 
       if (response.success && response.user) {
         // Navigate based on role
@@ -60,13 +63,11 @@ export default function LoginScreen() {
       </View>
 
       <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
+        <PhoneInput
+          value={phone}
+          onChangeText={setPhone}
+          placeholder="XXXXX-XXXXX"
+          label={t("phoneNumber")}
         />
 
         <PasswordInput
@@ -87,14 +88,7 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         <View style={styles.authActions}>
-          <TouchableOpacity
-            onPress={() =>
-              Alert.alert(
-                "Feature Coming",
-                "Password reset will be available soon",
-              )
-            }
-          >
+          <TouchableOpacity onPress={() => router.push("/forgot-password")}>
             <Text style={styles.linkText}>Forgot Password?</Text>
           </TouchableOpacity>
 
@@ -113,7 +107,7 @@ export default function LoginScreen() {
                 account.role === "admin" && styles.adminDemoButton,
               ]}
               onPress={() => {
-                setEmail(account.email);
+                setPhone("9876543210");
                 setPassword(account.password);
               }}
             >
@@ -125,7 +119,7 @@ export default function LoginScreen() {
               >
                 {account.description}
               </Text>
-              <Text style={styles.demoEmail}>{account.email}</Text>
+              <Text style={styles.demoEmail}>+91-98765-43210</Text>
             </TouchableOpacity>
           ))}
         </View>

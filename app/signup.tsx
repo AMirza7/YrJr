@@ -105,13 +105,14 @@ export default function SignupScreen() {
       return false;
     }
 
-    if (!validateEmail(formData.email)) {
-      Alert.alert(t("error"), t("invalidEmail"));
+    if (!validatePhone(formData.phone)) {
+      Alert.alert(t("error"), t("invalidPhone"));
       return false;
     }
 
-    if (!validatePhone(formData.phone)) {
-      Alert.alert(t("error"), t("invalidPhone"));
+    // Email is optional, but if provided, must be valid
+    if (formData.email && !validateEmail(formData.email)) {
+      Alert.alert(t("error"), t("invalidEmail"));
       return false;
     }
 
@@ -242,23 +243,6 @@ export default function SignupScreen() {
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email Address *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="your.email@example.com"
-                value={formData.email}
-                onChangeText={(text) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    email: text.toLowerCase(),
-                  }))
-                }
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-
             <PhoneInput
               label={t("phoneNumber") + " *"}
               value={formData.phone}
@@ -275,6 +259,23 @@ export default function SignupScreen() {
               }
               placeholder="XXXXX-XXXXX"
             />
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email Address (Optional)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="your.email@example.com"
+                value={formData.email}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    email: text.toLowerCase(),
+                  }))
+                }
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
 
             <PasswordInput
               label={t("password") + " *"}
