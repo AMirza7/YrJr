@@ -16,14 +16,29 @@ const { width } = Dimensions.get("window");
 
 export default function LandingPage() {
   const handleGetStarted = () => {
-    router.push("/signup");
+    console.log("🚀 Get Started button clicked");
+    try {
+      router.push("/signup");
+      console.log("✅ Navigation to signup successful");
+    } catch (error) {
+      console.error("❌ Get Started navigation failed:", error);
+      Alert.alert("Navigation Error", "Unable to navigate to signup");
+    }
   };
 
   const handleSignIn = () => {
-    router.push("/login");
+    console.log("🔑 Sign In button clicked");
+    try {
+      router.push("/login");
+      console.log("✅ Navigation to login successful");
+    } catch (error) {
+      console.error("❌ Sign In navigation failed:", error);
+      Alert.alert("Navigation Error", "Unable to navigate to login");
+    }
   };
 
   const handleDemoAccess = async () => {
+    console.log("🎯 Demo button clicked");
     try {
       // Create a demo user session
       const demoUser = {
@@ -35,10 +50,15 @@ export default function LandingPage() {
         subscriptionTier: "pro" as const,
       };
 
+      console.log("🔄 Creating demo user session...");
       await authService.updateUser(demoUser);
+      console.log("✅ Demo user session created");
+
       router.replace("/(tabs)");
+      console.log("✅ Navigation to tabs successful");
     } catch (error) {
-      Alert.alert("Error", "Unable to start demo. Please try again.");
+      console.error("❌ Demo access failed:", error);
+      Alert.alert("Demo Error", "Unable to start demo. Please try again.");
     }
   };
 
