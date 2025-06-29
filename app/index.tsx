@@ -7,49 +7,79 @@ import {
   ScrollView,
   Dimensions,
   Platform,
+  Alert,
 } from "react-native";
+import { router } from "expo-router";
+import { authService } from "@/services/auth";
 
 const { width } = Dimensions.get("window");
 
 export default function LandingPage() {
   const handleGetStarted = () => {
-    console.log("Get Started clicked");
-    // TODO: Navigate to signup
+    console.log("🚀 Get Started button clicked");
+    try {
+      router.push("/signup");
+      console.log("✅ Navigation to signup successful");
+    } catch (error) {
+      console.error("❌ Get Started navigation failed:", error);
+      Alert.alert("Navigation Error", "Unable to navigate to signup");
+    }
   };
 
   const handleSignIn = () => {
-    console.log("Sign In clicked");
-    // TODO: Navigate to login
+    console.log("🔑 Sign In button clicked");
+    try {
+      router.push("/login");
+      console.log("✅ Navigation to login successful");
+    } catch (error) {
+      console.error("❌ Sign In navigation failed:", error);
+      Alert.alert("Navigation Error", "Unable to navigate to login");
+    }
   };
 
-  const handleDemoAccess = () => {
-    console.log("Demo Access clicked");
-    // TODO: Navigate to demo
+  const handleDemoAccess = async () => {
+    console.log("🎯 Demo button clicked");
+    try {
+      // Create a demo user session
+      const demoUser = {
+        id: "demo_user",
+        name: "Demo User",
+        email: "demo@yrjr.com",
+        role: "law_student" as const,
+        isVerified: true,
+        subscriptionTier: "pro" as const,
+      };
+
+      console.log("🔄 Creating demo user session...");
+      await authService.updateUser(demoUser);
+      console.log("✅ Demo user session created");
+
+      router.replace("/(tabs)");
+      console.log("✅ Navigation to tabs successful");
+    } catch (error) {
+      console.error("❌ Demo access failed:", error);
+      Alert.alert("Demo Error", "Unable to start demo. Please try again.");
+    }
   };
 
   const handleFeatures = () => {
-    console.log("Features clicked");
-    // TODO: Navigate to features page
+    router.push("/features");
   };
 
   const handlePricing = () => {
-    console.log("Pricing clicked");
-    // TODO: Navigate to pricing page
+    router.push("/subscription");
   };
 
   const handlePrivacyPolicy = () => {
-    console.log("Privacy Policy clicked");
-    // TODO: Navigate to privacy policy
+    router.push("/privacy-policy");
   };
 
   const handleTermsOfService = () => {
-    console.log("Terms of Service clicked");
-    // TODO: Navigate to terms of service
+    router.push("/terms-of-service");
   };
 
   const handleSupport = () => {
-    console.log("Support clicked");
-    // TODO: Navigate to support page
+    router.push("/help-support");
   };
 
   return (
@@ -243,7 +273,7 @@ export default function LandingPage() {
                   <Text style={styles.footerLink}>Help & Support</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("FAQ")}
+                  onPress={() => router.push("/help-support")}
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>FAQ</Text>
@@ -252,8 +282,22 @@ export default function LandingPage() {
 
               <View style={styles.footerColumn}>
                 <Text style={styles.footerColumnTitle}>Contact Info</Text>
-                <Text style={styles.footerContact}>📧 support@yrjr.app</Text>
-                <Text style={styles.footerContact}>📞 +91-1234567890</Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    Alert.alert("Contact", "Email: support@yrjr.app")
+                  }
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerContact}>📧 support@yrjr.app</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    Alert.alert("Contact", "Phone: +91-1234567890")
+                  }
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerContact}>📞 +91-1234567890</Text>
+                </TouchableOpacity>
                 <Text style={styles.footerContact}>
                   🏢 Legal Tech Hub{"\n"}Mumbai, Maharashtra{"\n"}India - 400001
                 </Text>
@@ -265,25 +309,45 @@ export default function LandingPage() {
               <View style={styles.footerColumn}>
                 <Text style={styles.footerColumnTitle}>For Developers</Text>
                 <TouchableOpacity
-                  onPress={() => console.log("Backend Integration")}
+                  onPress={() =>
+                    Alert.alert(
+                      "Developer Resources",
+                      "Backend Integration Guide will open soon",
+                    )
+                  }
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>Backend Integration</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("API Reference")}
+                  onPress={() =>
+                    Alert.alert(
+                      "Developer Resources",
+                      "API Reference documentation coming soon",
+                    )
+                  }
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>API Reference</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("SDKs")}
+                  onPress={() =>
+                    Alert.alert(
+                      "Developer Resources",
+                      "SDKs & Libraries will be available soon",
+                    )
+                  }
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>SDKs & Libraries</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => console.log("GitHub")}
+                  onPress={() =>
+                    Alert.alert(
+                      "Developer Resources",
+                      "GitHub Repository will be public soon",
+                    )
+                  }
                   activeOpacity={0.7}
                 >
                   <Text style={styles.footerLink}>GitHub Repository</Text>
