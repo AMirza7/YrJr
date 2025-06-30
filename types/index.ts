@@ -8,7 +8,7 @@ export type UserRole =
 
 export type SubscriptionTier = "free" | "pro" | "premium";
 
-export type ThemeMode = "light" | "dark" | "system";
+export type ThemeMode = "light" | "dark" | "modern" | "system";
 
 export type Language =
   | "en"

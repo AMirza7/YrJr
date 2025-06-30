@@ -92,9 +92,56 @@ export const DARK_THEME: AppTheme = {
   },
 };
 
+export const MODERN_THEME: AppTheme = {
+  colors: {
+    primary: "#6366f1",
+    secondary: "#ec4899",
+    background: "#0f0f23",
+    surface: "#1a1a2e",
+    text: "#e2e8f0",
+    textSecondary: "#94a3b8",
+    border: "#334155",
+    error: "#f43f5e",
+    success: "#22c55e",
+    warning: "#eab308",
+    info: "#06b6d4",
+  },
+  typography: {
+    sizes: {
+      xs: 10,
+      sm: 12,
+      md: 14,
+      lg: 16,
+      xl: 18,
+      xxl: 24,
+    },
+    weights: {
+      normal: "400",
+      medium: "500",
+      semibold: "600",
+      bold: "700",
+    },
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    xxl: 24,
+  },
+  borderRadius: {
+    sm: 6,
+    md: 10,
+    lg: 14,
+    xl: 18,
+  },
+};
+
 export const THEME_CONFIG = {
   light: LIGHT_THEME,
   dark: DARK_THEME,
+  modern: MODERN_THEME,
 };
 
 export const THEME_OPTIONS: {
@@ -104,6 +151,7 @@ export const THEME_OPTIONS: {
 }[] = [
   { label: "Light", value: "light", icon: "☀️" },
   { label: "Dark", value: "dark", icon: "🌙" },
+  { label: "Modern", value: "modern", icon: "✨" },
   { label: "System Default", value: "system", icon: "📱" },
 ];
 
@@ -118,5 +166,5 @@ export const resolveTheme = (themeMode: ThemeMode): AppTheme => {
     const systemTheme = getSystemTheme();
     return THEME_CONFIG[systemTheme];
   }
-  return THEME_CONFIG[themeMode];
+  return THEME_CONFIG[themeMode] || LIGHT_THEME;
 };
