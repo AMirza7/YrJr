@@ -39,23 +39,55 @@ export default function LandingPage() {
 
   const handleDemoAccess = async () => {
     console.log("🎯 Demo button clicked");
+
+    // Show demo account selection
+    Alert.alert(
+      "Select Demo Account",
+      "Choose which demo account you'd like to try:",
+      [
+        {
+          text: "Senior Lawyer",
+          onPress: () => loginWithDemo("lawyer@yrjr.app", "demo123"),
+        },
+        {
+          text: "Junior Lawyer",
+          onPress: () => loginWithDemo("jr.lawyer@yrjr.app", "demo123"),
+        },
+        {
+          text: "Legal Assistant",
+          onPress: () => loginWithDemo("assistant@yrjr.app", "demo123"),
+        },
+        {
+          text: "Law Student",
+          onPress: () => loginWithDemo("student@yrjr.app", "demo123"),
+        },
+        {
+          text: "Admin",
+          onPress: () => loginWithDemo("admin@yrjr.app", "admin123"),
+        },
+        { text: "Cancel", style: "cancel" },
+      ],
+    );
+  };
+
+  const loginWithDemo = async (email: string, password: string) => {
+    console.log(`🔄 Logging in with demo account: ${email}`);
     try {
-      // Create a demo user session
-      const demoUser = {
-        id: "demo_user",
-        name: "Demo User",
-        email: "demo@yrjr.com",
-        role: "law_student" as const,
-        isVerified: true,
-        subscriptionTier: "pro" as const,
-      };
+      const response = await authService.login(email, password);
 
-      console.log("🔄 Creating demo user session...");
-      await authService.updateUser(demoUser);
-      console.log("✅ Demo user session created");
+      if (response.success && response.user) {
+        console.log("✅ Demo login successful:", response.user.role);
 
-      router.replace("/(tabs)");
-      console.log("✅ Navigation to tabs successful");
+        // Navigate based on role
+        if (response.user.role === "admin") {
+          router.replace("/admin");
+        } else {
+          router.replace("/(tabs)");
+        }
+      } else {
+        console.error("❌ Demo login failed:", response.message);
+        Alert.alert("Demo Error", response.message || "Demo login failed");
+      }
     } catch (error) {
       console.error("❌ Demo access failed:", error);
       Alert.alert("Demo Error", "Unable to start demo. Please try again.");
