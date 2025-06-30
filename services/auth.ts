@@ -20,33 +20,22 @@ const MOCK_USERS: User[] = [];
 
 // Generate demo users from DEMO_ACCOUNTS
 DEMO_ACCOUNTS.forEach((account, index) => {
-  MOCK_USERS.push({
+  const demoUser: User = {
     id: `demo_${account.role}_${index}`,
     email: account.email,
     name: account.name,
     role: account.role,
     isVerified: true,
-    isApproved:
-      account.role === "admin"
-        ? true
-        : account.role === "lawyer" || account.role === "junior_lawyer"
-          ? Math.random() > 0.3
-          : true,
+    isApproved: true, // All demo accounts should be approved
     hasVerificationBadge:
-      account.role === "lawyer" || account.role === "junior_lawyer"
-        ? Math.random() > 0.5
-        : false,
+      account.role === "lawyer" || account.role === "junior_lawyer",
     subscriptionTier:
-      account.role === "admin"
+      account.role === "lawyer"
         ? "premium"
-        : account.role === "lawyer"
-          ? "premium"
-          : account.role === "junior_lawyer"
-            ? "pro"
-            : "free",
-    createdAt: new Date(
-      Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000,
-    ).toISOString(),
+        : account.role === "junior_lawyer"
+          ? "pro"
+          : "free",
+    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
     lastActiveAt: new Date().toISOString(),
     preferences: {
       theme: "light",
@@ -64,7 +53,10 @@ DEMO_ACCOUNTS.forEach((account, index) => {
         showOnlineStatus: true,
       },
     },
-  });
+  };
+
+  MOCK_USERS.push(demoUser);
+  console.log(`📝 Created demo user: ${demoUser.email} - ${demoUser.role}`);
 });
 
 // Add admin account
