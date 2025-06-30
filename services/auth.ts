@@ -100,16 +100,14 @@ MOCK_USERS.push({
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
+      console.log(`🔑 Login attempt: ${email} with password: ${password}`);
+
       // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Check demo accounts first
-      const demoAccount = DEMO_ACCOUNTS.find(
-        (account) => account.email === email && password === "demo123",
-      );
-
-      // Check admin account
+      // Check admin account first
       if (email === "admin@yrjr.app" && password === "admin123") {
+        console.log("🏛️ Admin login detected");
         const adminUser = MOCK_USERS.find((u) => u.email === "admin@yrjr.app");
         if (adminUser) {
           const token = `token_${adminUser.id}_${Date.now()}`;
@@ -117,6 +115,7 @@ export const authService = {
           await AsyncStorage.setItem(KEYS.TOKEN, token);
           await AsyncStorage.setItem(KEYS.LAST_LOGIN, new Date().toISOString());
 
+          console.log("✅ Admin login successful");
           return {
             success: true,
             user: adminUser,
@@ -125,7 +124,13 @@ export const authService = {
         }
       }
 
-      if (demoAccount) {
+      // Check demo accounts
+      const demoAccount = DEMO_ACCOUNTS.find(
+        (account) => account.email === email,
+      );
+
+      if (demoAccount && password === "demo123") {
+        console.log(`👤 Demo account found: ${demoAccount.role}`);
         const user = MOCK_USERS.find((u) => u.email === email);
         if (user) {
           const token = `token_${user.id}_${Date.now()}`;
@@ -133,19 +138,24 @@ export const authService = {
           await AsyncStorage.setItem(KEYS.TOKEN, token);
           await AsyncStorage.setItem(KEYS.LAST_LOGIN, new Date().toISOString());
 
+          console.log(`✅ Demo login successful for ${user.role}`);
           return {
             success: true,
             user,
             token,
           };
+        } else {
+          console.error(`❌ Demo user not found in MOCK_USERS for ${email}`);
         }
       }
 
+      console.log("❌ Invalid credentials or user not found");
       return {
         success: false,
-        message: "Invalid credentials",
+        message: "Invalid email or password",
       };
     } catch (error) {
+      console.error("❌ Login error:", error);
       return {
         success: false,
         message: "Login failed. Please try again.",
