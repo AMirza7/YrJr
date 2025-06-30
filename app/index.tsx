@@ -38,58 +38,71 @@ export default function LandingPage() {
   };
 
   const handleDemoAccess = async () => {
-    console.log("🎯 Demo button clicked");
+    console.log("🎯 Demo button clicked - logging in as Law Student");
 
-    // Show demo account selection
-    Alert.alert(
-      "Select Demo Account",
-      "Choose which demo account you'd like to try:",
-      [
-        {
-          text: "Senior Lawyer",
-          onPress: () => loginWithDemo("lawyer@yrjr.app", "demo123"),
-        },
-        {
-          text: "Junior Lawyer",
-          onPress: () => loginWithDemo("jr.lawyer@yrjr.app", "demo123"),
-        },
-        {
-          text: "Legal Assistant",
-          onPress: () => loginWithDemo("assistant@yrjr.app", "demo123"),
-        },
-        {
-          text: "Law Student",
-          onPress: () => loginWithDemo("student@yrjr.app", "demo123"),
-        },
-        {
-          text: "Admin",
-          onPress: () => loginWithDemo("admin@yrjr.app", "admin123"),
-        },
-        { text: "Cancel", style: "cancel" },
-      ],
-    );
+    try {
+      // Auto-login with law student demo account for quick access
+      const response = await authService.login("student@yrjr.app", "demo123");
+
+      if (response.success && response.user) {
+        console.log("✅ Demo login successful:", response.user.role);
+        router.replace("/(tabs)");
+      } else {
+        console.error("❌ Demo login failed:", response.message);
+
+        // Show selection if auto-login fails
+        Alert.alert(
+          "Select Demo Account",
+          "Choose which demo account you'd like to try:",
+          [
+            {
+              text: "Senior Lawyer",
+              onPress: () => loginWithDemo("lawyer@yrjr.app", "demo123"),
+            },
+            {
+              text: "Junior Lawyer",
+              onPress: () => loginWithDemo("jr.lawyer@yrjr.app", "demo123"),
+            },
+            {
+              text: "Legal Assistant",
+              onPress: () => loginWithDemo("assistant@yrjr.app", "demo123"),
+            },
+            {
+              text: "Law Student",
+              onPress: () => loginWithDemo("student@yrjr.app", "demo123"),
+            },
+            {
+              text: "Admin",
+              onPress: () => loginWithDemo("admin@yrjr.app", "admin123"),
+            },
+            { text: "Cancel", style: "cancel" },
+          ],
+        );
+      }
+    } catch (error) {
+      console.error("❌ Demo access failed:", error);
+      Alert.alert(
+        "Demo Error",
+        "Unable to start demo. Going to login screen instead.",
+      );
+      router.push("/login");
+    }
   };
 
   const loginWithDemo = async (email: string, password: string) => {
-    console.log(`🔄 Logging in with demo account: ${email}`);
     try {
       const response = await authService.login(email, password);
 
       if (response.success && response.user) {
-        console.log("✅ Demo login successful:", response.user.role);
-
-        // Navigate based on role
         if (response.user.role === "admin") {
           router.replace("/admin");
         } else {
           router.replace("/(tabs)");
         }
       } else {
-        console.error("❌ Demo login failed:", response.message);
         Alert.alert("Demo Error", response.message || "Demo login failed");
       }
     } catch (error) {
-      console.error("❌ Demo access failed:", error);
       Alert.alert("Demo Error", "Unable to start demo. Please try again.");
     }
   };
