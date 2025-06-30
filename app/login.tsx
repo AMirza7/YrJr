@@ -31,10 +31,36 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      // Convert phone to email format for demo accounts compatibility
-      const phoneToEmail =
-        phone === "9876543210" ? "demo@yrjr.app" : `${phone}@phone.login`;
-      const response = await authService.login(phoneToEmail, password);
+      // Map demo phone numbers to actual demo account emails
+      let emailToUse = phone;
+
+      // For demo accounts, convert the shared demo phone to appropriate email based on password
+      if (phone === "9876543210") {
+        const demoCredentials = authService.getDemoCredentials();
+
+        // Find matching demo account by password
+        const matchingDemo = demoCredentials.find(
+          (cred) => cred.password === password,
+        );
+
+        if (matchingDemo) {
+          emailToUse = matchingDemo.email;
+        } else {
+          // Check if it's admin login
+          if (password === "admin123") {
+            emailToUse = "admin@yrjr.app";
+          } else {
+            Alert.alert(t("error"), "Invalid demo account credentials");
+            setLoading(false);
+            return;
+          }
+        }
+      } else {
+        // For non-demo accounts, convert phone to email format
+        emailToUse = `${phone}@phone.login`;
+      }
+
+      const response = await authService.login(emailToUse, password);
 
       if (response.success && response.user) {
         // Navigate based on role
@@ -44,10 +70,10 @@ export default function LoginScreen() {
           router.replace("/(tabs)");
         }
       } else {
-        Alert.alert(t("error"), response.message || t("invalidCredentials"));
+        Alert.alert(t("error"), response.message || "Invalid credentials");
       }
     } catch (error) {
-      Alert.alert(t("error"), t("loginFailed"));
+      Alert.alert(t("error"), "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -109,6 +135,8 @@ export default function LoginScreen() {
               onPress={() => {
                 setPhone("9876543210");
                 setPassword(account.password);
+                // Auto-login for better UX
+                setTimeout(() => handleLogin(), 100);
               }}
             >
               <Text
@@ -119,7 +147,9 @@ export default function LoginScreen() {
               >
                 {account.description}
               </Text>
-              <Text style={styles.demoEmail}>+91-98765-43210</Text>
+              <Text style={styles.demoEmail}>
+                {account.role === "admin" ? "Admin Access" : "+91-98765-43210"}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
