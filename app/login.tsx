@@ -125,34 +125,37 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.demo}>
-          <Text style={styles.demoTitle}>Demo Accounts:</Text>
-          {demoCredentials.map((account, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.demoButton,
-                account.role === "admin" && styles.adminDemoButton,
-              ]}
-              onPress={() => {
-                setPhone("9876543210");
-                setPassword(account.password);
-                // Auto-login for better UX
-                setTimeout(() => handleLogin(), 100);
-              }}
-            >
-              <Text
-                style={[
-                  styles.demoText,
-                  account.role === "admin" && styles.adminDemoText,
-                ]}
-              >
-                {account.description}
-              </Text>
-              <Text style={styles.demoEmail}>
-                {account.role === "admin" ? "Admin Access" : "+91-98765-43210"}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          <Text style={styles.demoTitle}>
+            Demo Accounts (Phone: 9876543210):
+          </Text>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={async () => {
+              setPhone("9876543210");
+              setPassword("demo123");
+              // Auto-login for demo account
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>👤 Demo User (Lawyer)</Text>
+            <Text style={styles.demoEmail}>Password: demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.demoButton, styles.adminDemoButton]}
+            onPress={async () => {
+              setPhone("9876543210");
+              setPassword("admin123");
+              // Auto-login for admin
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={[styles.demoText, styles.adminDemoText]}>
+              🏛️ Admin Access
+            </Text>
+            <Text style={styles.demoEmail}>Password: admin123</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
