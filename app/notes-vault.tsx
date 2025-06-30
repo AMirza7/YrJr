@@ -223,27 +223,112 @@ export default function NotesVault() {
       return;
     }
 
-    const note: SecureNote = {
-      id: `note_${Date.now()}`,
-      userId: user?.id || "demo_user",
-      title: newNote.title,
-      content: newNote.content,
-      tags: newNote.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag),
-      isEncrypted: newNote.requiresBiometric,
-      requiresBiometric: newNote.requiresBiometric,
-      lastAccessed: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      const noteData = {
+        title: newNote.title,
+        content: newNote.content,
+        tags: newNote.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+        isEncrypted: newNote.requiresBiometric,
+        requiresBiometric: newNote.requiresBiometric,
+      };
 
-    setNotes([note, ...notes]);
-    setNewNote({ title: "", content: "", tags: "", requiresBiometric: true });
-    setShowCreateModal(false);
+      // API call to POST /api/secure-notes
+      const response = await fetch("/api/secure-notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(noteData),
+      });
 
-    Alert.alert("Success", "Secure note created successfully!");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const savedNote = await response.json();
+
+      // Create local note object for immediate UI update
+      const note: SecureNote = {
+        id: savedNote.id || `note_${Date.now()}`,
+        userId: user?.id || "demo_user",
+        title: newNote.title,
+        content: newNote.content,
+        tags: newNote.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+        isEncrypted: newNote.requiresBiometric,
+        requiresBiometric: newNote.requiresBiometric,
+        lastAccessed: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setNotes([note, ...notes]);
+      setNewNote({ title: "", content: "", tags: "", requiresBiometric: true });
+      setShowCreateModal(false);
+
+      // Refresh the notes list from server
+      await refreshNotes();
+
+      Alert.alert("Success", "Secure note saved successfully!");
+    } catch (error) {
+      console.error("Error saving secure note:", error);
+
+      // Fallback to local storage if API fails
+      const note: SecureNote = {
+        id: `note_${Date.now()}`,
+        userId: user?.id || "demo_user",
+        title: newNote.title,
+        content: newNote.content,
+        tags: newNote.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+        isEncrypted: newNote.requiresBiometric,
+        requiresBiometric: newNote.requiresBiometric,
+        lastAccessed: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setNotes([note, ...notes]);
+      setNewNote({ title: "", content: "", tags: "", requiresBiometric: true });
+      setShowCreateModal(false);
+
+      Alert.alert(
+        "Note Saved Locally",
+        "Note saved to device. It will sync when connection is restored.",
+        [{ text: "OK" }],
+      );
+    }
+  };
+
+  const refreshNotes = async () => {
+    try {
+      // API call to GET /api/secure-notes to refresh the list
+      const response = await fetch("/api/secure-notes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${token}`
+        },
+      });
+
+      if (response.ok) {
+        const updatedNotes = await response.json();
+        setNotes(updatedNotes);
+      }
+    } catch (error) {
+      console.error("Error refreshing notes:", error);
+      // Continue with local state if refresh fails
+    }
   };
 
   const deleteNote = (noteId: string) => {

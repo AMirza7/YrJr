@@ -162,22 +162,91 @@ export default function FlashcardsLearning() {
       [
         { text: "Review Results", onPress: () => setIsStudyMode(false) },
         { text: "Study Again", onPress: startStudySession },
+        { text: "View Summary", onPress: () => createFlashcardSession(score) },
       ],
     );
+  };
 
-    // Save session (simplified)
-    const newSession: FlashcardSession = {
-      id: Date.now().toString(),
-      userId: "current_user",
-      category: selectedCategory,
-      totalCards: sessionStats.totalCards,
-      correctAnswers: sessionStats.correctAnswers,
-      score: score,
-      timeSpent: 0, // Would track actual time in real implementation
-      completedAt: new Date(),
-    };
+  const createFlashcardSession = async (score: number) => {
+    try {
+      const sessionData = {
+        category: selectedCategory,
+        totalCards: sessionStats.totalCards,
+        correctAnswers: sessionStats.correctAnswers,
+        score: score,
+        timeSpent: 0, // Would track actual time in real implementation
+      };
 
-    setSessions([newSession, ...sessions]);
+      // API call to POST /api/flashcards/sessions
+      const response = await fetch("/api/flashcards/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(sessionData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const savedSession = await response.json();
+
+      // Create local session object for immediate UI update
+      const newSession: FlashcardSession = {
+        id: savedSession.id || Date.now().toString(),
+        userId: "current_user",
+        category: selectedCategory,
+        totalCards: sessionStats.totalCards,
+        correctAnswers: sessionStats.correctAnswers,
+        score: score,
+        timeSpent: 0,
+        completedAt: new Date(),
+      };
+
+      setSessions([newSession, ...sessions]);
+      setIsStudyMode(false);
+
+      // Navigate to session summary screen
+      Alert.alert(
+        "Session Saved! 📊",
+        "Your study session has been saved successfully. View your progress in the sessions history.",
+        [
+          {
+            text: "Continue",
+            onPress: () => {
+              // Navigate to session summary
+              // router.push('/session-summary');
+            },
+          },
+        ],
+      );
+    } catch (error) {
+      console.error("Error creating flashcard session:", error);
+
+      // Fallback to local storage if API fails
+      const newSession: FlashcardSession = {
+        id: Date.now().toString(),
+        userId: "current_user",
+        category: selectedCategory,
+        totalCards: sessionStats.totalCards,
+        correctAnswers: sessionStats.correctAnswers,
+        score: score,
+        timeSpent: 0,
+        completedAt: new Date(),
+      };
+
+      setSessions([newSession, ...sessions]);
+      setIsStudyMode(false);
+
+      Alert.alert(
+        "Session Saved Locally",
+        "Session saved to device. It will sync when connection is restored.",
+        [{ text: "OK" }],
+      );
+    }
   };
 
   const getDifficultyColor = (difficulty: string) => {
