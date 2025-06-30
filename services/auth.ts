@@ -90,6 +90,26 @@ MOCK_USERS.push({
 });
 
 export const authService = {
+  async loginWithPhone(phone: string, password: string): Promise<AuthResponse> {
+    try {
+      console.log(`📱 Phone login attempt: ${phone}`);
+
+      // For non-demo phone numbers, create a user account or validate
+      // This is a simplified implementation - in reality you'd have phone-based user accounts
+
+      return {
+        success: false,
+        message:
+          "Phone-based login not implemented yet. Please use demo account (9876543210).",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "Phone login failed. Please try again.",
+      };
+    }
+  },
+
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
       console.log(`🔑 Login attempt: ${email} with password: ${password}`);
