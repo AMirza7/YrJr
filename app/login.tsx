@@ -31,46 +31,47 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      // Map demo phone numbers to actual demo account emails
-      let emailToUse = phone;
-
-      // For demo accounts, convert the shared demo phone to appropriate email based on password
+      // Handle demo phone number (9876543210) with different passwords
       if (phone === "9876543210") {
-        const demoCredentials = authService.getDemoCredentials();
+        let response;
 
-        // Find matching demo account by password
-        const matchingDemo = demoCredentials.find(
-          (cred) => cred.password === password,
-        );
-
-        if (matchingDemo) {
-          emailToUse = matchingDemo.email;
+        // Map password to specific demo account
+        if (password === "demo123") {
+          // Default to lawyer for demo123
+          response = await authService.login("lawyer@yrjr.app", "demo123");
+        } else if (password === "admin123") {
+          response = await authService.login("admin@yrjr.app", "admin123");
         } else {
-          // Check if it's admin login
-          if (password === "admin123") {
-            emailToUse = "admin@yrjr.app";
+          Alert.alert(
+            t("error"),
+            "Invalid demo password. Use 'demo123' or 'admin123'",
+          );
+          setLoading(false);
+          return;
+        }
+
+        if (response.success && response.user) {
+          if (response.user.role === "admin") {
+            router.replace("/admin");
           } else {
-            Alert.alert(t("error"), "Invalid demo account credentials");
-            setLoading(false);
-            return;
+            router.replace("/(tabs)");
           }
-        }
-      } else {
-        // For non-demo accounts, convert phone to email format
-        emailToUse = `${phone}@phone.login`;
-      }
-
-      const response = await authService.login(emailToUse, password);
-
-      if (response.success && response.user) {
-        // Navigate based on role
-        if (response.user.role === "admin") {
-          router.replace("/admin");
         } else {
-          router.replace("/(tabs)");
+          Alert.alert(t("error"), response.message || "Demo login failed");
         }
       } else {
-        Alert.alert(t("error"), response.message || "Invalid credentials");
+        // For non-demo accounts, use phone-based login
+        const response = await authService.loginWithPhone(phone, password);
+
+        if (response.success && response.user) {
+          if (response.user.role === "admin") {
+            router.replace("/admin");
+          } else {
+            router.replace("/(tabs)");
+          }
+        } else {
+          Alert.alert(t("error"), response.message || "Invalid credentials");
+        }
       }
     } catch (error) {
       Alert.alert(t("error"), "Login failed. Please try again.");
