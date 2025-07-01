@@ -141,26 +141,30 @@ export default function NotesVault() {
     try {
       // Simulate biometric authentication
       Alert.alert(
-        "Biometric Authentication",
-        "Place your finger on the fingerprint sensor or use Face ID to access secure notes.",
+        "Secure Access Required",
+        "Choose your authentication method to access secure notes:",
         [
           {
             text: "Cancel",
             style: "cancel",
           },
           {
+            text: "Use PIN (6261)",
+            onPress: () => promptPinAuth(),
+          },
+          {
             text: "Use Password",
             onPress: () => promptPasswordAuth(),
           },
           {
-            text: "Authenticate",
+            text: "Biometric",
             onPress: async () => {
               // Simulate authentication delay
               setTimeout(() => {
                 setIsAuthenticated(true);
                 Alert.alert(
                   "Success",
-                  "Authentication successful! You can now access your secure notes.",
+                  "Biometric authentication successful! You can now access your secure notes.",
                 );
               }, 1500);
             },
