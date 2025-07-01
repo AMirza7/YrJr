@@ -193,9 +193,9 @@ const styles = StyleSheet.create({
   },
   resultCard: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: width < 400 ? 12 : 16,
-    marginVertical: 6,
+    borderRadius: width < 400 ? 8 : 12,
+    padding: width < 400 ? 10 : 16,
+    marginVertical: width < 400 ? 4 : 6,
     borderLeftWidth: 3,
     borderLeftColor: "#1e40af",
     shadowColor: "#000",
