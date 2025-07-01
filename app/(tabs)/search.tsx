@@ -7,7 +7,10 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Dimensions,
 } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -163,20 +166,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#f1f5f9",
-    paddingHorizontal: 16,
+    paddingHorizontal: width < 400 ? 12 : 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginHorizontal: 8,
+    marginHorizontal: 6,
+    minWidth: width < 400 ? 80 : 100,
   },
   activeCategoryChip: {
     backgroundColor: "#1e40af",
   },
   categoryIcon: {
-    fontSize: 16,
-    marginRight: 6,
+    fontSize: width < 400 ? 14 : 16,
+    marginRight: 4,
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: width < 400 ? 12 : 14,
     fontWeight: "500",
     color: "#64748b",
   },
@@ -185,30 +189,36 @@ const styles = StyleSheet.create({
   },
   resultsList: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: width < 400 ? 16 : 20,
   },
   resultCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-    borderLeftWidth: 4,
+    padding: width < 400 ? 12 : 16,
+    marginVertical: 6,
+    borderLeftWidth: 3,
     borderLeftColor: "#1e40af",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   resultTitle: {
-    fontSize: 16,
+    fontSize: width < 400 ? 14 : 16,
     fontWeight: "600",
     color: "#1e293b",
     marginBottom: 4,
+    lineHeight: 20,
   },
   resultDescription: {
-    fontSize: 14,
+    fontSize: width < 400 ? 13 : 14,
     color: "#64748b",
-    lineHeight: 20,
+    lineHeight: width < 400 ? 18 : 20,
     marginBottom: 8,
   },
   resultType: {
-    fontSize: 12,
+    fontSize: width < 400 ? 10 : 12,
     color: "#1e40af",
     fontWeight: "500",
     textTransform: "uppercase",
