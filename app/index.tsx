@@ -80,7 +80,7 @@ export default function LandingPage() {
         );
       }
     } catch (error) {
-      console.error("❌ Demo access failed:", error);
+      console.error("�� Demo access failed:", error);
       Alert.alert(
         "Demo Error",
         "Unable to start demo. Going to login screen instead.",
@@ -349,54 +349,6 @@ export default function LandingPage() {
                 <Text style={styles.footerContact}>
                   🕒 Mon-Fri: 9:00 AM - 6:00 PM IST
                 </Text>
-              </View>
-
-              <View style={styles.footerColumn}>
-                <Text style={styles.footerColumnTitle}>For Developers</Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    Alert.alert(
-                      "Developer Resources",
-                      "Backend Integration Guide will open soon",
-                    )
-                  }
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.footerLink}>Backend Integration</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() =>
-                    Alert.alert(
-                      "Developer Resources",
-                      "API Reference documentation coming soon",
-                    )
-                  }
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.footerLink}>API Reference</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() =>
-                    Alert.alert(
-                      "Developer Resources",
-                      "SDKs & Libraries will be available soon",
-                    )
-                  }
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.footerLink}>SDKs & Libraries</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() =>
-                    Alert.alert(
-                      "Developer Resources",
-                      "GitHub Repository will be public soon",
-                    )
-                  }
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.footerLink}>GitHub Repository</Text>
-                </TouchableOpacity>
               </View>
             </View>
           </View>
