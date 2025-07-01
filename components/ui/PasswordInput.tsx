@@ -89,7 +89,7 @@ export default function PasswordInput({
           onPress={() => setIsVisible(!isVisible)}
           accessibilityLabel={isVisible ? t("hidePassword") : t("showPassword")}
         >
-          <Text style={styles.toggleIcon}>{isVisible ? "🙈" : "👁️"}</Text>
+          <Text style={styles.toggleIcon}>{isVisible ? "🔒" : "🔓"}</Text>
         </TouchableOpacity>
       </View>
 
