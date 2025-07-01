@@ -50,9 +50,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setThemeMode = async (mode: ThemeMode) => {
     try {
+      const newTheme = resolveTheme(mode);
       setThemeModeState(mode);
-      setTheme(resolveTheme(mode));
+      setTheme(newTheme);
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+
+      console.log(`Theme changed to: ${mode}`);
+      console.log(`New theme colors:`, newTheme.colors);
     } catch (error) {
       console.error("Error saving theme preference:", error);
     }
