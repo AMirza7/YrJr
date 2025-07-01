@@ -23,7 +23,7 @@ export default function FlashcardsLearning() {
     correctAnswers: 0,
     currentStreak: 0,
   });
-  const [flipAnimation] = useState(new Animated.Value(0));
+  const [flipAnimation] = useState(new Animated.Value(1));
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const categories = [
