@@ -7,13 +7,13 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  Share,
 } from "react-native";
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { User, LegalTemplate } from "@/types";
 import { canAccessFeature } from "@/constants/roles";
 import BackButton from "@/components/navigation/BackButton";
+import { shareTemplate } from "@/utils/shareUtils";
 
 // Mock templates data
 const MOCK_TEMPLATES: LegalTemplate[] = [
@@ -268,38 +268,10 @@ export default function TemplatesHub() {
 
   const handleShare = async (template: LegalTemplate) => {
     try {
-      await Share.share({
-        message: `Check out this legal template: ${template.title}\n\n${template.description}`,
-        title: template.title,
-      });
+      await shareTemplate(template);
     } catch (error) {
       console.error("Error sharing:", error);
-
-      // Fallback for web or unsupported environments
-      Alert.alert(
-        "Share Template",
-        `Template: ${template.title}\n\n${template.description}\n\nCopy this information to share it manually.`,
-        [
-          { text: "OK" },
-          {
-            text: "Copy to Clipboard",
-            onPress: () => {
-              // For web environments, try to use clipboard API
-              if (navigator?.clipboard) {
-                navigator.clipboard
-                  .writeText(
-                    `Check out this legal template: ${template.title}\n\n${template.description}`,
-                  )
-                  .catch(() => {
-                    Alert.alert("Info", "Please copy the text manually");
-                  });
-              } else {
-                Alert.alert("Info", "Please copy the text manually");
-              }
-            },
-          },
-        ],
-      );
+      Alert.alert("Error", "Failed to share template. Please try again.");
     }
   };
 
