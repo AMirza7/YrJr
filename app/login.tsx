@@ -31,24 +31,36 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      // Handle demo phone number (9876543210) with different passwords
-      if (phone === "9876543210") {
-        let response;
+      // Map demo phone numbers to email accounts
+      const demoPhoneMap: {
+        [key: string]: { email: string; password: string };
+      } = {
+        "9876543210": { email: "lawyer@yrjr.app", password: "demo123" },
+        "9123456780": { email: "jr.lawyer@yrjr.app", password: "demo123" },
+        "9234567890": { email: "assistant@yrjr.app", password: "demo123" },
+        "9345678901": { email: "helper@yrjr.app", password: "demo123" },
+        "9456789012": { email: "student@yrjr.app", password: "demo123" },
+        "9567890123": { email: "user@yrjr.app", password: "demo123" },
+        "9999999999": { email: "admin@yrjr.app", password: "admin123" },
+      };
 
-        // Map password to specific demo account
-        if (password === "demo123") {
-          // Default to lawyer for demo123
-          response = await authService.login("lawyer@yrjr.app", "demo123");
-        } else if (password === "admin123") {
-          response = await authService.login("admin@yrjr.app", "admin123");
-        } else {
+      const demoAccount = demoPhoneMap[phone];
+
+      if (demoAccount) {
+        // Verify password matches
+        if (password !== demoAccount.password) {
           Alert.alert(
             t("error"),
-            "Invalid demo password. Use 'demo123' or 'admin123'",
+            `Invalid password for this demo account. Use '${demoAccount.password}'`,
           );
           setLoading(false);
           return;
         }
+
+        const response = await authService.login(
+          demoAccount.email,
+          demoAccount.password,
+        );
 
         if (response.success && response.user) {
           if (response.user.role === "admin") {
