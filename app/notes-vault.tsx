@@ -173,6 +173,46 @@ export default function NotesVault() {
   };
 
   const promptPasswordAuth = () => {
+    Alert.alert(
+      "Authentication Required",
+      "Choose your authentication method:",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Use PIN", onPress: () => promptPinAuth() },
+        { text: "Use Password", onPress: () => promptPasswordInput() },
+      ],
+    );
+  };
+
+  const promptPinAuth = () => {
+    Alert.prompt(
+      "PIN Authentication",
+      "Enter your 4-digit PIN to access secure notes:\n(Demo PIN: 6261)",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Authenticate",
+          onPress: (pin) => {
+            if (pin === "6261") {
+              setIsAuthenticated(true);
+              Alert.alert("Success", "PIN authentication successful!");
+            } else {
+              Alert.alert(
+                "Error",
+                "Incorrect PIN. Please try again.\n(Demo PIN: 6261)",
+              );
+            }
+          },
+        },
+      ],
+      "numeric",
+    );
+  };
+
+  const promptPasswordInput = () => {
     Alert.prompt(
       "Password Authentication",
       "Enter your password to access secure notes:",
