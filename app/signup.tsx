@@ -164,13 +164,13 @@ export default function SignupScreen() {
           formData.role === "lawyer" || formData.role === "junior_lawyer";
 
         Alert.alert(
-          t("success"),
+          "🎉 Account Created Successfully!",
           isLawyer
-            ? "Account created! Please verify your email, then complete your professional profile."
-            : "Let's verify your email and phone number to secure your account.",
+            ? `Welcome ${formData.name}! Your account has been created successfully. Please verify your email and complete your professional profile to get full access.`
+            : `Welcome ${formData.name}! Your account has been created successfully. Let's verify your email and phone number to secure your account.`,
           [
             {
-              text: "Verify Email First",
+              text: "Continue",
               onPress: () =>
                 router.push({
                   pathname: "/verify-email",
