@@ -7,7 +7,10 @@ import {
   Modal,
   ScrollView,
   Alert,
+  Dimensions,
 } from "react-native";
+
+const { width } = Dimensions.get("window");
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import { Language } from "@/types";
@@ -65,7 +68,8 @@ export default function LanguageSelector({
       borderWidth: 1,
       borderColor: theme.colors.border,
       borderRadius: 8,
-      padding: compact ? 8 : 12,
+      padding: compact ? (width < 400 ? 6 : 8) : 12,
+      minHeight: compact ? (width < 400 ? 32 : 36) : 44,
     },
     languageInfo: {
       flex: 1,
@@ -78,12 +82,12 @@ export default function LanguageSelector({
       marginLeft: isRTL ? 8 : 0,
     },
     languageText: {
-      fontSize: compact ? 12 : 14,
+      fontSize: compact ? (width < 400 ? 10 : 12) : 14,
       color: theme.colors.text,
       fontWeight: "500",
     },
     languageSubtext: {
-      fontSize: compact ? 10 : 12,
+      fontSize: compact ? (width < 400 ? 8 : 10) : 12,
       color: theme.colors.textSecondary,
       marginTop: 2,
     },
