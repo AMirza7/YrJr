@@ -56,6 +56,11 @@ export default function SignupScreen() {
   const roles: { value: UserRole; label: string; description: string }[] = [
     {
       value: "law_student",
+      label: "Regular User",
+      description: "General public seeking legal information",
+    },
+    {
+      value: "law_student",
       label: t("lawStudent"),
       description: "Currently studying law",
     },
