@@ -267,44 +267,32 @@ export default function TemplatesHub() {
   };
 
   const handleShare = async (template: LegalTemplate) => {
-    const shareText = `Check out this legal template: ${template.title}\n\n${template.description}`;
+    const shareText = `📄 ${template.title}\n\n📝 ${template.description}\n\n🏛️ Shared from YRJR Legal Assistant`;
 
-    try {
-      // Try clipboard first for better reliability
-      if (navigator?.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(shareText);
-        Alert.alert("Copied!", "Template details copied to clipboard");
-      } else {
-        // Fallback to alert with manual copy
-        Alert.alert("Share Template", shareText, [
-          { text: "OK" },
-          {
-            text: "Copy",
-            onPress: () => {
-              // Try older clipboard method
-              const textArea = document.createElement("textarea");
-              textArea.value = shareText;
-              document.body.appendChild(textArea);
-              textArea.select();
-              try {
-                document.execCommand("copy");
-                Alert.alert("Copied!", "Template details copied to clipboard");
-              } catch (err) {
-                console.error("Copy failed:", err);
+    Alert.alert(
+      "Share Template",
+      "Choose how you'd like to share this template:",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Copy to Clipboard",
+          onPress: async () => {
+            try {
+              if (typeof navigator !== "undefined" && navigator.clipboard) {
+                await navigator.clipboard.writeText(shareText);
+                Alert.alert("✅ Success", "Template copied to clipboard!");
+              } else {
+                Alert.alert("📋 Template Content", shareText, [
+                  { text: "Done" },
+                ]);
               }
-              document.body.removeChild(textArea);
-            },
+            } catch (error) {
+              Alert.alert("📋 Template Content", shareText, [{ text: "Done" }]);
+            }
           },
-        ]);
-      }
-    } catch (error) {
-      console.error("Error sharing:", error);
-      Alert.alert(
-        "Share Template",
-        shareText + "\n\nPlease copy this text manually.",
-        [{ text: "OK" }],
-      );
-    }
+        },
+      ],
+    );
   };
 
   const TemplateCard = ({ template }: { template: LegalTemplate }) => (
