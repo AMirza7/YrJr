@@ -267,11 +267,43 @@ export default function TemplatesHub() {
   };
 
   const handleShare = async (template: LegalTemplate) => {
+    const shareText = `Check out this legal template: ${template.title}\n\n${template.description}`;
+
     try {
-      await shareTemplate(template);
+      // Try clipboard first for better reliability
+      if (navigator?.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareText);
+        Alert.alert("Copied!", "Template details copied to clipboard");
+      } else {
+        // Fallback to alert with manual copy
+        Alert.alert("Share Template", shareText, [
+          { text: "OK" },
+          {
+            text: "Copy",
+            onPress: () => {
+              // Try older clipboard method
+              const textArea = document.createElement("textarea");
+              textArea.value = shareText;
+              document.body.appendChild(textArea);
+              textArea.select();
+              try {
+                document.execCommand("copy");
+                Alert.alert("Copied!", "Template details copied to clipboard");
+              } catch (err) {
+                console.error("Copy failed:", err);
+              }
+              document.body.removeChild(textArea);
+            },
+          },
+        ]);
+      }
     } catch (error) {
       console.error("Error sharing:", error);
-      Alert.alert("Error", "Failed to share template. Please try again.");
+      Alert.alert(
+        "Share Template",
+        shareText + "\n\nPlease copy this text manually.",
+        [{ text: "OK" }],
+      );
     }
   };
 
