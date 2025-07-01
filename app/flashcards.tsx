@@ -348,21 +348,7 @@ export default function FlashcardsLearning() {
         {/* Flashcard */}
         <View style={styles.cardContainer}>
           <TouchableOpacity style={styles.flashcard} onPress={flipCard}>
-            <Animated.View
-              style={[
-                styles.cardSide,
-                {
-                  transform: [
-                    {
-                      rotateY: flipAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ["0deg", "180deg"],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            >
+            <View style={styles.cardSide}>
               <Text style={styles.cardLabel}>
                 {showAnswer ? "ANSWER" : "QUESTION"}
               </Text>
@@ -387,7 +373,7 @@ export default function FlashcardsLearning() {
                 </View>
                 <Text style={styles.categoryText}>{currentCard.category}</Text>
               </View>
-            </Animated.View>
+            </View>
           </TouchableOpacity>
 
           <Text style={styles.flipHint}>Tap card to flip</Text>
