@@ -101,12 +101,19 @@ export default function FlashcardsLearning() {
   };
 
   const flipCard = () => {
+    // Simple fade transition instead of problematic 3D flip
     Animated.timing(flipAnimation, {
-      toValue: showAnswer ? 0 : 1,
-      duration: 300,
+      toValue: 0,
+      duration: 150,
       useNativeDriver: true,
-    }).start();
-    setShowAnswer(!showAnswer);
+    }).start(() => {
+      setShowAnswer(!showAnswer);
+      Animated.timing(flipAnimation, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }).start();
+    });
   };
 
   const handleAnswer = (isCorrect: boolean) => {
