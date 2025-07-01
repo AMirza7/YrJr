@@ -8,13 +8,13 @@ import {
   Alert,
   Image,
   ActivityIndicator,
-  Share,
 } from "react-native";
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { User } from "@/types";
 import { canAccessFeature } from "@/constants/roles";
 import BackButton from "@/components/navigation/BackButton";
+import { shareDocument } from "@/utils/shareUtils";
 import {
   documentScannerService,
   ScanResult,
@@ -186,40 +186,10 @@ ${scanResult.extractedText ? "\nFull Text:\n" + scanResult.extractedText : ""}
     `.trim();
 
     try {
-      await Share.share({
-        message: shareText,
-        title: "Legal Document Scan",
-      });
+      await shareDocument(shareText);
     } catch (error) {
       console.error("Error sharing document:", error);
-
-      // Fallback for web or unsupported environments
-      Alert.alert(
-        "Share Document",
-        "Document sharing is not available in this environment.",
-        [
-          { text: "OK" },
-          {
-            text: "Copy to Clipboard",
-            onPress: () => {
-              // For web environments, try to use clipboard API
-              if (navigator?.clipboard) {
-                navigator.clipboard.writeText(shareText).catch(() => {
-                  Alert.alert(
-                    "Info",
-                    "Please copy the text manually:\n\n" + shareText,
-                  );
-                });
-              } else {
-                Alert.alert(
-                  "Info",
-                  "Please copy the text manually:\n\n" + shareText,
-                );
-              }
-            },
-          },
-        ],
-      );
+      Alert.alert("Error", "Failed to share document. Please try again.");
     }
   };
 
