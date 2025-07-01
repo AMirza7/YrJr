@@ -36,6 +36,13 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     name: "Arjun Patel",
     displayTitle: "Law Student",
   },
+  {
+    email: "user@yrjr.app",
+    password: "demo123",
+    role: "law_student", // Using law_student as base for regular user
+    name: "Regular User",
+    displayTitle: "Regular User",
+  },
 ];
 
 export const ADMIN_CREDENTIALS = {
