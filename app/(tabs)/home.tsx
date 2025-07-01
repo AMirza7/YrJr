@@ -116,6 +116,12 @@ export default function HomeScreen() {
       route: "/(tabs)/notes",
     },
     {
+      title: "Find Lawyers",
+      icon: "⚖️",
+      available: true, // Available to all users
+      route: "/lawyer-directory",
+    },
+    {
       title: t("searchLegal"),
       icon: "🔍",
       available: true,
