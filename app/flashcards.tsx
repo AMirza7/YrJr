@@ -355,7 +355,9 @@ export default function FlashcardsLearning() {
         {/* Flashcard */}
         <View style={styles.cardContainer}>
           <TouchableOpacity style={styles.flashcard} onPress={flipCard}>
-            <View style={styles.cardSide}>
+            <Animated.View
+              style={[styles.cardSide, { opacity: flipAnimation }]}
+            >
               <Text style={styles.cardLabel}>
                 {showAnswer ? "ANSWER" : "QUESTION"}
               </Text>
@@ -380,7 +382,7 @@ export default function FlashcardsLearning() {
                 </View>
                 <Text style={styles.categoryText}>{currentCard.category}</Text>
               </View>
-            </View>
+            </Animated.View>
           </TouchableOpacity>
 
           <Text style={styles.flipHint}>Tap card to flip</Text>
