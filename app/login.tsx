@@ -125,36 +125,92 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.demo}>
-          <Text style={styles.demoTitle}>
-            Demo Accounts (Phone: 9876543210):
-          </Text>
+          <Text style={styles.demoTitle}>Demo Accounts:</Text>
 
           <TouchableOpacity
             style={styles.demoButton}
-            onPress={async () => {
+            onPress={() => {
               setPhone("9876543210");
               setPassword("demo123");
-              // Auto-login for demo account
               setTimeout(() => handleLogin(), 100);
             }}
           >
-            <Text style={styles.demoText}>👤 Demo User (Lawyer)</Text>
-            <Text style={styles.demoEmail}>Password: demo123</Text>
+            <Text style={styles.demoText}>⚖️ Senior Lawyer</Text>
+            <Text style={styles.demoEmail}>📱 9876543210 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9123456780");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>👨‍💼 Junior Lawyer</Text>
+            <Text style={styles.demoEmail}>📱 9123456780 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9234567890");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>📋 Legal Assistant</Text>
+            <Text style={styles.demoEmail}>📱 9234567890 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9345678901");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>🏢 Office Helper</Text>
+            <Text style={styles.demoEmail}>📱 9345678901 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9456789012");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>🎓 Law Student</Text>
+            <Text style={styles.demoEmail}>📱 9456789012 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9567890123");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>👤 Regular User</Text>
+            <Text style={styles.demoEmail}>📱 9567890123 | 🔑 demo123</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.demoButton, styles.adminDemoButton]}
-            onPress={async () => {
-              setPhone("9876543210");
+            onPress={() => {
+              setPhone("9999999999");
               setPassword("admin123");
-              // Auto-login for admin
               setTimeout(() => handleLogin(), 100);
             }}
           >
             <Text style={[styles.demoText, styles.adminDemoText]}>
               🏛️ Admin Access
             </Text>
-            <Text style={styles.demoEmail}>Password: admin123</Text>
+            <Text style={styles.demoEmail}>📱 9999999999 | 🔑 admin123</Text>
           </TouchableOpacity>
         </View>
       </View>
