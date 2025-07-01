@@ -274,6 +274,32 @@ export default function TemplatesHub() {
       });
     } catch (error) {
       console.error("Error sharing:", error);
+
+      // Fallback for web or unsupported environments
+      Alert.alert(
+        "Share Template",
+        `Template: ${template.title}\n\n${template.description}\n\nCopy this information to share it manually.`,
+        [
+          { text: "OK" },
+          {
+            text: "Copy to Clipboard",
+            onPress: () => {
+              // For web environments, try to use clipboard API
+              if (navigator?.clipboard) {
+                navigator.clipboard
+                  .writeText(
+                    `Check out this legal template: ${template.title}\n\n${template.description}`,
+                  )
+                  .catch(() => {
+                    Alert.alert("Info", "Please copy the text manually");
+                  });
+              } else {
+                Alert.alert("Info", "Please copy the text manually");
+              }
+            },
+          },
+        ],
+      );
     }
   };
 

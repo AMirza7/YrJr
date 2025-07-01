@@ -191,7 +191,35 @@ ${scanResult.extractedText ? "\nFull Text:\n" + scanResult.extractedText : ""}
         title: "Legal Document Scan",
       });
     } catch (error) {
-      Alert.alert("Error", "Failed to share document");
+      console.error("Error sharing document:", error);
+
+      // Fallback for web or unsupported environments
+      Alert.alert(
+        "Share Document",
+        "Document sharing is not available in this environment.",
+        [
+          { text: "OK" },
+          {
+            text: "Copy to Clipboard",
+            onPress: () => {
+              // For web environments, try to use clipboard API
+              if (navigator?.clipboard) {
+                navigator.clipboard.writeText(shareText).catch(() => {
+                  Alert.alert(
+                    "Info",
+                    "Please copy the text manually:\n\n" + shareText,
+                  );
+                });
+              } else {
+                Alert.alert(
+                  "Info",
+                  "Please copy the text manually:\n\n" + shareText,
+                );
+              }
+            },
+          },
+        ],
+      );
     }
   };
 
