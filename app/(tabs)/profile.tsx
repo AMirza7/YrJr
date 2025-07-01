@@ -308,11 +308,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
+    position: "relative",
   },
   avatar: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#374151",
+  },
+  editImageBadge: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 24,
+    height: 24,
+    backgroundColor: "#1e40af",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+  editImageIcon: {
+    fontSize: 10,
   },
   userName: {
     fontSize: 20,
