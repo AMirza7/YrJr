@@ -41,6 +41,19 @@ export const TAB_CONFIGS: TabConfig[] = [
     color: "#dc2626",
   },
   {
+    name: "scanner",
+    title: "Scanner",
+    icon: "📱",
+    requiredRoles: [
+      "lawyer",
+      "junior_lawyer",
+      "lawyer_assistant",
+      "law_office_helper",
+      "law_student",
+    ],
+    color: "#8b5cf6",
+  },
+  {
     name: "search",
     title: "Search",
     icon: "🔍",
