@@ -57,6 +57,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
       console.log(`Theme changed to: ${mode}`);
       console.log(`New theme colors:`, newTheme.colors);
+
+      // Force a complete re-render by triggering a state change with a slight delay
+      setTimeout(() => {
+        setTheme({ ...newTheme });
+      }, 50);
     } catch (error) {
       console.error("Error saving theme preference:", error);
     }
