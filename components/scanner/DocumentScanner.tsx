@@ -291,13 +291,32 @@ export default function DocumentScanner({
         </TouchableOpacity>
 
         <View style={styles.featuresContainer}>
-          <Text style={styles.featuresTitle}>✨ Features</Text>
-          <Text style={styles.featureItem}>• Automatic text extraction</Text>
-          <Text style={styles.featureItem}>• Legal document recognition</Text>
-          <Text style={styles.featureItem}>• Key field highlighting</Text>
-          <Text style={styles.featureItem}>• Auto-fill petition forms</Text>
+          <Text style={styles.featuresTitle}>✨ Enhanced Features</Text>
+          <Text style={styles.featureItem}>• Smart OCR with parsed fields</Text>
+          <Text style={styles.featureItem}>• AI-powered legal suggestions</Text>
+          <Text style={styles.featureItem}>• Editable field extraction</Text>
+          <Text style={styles.featureItem}>
+            • Real-time processing feedback
+          </Text>
         </View>
+
+        {/* Legal Disclaimer */}
+        <LegalDisclaimer compact />
       </View>
+
+      <Toast
+        visible={showToast}
+        message={toastMessage}
+        type={toastType}
+        onHide={() => setShowToast(false)}
+        actionText={toastType === "error" ? "🔁 Retry" : undefined}
+        onAction={toastType === "error" ? handleRetry : undefined}
+      />
+
+      <LegalDisclaimer
+        showFirstTimeModal={showFirstTimeDisclaimer}
+        onFirstTimeAccept={handleFirstTimeAccept}
+      />
     </View>
   );
 }
