@@ -269,7 +269,7 @@ export default function ExportModal({
                 { value: "7days", label: "Last 7 days", icon: "📅" },
                 { value: "30days", label: "Last 30 days", icon: "📅" },
                 { value: "90days", label: "Last 90 days", icon: "📅" },
-                { value: "all", label: "All time", icon: "🗓��" },
+                { value: "all", label: "All time", icon: "🗓️" },
               ].map((range) => (
                 <TouchableOpacity
                   key={range.value}
@@ -674,5 +674,81 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  dateRangeContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  dateRangeOption: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 8,
+    padding: 12,
+    alignItems: "center",
+    width: "48%",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  dateRangeOptionSelected: {
+    backgroundColor: "#eff6ff",
+    borderColor: "#3b82f6",
+  },
+  dateRangeIcon: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  dateRangeText: {
+    fontSize: 12,
+    color: "#64748b",
+    fontWeight: "500",
+  },
+  dateRangeTextSelected: {
+    color: "#3b82f6",
+    fontWeight: "600",
+  },
+  qaSection: {
+    backgroundColor: "#fef3c7",
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "#fbbf24",
+  },
+  qaSectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  qaSectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#92400e",
+  },
+  qaSectionDescription: {
+    fontSize: 12,
+    color: "#92400e",
+    lineHeight: 16,
+  },
+  progressContainer: {
+    marginBottom: 16,
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: "#e2e8f0",
+    borderRadius: 2,
+    overflow: "hidden",
+    marginBottom: 8,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#22c55e",
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: "#64748b",
+    textAlign: "center",
+    fontWeight: "500",
   },
 });
