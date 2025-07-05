@@ -116,6 +116,30 @@ export default function HomeScreen() {
       route: "/(tabs)/notes",
     },
     {
+      title: "Case Timeline",
+      icon: "📅",
+      available: true,
+      route: "/case-timeline",
+    },
+    {
+      title: "Legal Chat AI",
+      icon: "🤖",
+      available: true,
+      route: "/legal-chat",
+    },
+    {
+      title: "Case Folders",
+      icon: "📁",
+      available: true,
+      route: "/case-folders",
+    },
+    {
+      title: "Auto Drafter",
+      icon: "📝",
+      available: true,
+      route: "/auto-drafter",
+    },
+    {
       title: "Find Lawyers",
       icon: "⚖️",
       available: true, // Available to all users
