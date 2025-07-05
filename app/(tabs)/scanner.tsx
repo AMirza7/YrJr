@@ -7,17 +7,36 @@ import {
   ScrollView,
   Alert,
   Dimensions,
+  Modal,
 } from "react-native";
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { User } from "@/types";
 import { canAccessFeature } from "@/constants/roles";
+import DocumentScanner from "@/components/scanner/DocumentScanner";
+import BarcodeScanner from "@/components/scanner/BarcodeScanner";
+import IDCardScanner from "@/components/scanner/IDCardScanner";
+import ReceiptScanner from "@/components/scanner/ReceiptScanner";
+import SignatureCapture from "@/components/scanner/SignatureCapture";
+import TextExtractor from "@/components/scanner/TextExtractor";
+import ExportModal from "@/components/scanner/ExportModal";
 
 const { width } = Dimensions.get("window");
+
+type ActiveScanner =
+  | "document"
+  | "barcode"
+  | "id_card"
+  | "receipt"
+  | "signature"
+  | "text"
+  | null;
 
 export default function ScannerScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeScanner, setActiveScanner] = useState<ActiveScanner>(null);
+  const [exportModalVisible, setExportModalVisible] = useState(false);
 
   useEffect(() => {
     loadUser();
