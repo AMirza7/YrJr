@@ -18,7 +18,10 @@ export default function TabLayout() {
       const currentUser = await authService.getCurrentUser();
       if (currentUser) {
         setUser(currentUser);
-        const tabs = getVisibleTabs(currentUser.role);
+        const tabs = getVisibleTabs(
+          currentUser.role,
+          currentUser.subscriptionTier,
+        );
         setVisibleTabs(tabs);
       }
     } catch (error) {
