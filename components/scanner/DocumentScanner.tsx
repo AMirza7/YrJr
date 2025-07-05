@@ -12,6 +12,11 @@ import {
 import { router } from "expo-router";
 import { scannerService } from "@/services/scanner";
 import { DocumentScanResult } from "@/types/scanner";
+import Toast, { ToastType } from "@/components/ui/Toast";
+import ProgressIndicator from "@/components/scanner/ProgressIndicator";
+import OCRResultView from "@/components/scanner/OCRResultView";
+import AIActionsPanel from "@/components/scanner/AIActionsPanel";
+import LegalDisclaimer from "@/components/scanner/LegalDisclaimer";
 
 interface DocumentScannerProps {
   onScanComplete?: (result: DocumentScanResult) => void;
