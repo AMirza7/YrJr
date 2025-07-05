@@ -118,22 +118,17 @@ export default function ScannerScreen() {
     {
       title: "Scan Document",
       icon: "📷",
-      action: () => router.push("/scanner"),
+      action: () => setActiveScanner("document"),
     },
     {
       title: "View History",
       icon: "📂",
-      action: () =>
-        Alert.alert("Coming Soon", "Scan history will be available soon!"),
+      action: () => router.push("/scanner/history"),
     },
     {
       title: "Export Data",
       icon: "📤",
-      action: () =>
-        Alert.alert(
-          "Coming Soon",
-          "Export functionality will be available soon!",
-        ),
+      action: () => setExportModalVisible(true),
     },
   ];
 
