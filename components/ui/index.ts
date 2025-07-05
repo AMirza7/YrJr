@@ -5,6 +5,8 @@ export { default as PasswordInput } from "./PasswordInput";
 export { default as PhoneInput } from "./PhoneInput";
 export { default as Rating } from "./Rating";
 export { default as ThemeSelector } from "./ThemeSelector";
+export { default as Toast } from "./Toast";
 
 export * from "./EmptyState";
 export * from "./Rating";
+export * from "./Toast";
