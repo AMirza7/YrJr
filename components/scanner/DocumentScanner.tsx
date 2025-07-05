@@ -36,9 +36,23 @@ export default function DocumentScanner({
   const [showFirstTimeDisclaimer, setShowFirstTimeDisclaimer] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(true);
 
+  const showToastMessage = (message: string, type: ToastType) => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+  };
+
   const handleFileUpload = async () => {
+    // Show first time disclaimer if needed
+    if (isFirstTime) {
+      setShowFirstTimeDisclaimer(true);
+      return;
+    }
+
     try {
       setLoading(true);
+      setUploadProgress(0);
+
       const fileUri = await scannerService.pickDocument();
 
       if (!fileUri) {
@@ -46,14 +60,65 @@ export default function DocumentScanner({
         return;
       }
 
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 0.9) {
+            clearInterval(progressInterval);
+            return 0.9;
+          }
+          return prev + 0.1;
+        });
+      }, 200);
+
       const result = await scannerService.scanDocument(fileUri);
+
+      clearInterval(progressInterval);
+      setUploadProgress(1);
+
       setScanResult(result);
       onScanComplete?.(result);
+
+      showToastMessage("✅ Scan successful! Document processed.", "success");
     } catch (error) {
-      Alert.alert("Error", "Failed to scan document. Please try again.");
+      setUploadProgress(0);
+      showToastMessage("❌ Scan failed. Please try again.", "error");
+      console.error("Scan error:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setScanResult(null);
+    setUploadProgress(0);
+    handleFileUpload();
+  };
+
+  const handleFirstTimeAccept = () => {
+    setIsFirstTime(false);
+    setShowFirstTimeDisclaimer(false);
+    handleFileUpload();
+  };
+
+  const handleFieldUpdate = (key: string, value: string) => {
+    if (!scanResult) return;
+
+    setScanResult((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          keyFields: {
+            ...prev.data.keyFields,
+            [key]: value,
+          },
+        },
+      };
+    });
+
+    showToastMessage("Field updated successfully", "success");
   };
 
   const handleGeneratePetition = () => {
