@@ -101,7 +101,11 @@ export default function ScannerAnalyticsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <BackButton title="Scanner" color="#fff" />
+        <BackButton
+          title="Scanner"
+          color="#fff"
+          onPress={() => router.push("/(tabs)/scanner")}
+        />
         <Text style={styles.title}>📈 Scanner Analytics</Text>
       </View>
 
