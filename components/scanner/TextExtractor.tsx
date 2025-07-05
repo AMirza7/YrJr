@@ -8,8 +8,8 @@ import {
   ScrollView,
   ActivityIndicator,
   Image,
-  Clipboard,
 } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { scannerService } from "@/services/scanner";
 import { TextScanResult } from "@/types/scanner";
 
