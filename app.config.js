@@ -42,7 +42,24 @@ module.exports = {
       favicon: "./assets/favicon.png",
     },
 
-    // Only essential plugins
-    plugins: ["expo-router"],
+    // Essential plugins
+    plugins: [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          cameraPermission:
+            "Allow access to camera for document scanning and barcode reading",
+          microphonePermission:
+            "Allow access to microphone for voice commands and audio recording",
+        },
+      ],
+      [
+        "expo-document-picker",
+        {
+          iCloudContainerEnvironment: "Production",
+        },
+      ],
+    ],
   },
 };
