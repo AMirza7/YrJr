@@ -227,6 +227,15 @@ export const authService = {
       // Add to mock database
       MOCK_USERS.push(newUser);
 
+      // Handle referral code if provided
+      if (referralCode?.trim()) {
+        // Mock referral processing - in real app, this would be an API call
+        console.log(
+          `Processing referral code: ${referralCode} for user: ${newUser.id}`,
+        );
+        // Store referral relationship in database
+      }
+
       // For lawyers and junior lawyers, require approval
       const requiresApproval =
         data.role === "lawyer" || data.role === "junior_lawyer";
