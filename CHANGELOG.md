@@ -5,7 +5,135 @@ All notable changes to this legal assistant application will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.1.0] - 2024-01-15
+
+### Added
+
+#### 🔧 System Fixes & Improvements
+
+- **FIXED**: React Native Web compatibility issues with chart libraries
+  - Restored react-native-chart-kit and react-native-svg dependencies
+  - Added conditional platform-specific loading to prevent web errors
+  - Fixed transform-origin and onResponder\* event handler warnings
+- **FIXED**: Theme switching now properly updates UI colors across all components
+  - Enhanced ThemeContext with forced re-render mechanism
+  - Theme changes now propagate immediately to all screens
+- **FIXED**: Language selection now updates text app-wide
+  - Enhanced LocalizationContext with multiple re-render triggers
+  - Improved state synchronization for instant language switching
+
+#### 🎯 Section Comparator - Advanced Legal Analysis
+
+- **NEW**: Dynamic Data Loading System
+  - Dropdown UI to select any legal code (IPC/CrPC/CPC/BNS/BNSS)
+  - Real-time section number search and selection
+  - Backend integration ready for live legal database
+- **NEW**: Semantic Compare Mode
+  - AI-powered LLM/embeddings integration
+  - Semantic similarity scoring (0-100%)
+  - Meaning-level difference highlighting beyond text comparison
+- **NEW**: Save & History Management
+  - Bookmark comparison results for future reference
+  - Last 5 comparisons quick access panel
+  - Persistent storage of comparison data and metadata
+- **NEW**: Multilingual Legal View
+  - English/Hindi language toggle on comparison screen
+  - Side-by-side bilingual legal text display
+  - Language-specific legal terminology support
+
+#### 🛡️ Advanced Admin System - Complete Management Suite
+
+##### Roles & Permissions Manager
+
+- **NEW**: Granular permission system with 25+ individual permissions
+- Categories: Case Management, Document Management, User Management, System Administration, Content Management, Financial, Data Export
+- Role-based permission templates for all user types
+- Bulk permission management with category-level toggles
+- Critical permission warnings and confirmation dialogs
+- Real-time permission count tracking per role
+
+##### AI Insights Card - Intelligent System Analysis
+
+- **NEW**: AI-powered system trend analysis and anomaly detection
+- Real-time insights generation with confidence scoring
+- 6 insight types: Trends, Anomalies, Opportunities, Warnings, Predictions
+- Impact assessment (Low/Medium/High/Critical) with color coding
+- Actionable recommendations with "Take Action" buttons
+- Category filtering: User Retention, Feature Adoption, Revenue Optimization, Platform Usage
+- Auto-refresh insights with timestamp tracking
+
+##### Action Center - Centralized Quick Actions
+
+- **NEW**: Unified action queue for flagged items, support tickets, and alerts
+- 6 action types: Pending KYC, Flagged Documents, Support Tickets, User Reports, Payment Issues, System Alerts
+- Priority-based sorting (Urgent/High/Medium/Low) with color coding
+- Inline approve/reject actions with processing indicators
+- Real-time action item updates and notifications
+- Detailed metadata display for informed decision making
+
+##### Real-Time Approvals Feed - Live User Management
+
+- **NEW**: WebSocket-simulated live approval queue
+- Auto-refreshing user verification requests
+- Document viewer integration for KYC verification
+- Real-time statistics: Pending, Approved Today, Rejected Today
+- "NEW" badges for recently submitted applications
+- Batch processing capabilities with individual user actions
+- Connection status indicator with live update timestamps
+
+##### Audit Logs - Comprehensive Activity Tracking
+
+- **NEW**: Complete admin action logging and filtering system
+- Multi-dimensional filtering: Admin, Action Type, Severity, Date Range
+- Real-time search across all log fields and metadata
+- Severity levels with color coding and visual indicators
+- Detailed log entry modal with full metadata display
+- CSV export functionality for compliance reporting
+- Success/failure status tracking with visual indicators
+
+##### Config Snapshots - System Backup & Restore
+
+- **NEW**: Complete system configuration backup and restore
+- Manual and automated snapshot creation with descriptions
+- Version tracking with checksums for integrity verification
+- Environment-specific snapshots (Production/Staging/Development)
+- JSON export/import functionality for configuration management
+- Restore confirmation with system restart warnings
+- Storage size tracking and optimization recommendations
+
+##### Deep Search - Global System Search
+
+- **NEW**: Cross-platform search across all system data
+- 7 search categories: Users, Cases, Templates, Documents, Legal Sections, Scans, Admin Actions
+- Real-time search with relevance scoring (0-100%)
+- Recent searches history with quick access chips
+- Advanced metadata display for detailed result context
+- Search result count per category with filtering
+- Contextual navigation to specific result pages
+
+#### 🎨 Enhanced User Experience
+
+- **IMPROVED**: Analytics Charts with better React Native Web compatibility
+- **IMPROVED**: Admin component integration and navigation
+- **IMPROVED**: Mobile responsiveness for all admin panels
+- **NEW**: Onboarding tooltips system for new administrators
+- **NEW**: Tablet mode optimization for admin console
+
+### Technical Improvements
+
+- Enhanced error handling for chart rendering across platforms
+- Improved state management for theme and localization contexts
+- Better WebSocket simulation for real-time features
+- Optimized component re-rendering for performance
+- Enhanced TypeScript definitions for all new components
+
+### Dependencies
+
+- ✅ react-native-chart-kit (restored and fixed)
+- ✅ react-native-svg (restored and fixed)
+- All existing dependencies maintained and updated
+
+## [2.0.5] - 2024-01-14
 
 ### Added
 
