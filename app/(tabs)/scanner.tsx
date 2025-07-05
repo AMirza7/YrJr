@@ -523,6 +523,11 @@ const styles = StyleSheet.create({
     color: "#6b7280",
     lineHeight: 18,
   },
+  featureArrow: {
+    fontSize: 16,
+    color: "#9ca3af",
+    marginLeft: 8,
+  },
   ctaSection: {
     margin: 20,
     backgroundColor: "#8b5cf6",
