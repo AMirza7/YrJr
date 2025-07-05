@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { router } from "expo-router";
+import BackButton from "@/components/navigation/BackButton";
 
 const { width } = Dimensions.get("window");
 
