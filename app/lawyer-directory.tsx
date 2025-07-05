@@ -54,7 +54,7 @@ export default function LawyerDirectoryScreen() {
 
   const loadLawyers = async () => {
     try {
-      // Get all users and filter for verified lawyers and junior lawyers
+      // Try to get all users and filter for verified lawyers and junior lawyers
       const allUsers = await authService.getAllUsers();
 
       const verifiedLawyers = allUsers
@@ -77,6 +77,8 @@ export default function LawyerDirectoryScreen() {
       setLawyers(verifiedLawyers);
     } catch (error) {
       console.error("Error loading lawyers:", error);
+
+      // If unauthorized (not admin), use mock lawyer data instead
 
       // Fallback to mock data
       const mockLawyers: LawyerProfile[] = [
