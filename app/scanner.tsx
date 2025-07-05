@@ -1,27 +1,8 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import React, { useEffect } from "react";
+import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
-import { authService } from "@/services/auth";
-import { User } from "@/types";
-import { canAccessFeature } from "@/constants/roles";
-import BackButton from "@/components/navigation/BackButton";
-import { shareDocument } from "@/utils/shareUtils";
-import {
-  documentScannerService,
-  ScanResult,
-  ExtractedLegalFields,
-} from "@/services/documentScanner";
 
-export default function DocumentScanner() {
+export default function DocumentScannerRedirect() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
