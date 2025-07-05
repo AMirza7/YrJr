@@ -155,6 +155,13 @@ export default function HomeScreen() {
 
   const advancedFeatures = [
     {
+      title: "Legal Templates",
+      icon: "📚",
+      available: true,
+      route: "/legal-templates",
+      description: "Smart legal document templates",
+    },
+    {
       title: t("aiComparator"),
       icon: "⚖️",
       available: permissions.canAccessAIComparator,
