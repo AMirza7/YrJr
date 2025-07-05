@@ -18,6 +18,9 @@ const { width } = Dimensions.get("window");
 export default function ScannerAnalyticsScreen() {
   const [analytics, setAnalytics] = useState<ScannerAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"overview" | "usage" | "stats">(
+    "overview",
+  );
 
   useEffect(() => {
     loadAnalytics();
@@ -164,7 +167,7 @@ export default function ScannerAnalyticsScreen() {
 
         {/* Scanner Usage by Type */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📱 Usage by Scanner Type</Text>
+          <Text style={styles.sectionTitle}>�� Usage by Scanner Type</Text>
 
           <View style={styles.usageContainer}>
             {Object.entries(analytics.scansByType).map(([type, count]) => {
