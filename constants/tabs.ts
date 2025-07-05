@@ -194,8 +194,18 @@ export const getRolePermissions = (role: UserRole): NavigationPermissions => {
   }
 };
 
-export const getVisibleTabs = (role: UserRole): TabConfig[] => {
-  return TAB_CONFIGS.filter((tab) => tab.requiredRoles.includes(role));
+export const getVisibleTabs = (
+  role: UserRole,
+  subscriptionTier?: string,
+): TabConfig[] => {
+  const allTabs = TAB_CONFIGS.filter((tab) => tab.requiredRoles.includes(role));
+
+  // Filter out premium-only tabs for free users
+  if (subscriptionTier === "free") {
+    return allTabs.filter((tab) => !["referrals", "wallet"].includes(tab.name));
+  }
+
+  return allTabs;
 };
 
 export const getRoleColor = (role: UserRole): string => {
