@@ -1,14 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
-import {
-  LineChart,
-  BarChart,
-  PieChart,
-  ProgressChart,
-} from "react-native-chart-kit";
 
 const { width } = Dimensions.get("window");
-const chartWidth = width - 40;
 
 interface AnalyticsChartsProps {
   scansByType: Record<string, number>;
@@ -22,6 +15,69 @@ interface AnalyticsChartsProps {
   };
 }
 
+// Simple bar chart component
+const SimpleBarChart = ({
+  data,
+  title,
+}: {
+  data: Array<{ label: string; value: number; color: string }>;
+  title: string;
+}) => {
+  const maxValue = Math.max(...data.map((d) => d.value));
+
+  return (
+    <View style={styles.simpleChart}>
+      <Text style={styles.simpleChartTitle}>{title}</Text>
+      {data.map((item, index) => (
+        <View key={index} style={styles.barItem}>
+          <Text style={styles.barLabel}>{item.label}</Text>
+          <View style={styles.barContainer}>
+            <View
+              style={[
+                styles.bar,
+                {
+                  width: `${(item.value / maxValue) * 100}%`,
+                  backgroundColor: item.color,
+                },
+              ]}
+            />
+            <Text style={styles.barValue}>{item.value}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+};
+
+// Simple progress indicators
+const ProgressIndicator = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) => (
+  <View style={styles.progressContainer}>
+    <View style={styles.progressHeader}>
+      <Text style={styles.progressLabel}>{label}</Text>
+      <Text style={styles.progressValue}>{Math.round(value)}%</Text>
+    </View>
+    <View style={styles.progressTrack}>
+      <View
+        style={[
+          styles.progressBar,
+          {
+            width: `${value}%`,
+            backgroundColor: color,
+          },
+        ]}
+      />
+    </View>
+  </View>
+);
+
 export default function AnalyticsCharts({
   scansByType,
   weeklyActivity,
@@ -29,24 +85,9 @@ export default function AnalyticsCharts({
   ipcSections,
   fieldExtractionStats,
 }: AnalyticsChartsProps) {
-  const chartConfig = {
-    backgroundGradientFrom: "#ffffff",
-    backgroundGradientFromOpacity: 0,
-    backgroundGradientTo: "#ffffff",
-    backgroundGradientToOpacity: 0,
-    color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
-    strokeWidth: 2,
-    barPercentage: 0.7,
-    useShadowColorFromDataset: false,
-    propsForLabels: {
-      fontSize: 12,
-      fontWeight: "500",
-    },
-  };
-
-  // Prepare data for charts
-  const scanTypeData = {
-    labels: Object.keys(scansByType).map((key) => {
+  // Prepare data for simple charts
+  const scanTypeData = Object.entries(scansByType).map(
+    ([key, value], index) => {
       const names: Record<string, string> = {
         document: "Docs",
         barcode: "Barcodes",
@@ -56,47 +97,37 @@ export default function AnalyticsCharts({
         signature: "Signs",
         text: "Text",
       };
-      return names[key] || key;
-    }),
-    datasets: [
-      {
-        data: Object.values(scansByType),
-        color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
-        strokeWidth: 2,
-      },
-    ],
-  };
+      const colors = [
+        "#3b82f6",
+        "#10b981",
+        "#f59e0b",
+        "#ef4444",
+        "#8b5cf6",
+        "#06b6d4",
+        "#84cc16",
+      ];
+      return {
+        label: names[key] || key,
+        value,
+        color: colors[index % colors.length],
+      };
+    },
+  );
 
-  const weeklyData = {
-    labels: weeklyActivity.map((item) => item.day),
-    datasets: [
-      {
-        data: weeklyActivity.map((item) => item.scans),
-        color: (opacity = 1) => `rgba(16, 185, 129, ${opacity})`,
-        strokeWidth: 3,
-      },
-    ],
-  };
+  const weeklyData = weeklyActivity.map((item, index) => ({
+    label: item.day,
+    value: item.scans,
+    color: "#10b981",
+  }));
 
-  const pieData = topDocumentTypes.slice(0, 5).map((item, index) => {
+  const topDocData = topDocumentTypes.slice(0, 5).map((item, index) => {
     const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
     return {
-      name: item.type,
-      population: item.count,
-      color: colors[index] || "#64748b",
-      legendFontColor: "#64748b",
-      legendFontSize: 12,
+      label: item.type,
+      value: item.count,
+      color: colors[index % colors.length],
     };
   });
-
-  const progressData = {
-    labels: ["Success", "Accuracy", "Avg Fields"],
-    data: [
-      fieldExtractionStats.successRate / 100,
-      fieldExtractionStats.accuracyRate / 100,
-      fieldExtractionStats.averageFields / 10, // Normalize to 0-1 scale
-    ],
-  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -104,17 +135,7 @@ export default function AnalyticsCharts({
       <View style={styles.chartSection}>
         <Text style={styles.chartTitle}>📱 Scanner Usage by Type</Text>
         <Text style={styles.chartSubtitle}>Total scans per scanner module</Text>
-        <View style={styles.chartContainer}>
-          <BarChart
-            data={scanTypeData}
-            width={chartWidth}
-            height={220}
-            chartConfig={chartConfig}
-            verticalLabelRotation={30}
-            showValuesOnTopOfBars
-            style={styles.chart}
-          />
-        </View>
+        <SimpleBarChart data={scanTypeData} title="" />
       </View>
 
       {/* Weekly Activity */}
@@ -123,19 +144,7 @@ export default function AnalyticsCharts({
         <Text style={styles.chartSubtitle}>
           Daily scan count over the past week
         </Text>
-        <View style={styles.chartContainer}>
-          <LineChart
-            data={weeklyData}
-            width={chartWidth}
-            height={220}
-            chartConfig={{
-              ...chartConfig,
-              color: (opacity = 1) => `rgba(16, 185, 129, ${opacity})`,
-            }}
-            bezier
-            style={styles.chart}
-          />
-        </View>
+        <SimpleBarChart data={weeklyData} title="" />
       </View>
 
       {/* Top Document Types */}
@@ -144,19 +153,7 @@ export default function AnalyticsCharts({
         <Text style={styles.chartSubtitle}>
           Most frequently scanned document categories
         </Text>
-        <View style={styles.chartContainer}>
-          <PieChart
-            data={pieData}
-            width={chartWidth}
-            height={220}
-            chartConfig={chartConfig}
-            accessor="population"
-            backgroundColor="transparent"
-            paddingLeft="15"
-            center={[10, 0]}
-            style={styles.chart}
-          />
-        </View>
+        <SimpleBarChart data={topDocData} title="" />
       </View>
 
       {/* Field Extraction Performance */}
@@ -165,22 +162,22 @@ export default function AnalyticsCharts({
         <Text style={styles.chartSubtitle}>
           Success rate, accuracy, and average fields detected
         </Text>
-        <View style={styles.chartContainer}>
-          <ProgressChart
-            data={progressData}
-            width={chartWidth}
-            height={220}
-            strokeWidth={16}
-            radius={32}
-            chartConfig={{
-              ...chartConfig,
-              color: (opacity = 1, index = 0) => {
-                const colors = ["#10b981", "#3b82f6", "#f59e0b"];
-                return colors[index] || `rgba(59, 130, 246, ${opacity})`;
-              },
-            }}
-            hideLegend={false}
-            style={styles.chart}
+
+        <View style={styles.progressSection}>
+          <ProgressIndicator
+            label="Success Rate"
+            value={fieldExtractionStats.successRate}
+            color="#10b981"
+          />
+          <ProgressIndicator
+            label="Accuracy Rate"
+            value={fieldExtractionStats.accuracyRate}
+            color="#3b82f6"
+          />
+          <ProgressIndicator
+            label="Average Fields"
+            value={(fieldExtractionStats.averageFields / 10) * 100}
+            color="#f59e0b"
           />
         </View>
 
@@ -326,12 +323,74 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 16,
   },
-  chartContainer: {
-    alignItems: "center",
+  simpleChart: {
+    paddingHorizontal: 20,
     paddingBottom: 20,
   },
-  chart: {
-    borderRadius: 8,
+  simpleChartTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1e293b",
+    marginBottom: 12,
+  },
+  barItem: {
+    marginBottom: 12,
+  },
+  barLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 4,
+  },
+  barContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 24,
+  },
+  bar: {
+    height: 8,
+    borderRadius: 4,
+    minWidth: 8,
+  },
+  barValue: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#374151",
+    marginLeft: 8,
+    minWidth: 30,
+  },
+  progressSection: {
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  progressContainer: {
+    marginBottom: 16,
+  },
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  progressLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+  },
+  progressValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1e293b",
+  },
+  progressTrack: {
+    height: 8,
+    backgroundColor: "#f1f5f9",
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  progressBar: {
+    height: "100%",
+    borderRadius: 4,
   },
   metricsGrid: {
     flexDirection: "row",
