@@ -658,4 +658,10 @@ const styles = StyleSheet.create({
     color: "#1e40af",
     fontWeight: "500",
   },
+  inputHint: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginTop: 4,
+    fontStyle: "italic",
+  },
 });
