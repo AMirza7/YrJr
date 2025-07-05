@@ -123,7 +123,7 @@ export default function ScannerScreen() {
     {
       title: "View History",
       icon: "📂",
-      action: () => router.push("/scanner/history"),
+      action: () => router.push("/(tabs)/scanner-history"),
     },
     {
       title: "Export Data",
