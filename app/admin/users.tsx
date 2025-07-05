@@ -346,9 +346,9 @@ export default function UserManagement() {
           showsHorizontalScrollIndicator={false}
           style={styles.filterTabs}
         >
-          {roles.map((role) => (
+          {roles.map((role, index) => (
             <TouchableOpacity
-              key={role}
+              key={`role-${role}-${index}`}
               style={[
                 styles.filterTab,
                 filterRole === role && styles.filterTabActive,
