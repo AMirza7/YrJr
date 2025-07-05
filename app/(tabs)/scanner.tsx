@@ -225,7 +225,7 @@ export default function ScannerScreen() {
 
                 <View style={styles.toolFooter}>
                   <Text style={[styles.toolStatus, { color: tool.color }]}>
-                    {tool.route === "/scanner" ? "Available" : "Coming Soon"}
+                    Available
                   </Text>
                   <Text style={styles.toolArrow}>›</Text>
                 </View>
