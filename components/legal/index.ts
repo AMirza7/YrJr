@@ -3,6 +3,7 @@ export { default as LegalChatAssistant } from "./LegalChatAssistant";
 export { default as LegalTemplatesLibrary } from "./LegalTemplatesLibrary";
 export { default as CaseFolderManager } from "./CaseFolderManager";
 export { default as AutoDrafter } from "./AutoDrafter";
+export { default as SectionComparator } from "./SectionComparator";
 
 export type { TimelineEvent } from "./CaseTimelineVisualizer";
 export type { ChatMessage, ScannedDocument } from "./LegalChatAssistant";
