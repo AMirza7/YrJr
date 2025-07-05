@@ -20,13 +20,23 @@ interface ExportModalProps {
   onQAModeToggle?: (enabled: boolean) => void;
 }
 
-export default function ExportModal({ visible, onClose }: ExportModalProps) {
+export default function ExportModal({
+  visible,
+  onClose,
+  qaMode = false,
+  onQAModeToggle,
+}: ExportModalProps) {
   const [exportFormat, setExportFormat] =
     useState<ExportOptions["format"]>("JSON");
   const [includeImages, setIncludeImages] = useState(true);
   const [selectedTypes, setSelectedTypes] = useState<ScannerType[]>([]);
   const [dateFilter, setDateFilter] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [includeConfidenceScores, setIncludeConfidenceScores] = useState(false);
+  const [selectedDateRange, setSelectedDateRange] = useState<
+    "7days" | "30days" | "90days" | "all"
+  >("30days");
 
   const exportFormats: Array<{
     format: ExportOptions["format"];
