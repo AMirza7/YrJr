@@ -107,12 +107,7 @@ export default function FeaturesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
+        <BackButton title="Home" />
         <Text style={styles.title}>Features</Text>
         <Text style={styles.subtitle}>
           Comprehensive tools for modern legal practice
