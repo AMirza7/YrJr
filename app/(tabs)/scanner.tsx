@@ -145,14 +145,19 @@ export default function ScannerScreen() {
       return;
     }
 
-    if (tool.route === "/scanner") {
-      router.push("/scanner");
-    } else {
-      Alert.alert(
-        tool.title,
-        `${tool.description}\n\nThis feature is coming soon!`,
-        [{ text: "OK" }],
-      );
+    // Map routes to scanner types
+    const scannerMap: Record<string, ActiveScanner> = {
+      "/scanner": "document",
+      "/barcode-scanner": "barcode",
+      "/id-scanner": "id_card",
+      "/receipt-scanner": "receipt",
+      "/signature-capture": "signature",
+      "/text-extractor": "text",
+    };
+
+    const scannerType = scannerMap[tool.route];
+    if (scannerType) {
+      setActiveScanner(scannerType);
     }
   };
 
