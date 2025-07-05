@@ -52,9 +52,15 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({
       // Force a re-render by triggering a state change
       console.log(`Language changed to: ${newLanguage}`);
 
-      // Small delay to ensure state is updated across all components
+      // Force a complete re-render by triggering multiple state updates
       setTimeout(() => {
+        setLanguageState(newLanguage);
         console.log(`Language fully applied: ${newLanguage}`);
+      }, 50);
+
+      // Additional state update to ensure all components refresh
+      setTimeout(() => {
+        setLanguageState(newLanguage);
       }, 100);
     } catch (error) {
       console.error("Error saving language preference:", error);
