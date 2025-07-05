@@ -260,6 +260,41 @@ export default function ExportModal({
             </View>
           </View>
 
+          {/* Date Range Selection */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>📅 Date Range</Text>
+
+            <View style={styles.dateRangeContainer}>
+              {[
+                { value: "7days", label: "Last 7 days", icon: "📅" },
+                { value: "30days", label: "Last 30 days", icon: "📅" },
+                { value: "90days", label: "Last 90 days", icon: "📅" },
+                { value: "all", label: "All time", icon: "🗓️" },
+              ].map((range) => (
+                <TouchableOpacity
+                  key={range.value}
+                  style={[
+                    styles.dateRangeOption,
+                    selectedDateRange === range.value &&
+                      styles.dateRangeOptionSelected,
+                  ]}
+                  onPress={() => setSelectedDateRange(range.value as any)}
+                >
+                  <Text style={styles.dateRangeIcon}>{range.icon}</Text>
+                  <Text
+                    style={[
+                      styles.dateRangeText,
+                      selectedDateRange === range.value &&
+                        styles.dateRangeTextSelected,
+                    ]}
+                  >
+                    {range.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
           {/* Options */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>⚙️ Export Options</Text>
@@ -279,20 +314,42 @@ export default function ExportModal({
               />
             </View>
 
-            <View style={styles.optionRow}>
-              <View style={styles.optionContent}>
-                <Text style={styles.optionTitle}>Last 30 Days Only</Text>
-                <Text style={styles.optionDescription}>
-                  Export only recent scans from the last month
+            {qaMode && (
+              <View style={styles.optionRow}>
+                <View style={styles.optionContent}>
+                  <Text style={styles.optionTitle}>
+                    Include Confidence Scores
+                  </Text>
+                  <Text style={styles.optionDescription}>
+                    Add OCR confidence scores for QA testing
+                  </Text>
+                </View>
+                <Switch
+                  value={includeConfidenceScores}
+                  onValueChange={setIncludeConfidenceScores}
+                  trackColor={{ false: "#e2e8f0", true: "#f59e0b" }}
+                  thumbColor={includeConfidenceScores ? "#fff" : "#64748b"}
+                />
+              </View>
+            )}
+
+            {qaMode && onQAModeToggle && (
+              <View style={styles.qaSection}>
+                <View style={styles.qaSectionHeader}>
+                  <Text style={styles.qaSectionTitle}>🧪 QA Testing Mode</Text>
+                  <Switch
+                    value={qaMode}
+                    onValueChange={onQAModeToggle}
+                    trackColor={{ false: "#e2e8f0", true: "#ef4444" }}
+                    thumbColor={qaMode ? "#fff" : "#64748b"}
+                  />
+                </View>
+                <Text style={styles.qaSectionDescription}>
+                  Enable to include confidence scores, edge case testing data,
+                  and debugging information in exports.
                 </Text>
               </View>
-              <Switch
-                value={dateFilter}
-                onValueChange={setDateFilter}
-                trackColor={{ false: "#e2e8f0", true: "#22c55e" }}
-                thumbColor={dateFilter ? "#fff" : "#64748b"}
-              />
-            </View>
+            )}
           </View>
 
           {/* Summary */}
