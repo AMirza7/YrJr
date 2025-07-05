@@ -272,7 +272,7 @@ export default function ScannerScreen() {
 
           <TouchableOpacity
             style={styles.featureCard}
-            onPress={() => router.push("/scanner/analytics")}
+            onPress={() => router.push("/(tabs)/scanner-analytics")}
           >
             <Text style={styles.featureIcon}>📊</Text>
             <View style={styles.featureContent}>
