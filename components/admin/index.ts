@@ -13,3 +13,4 @@ export { default as RealTimeApprovalsFeed } from "./RealTimeApprovalsFeed";
 export { default as AuditLogs } from "./AuditLogs";
 export { default as ConfigSnapshots } from "./ConfigSnapshots";
 export { default as DeepSearch } from "./DeepSearch";
+export { default as ReferralManager } from "./ReferralManager";
