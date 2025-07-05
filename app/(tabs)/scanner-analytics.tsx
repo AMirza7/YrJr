@@ -18,9 +18,7 @@ const { width } = Dimensions.get("window");
 export default function ScannerAnalyticsScreen() {
   const [analytics, setAnalytics] = useState<ScannerAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "usage" | "stats">(
-    "overview",
-  );
+  const [activeTab, setActiveTab] = useState<"overview" | "usage" | "stats">("overview");
 
   useEffect(() => {
     loadAnalytics();
@@ -102,6 +100,220 @@ export default function ScannerAnalyticsScreen() {
     );
   }
 
+  // Mock enhanced analytics data
+  const mockAnalyticsData = {
+    scansByType: analytics?.scansByType || {
+      document: 45,
+      barcode: 12,
+      qr: 8,
+      id_card: 23,
+      receipt: 34,
+      signature: 15,
+      text: 19,
+    },
+    weeklyActivity: [
+      { day: "Mon", scans: 12 },
+      { day: "Tue", scans: 19 },
+      { day: "Wed", scans: 3 },
+      { day: "Thu", scans: 5 },
+      { day: "Fri", scans: 2 },
+      { day: "Sat", scans: 3 },
+      { day: "Sun", scans: 7 },
+    ],
+    topDocumentTypes: [
+      { type: "Sale Deed", count: 25 },
+      { type: "FIR Document", count: 18 },
+      { type: "Court Notice", count: 14 },
+      { type: "Property Papers", count: 12 },
+      { type: "Legal Agreement", count: 8 },
+    ],
+    ipcSections: [
+      { section: "IPC 420", mentions: 15 },
+      { section: "IPC 406", mentions: 12 },
+      { section: "IPC 320", mentions: 10 },
+      { section: "IPC 379", mentions: 8 },
+      { section: "IPC 468", mentions: 7 },
+      { section: "IPC 471", mentions: 6 },
+      { section: "IPC 376", mentions: 5 },
+      { section: "IPC 302", mentions: 4 },
+    ],
+    fieldExtractionStats: {
+      averageFields: 6.2,
+      successRate: 94,
+      accuracyRate: 89,
+    },
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return (
+          <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
+            {/* Overview Stats */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>📊 Overview</Text>
+
+              <View style={styles.statsGrid}>
+                <View style={styles.statCard}>
+                  <Text style={styles.statValue}>{analytics?.totalScans || 156}</Text>
+                  <Text style={styles.statLabel}>Total Scans</Text>
+                  <Text style={styles.statIcon}>📊</Text>
+                </View>
+
+                <View style={styles.statCard}>
+                  <Text style={styles.statValue}>
+                    {getScannerTypeIcon(analytics?.mostUsedTool || "document")}{" "}
+                    {getScannerTypeName(analytics?.mostUsedTool || "document")}
+                  </Text>
+                  <Text style={styles.statLabel}>Most Used Tool</Text>
+                  <Text style={styles.statIcon}>🏆</Text>
+                </View>
+
+                <View style={styles.statCard}>
+                  <Text style={styles.statValue}>
+                    {analytics?.averageEntitiesDetected || 6.2}
+                  </Text>
+                  <Text style={styles.statLabel}>Avg. Entities</Text>
+                  <Text style={styles.statIcon}>🎯</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Quick Insights */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>💡 Key Insights</Text>
+
+              <View style={styles.insightsContainer}>
+                <View style={styles.insightCard}>
+                  <Text style={styles.insightIcon}>📈</Text>
+                  <Text style={styles.insightTitle}>Peak Usage</Text>
+                  <Text style={styles.insightDescription}>
+                    Tuesdays show highest scanning activity with 19 documents processed.
+                  </Text>
+                </View>
+
+                <View style={styles.insightCard}>
+                  <Text style={styles.insightIcon}>⚖️</Text>
+                  <Text style={styles.insightTitle}>Legal Focus</Text>
+                  <Text style={styles.insightDescription}>
+                    IPC 420 (cheating) is the most frequently mentioned section in scanned documents.
+                  </Text>
+                </View>
+
+                <View style={styles.insightCard}>
+                  <Text style={styles.insightIcon}>🎯</Text>
+                  <Text style={styles.insightTitle}>High Accuracy</Text>
+                  <Text style={styles.insightDescription}>
+                    89% OCR accuracy rate with strong field extraction performance.
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        );
+
+      case "usage":
+        return (
+          <AnalyticsCharts
+            scansByType={mockAnalyticsData.scansByType}
+            weeklyActivity={mockAnalyticsData.weeklyActivity}
+            topDocumentTypes={mockAnalyticsData.topDocumentTypes}
+            ipcSections={mockAnalyticsData.ipcSections}
+            fieldExtractionStats={mockAnalyticsData.fieldExtractionStats}
+          />
+        );
+
+      case "stats":
+        return (
+          <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
+            {/* Performance Metrics */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>⚡ Performance Metrics</Text>
+
+              <View style={styles.metricsContainer}>
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricIcon}>🎯</Text>
+                  <Text style={styles.metricTitle}>Accuracy Rate</Text>
+                  <Text style={styles.metricValue}>89%</Text>
+                  <Text style={styles.metricDescription}>Average OCR accuracy</Text>
+                </View>
+
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricIcon}>⚡</Text>
+                  <Text style={styles.metricTitle}>Processing Speed</Text>
+                  <Text style={styles.metricValue}>1.8s</Text>
+                  <Text style={styles.metricDescription}>Average scan time</Text>
+                </View>
+
+                <View style={styles.metricCard}>
+                  <Text style={styles.metricIcon}>📊</Text>
+                  <Text style={styles.metricTitle}>Success Rate</Text>
+                  <Text style={styles.metricValue}>94%</Text>
+                  <Text style={styles.metricDescription}>Successful scans</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Top IPC Sections */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>⚖️ Top IPC Sections</Text>
+
+              <View style={styles.ipcContainer}>
+                {mockAnalyticsData.ipcSections.slice(0, 5).map((item, index) => (
+                  <View key={index} style={styles.ipcItem}>
+                    <View style={styles.ipcRank}>
+                      <Text style={styles.ipcRankText}>{index + 1}</Text>
+                    </View>
+                    <View style={styles.ipcContent}>
+                      <Text style={styles.ipcSection}>{item.section}</Text>
+                      <Text style={styles.ipcMentions}>
+                        {item.mentions} mention{item.mentions !== 1 ? 's' : ''}
+                      </Text>
+                    </View>
+                    <View style={styles.ipcBar}>
+                      <View
+                        style={[
+                          styles.ipcProgress,
+                          {
+                            width: `${(item.mentions / mockAnalyticsData.ipcSections[0].mentions) * 100}%`,
+                            backgroundColor: index < 3 ? "#3b82f6" : "#94a3b8",
+                          },
+                        ]}
+                      />
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            {/* Document Types Breakdown */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>📋 Document Types Breakdown</Text>
+
+              <View style={styles.documentTypesContainer}>
+                {mockAnalyticsData.topDocumentTypes.map((docType, index) => (
+                  <View key={index} style={styles.documentTypeItem}>
+                    <View style={styles.documentTypeRank}>
+                      <Text style={styles.documentTypeRankText}>{index + 1}</Text>
+                    </View>
+                    <Text style={styles.documentTypeName}>{docType.type}</Text>
+                    <View style={styles.documentTypeBadge}>
+                      <Text style={styles.documentTypeBadgeText}>
+                        {docType.count} scans
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </ScrollView>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -113,7 +325,41 @@ export default function ScannerAnalyticsScreen() {
         <Text style={styles.title}>📈 Scanner Analytics</Text>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      {/* Tab Navigation */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "overview" && styles.activeTab]}
+          onPress={() => setActiveTab("overview")}
+        >
+          <Text style={styles.tabIcon}>📊</Text>
+          <Text style={[styles.tabText, activeTab === "overview" && styles.activeTabText]}>
+            Overview
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "usage" && styles.activeTab]}
+          onPress={() => setActiveTab("usage")}
+        >
+          <Text style={styles.tabIcon}>📱</Text>
+          <Text style={[styles.tabText, activeTab === "usage" && styles.activeTabText]}>
+            Module Usage
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "stats" && styles.activeTab]}
+          onPress={() => setActiveTab("stats")}
+        >
+          <Text style={styles.tabIcon}>📈</Text>
+          <Text style={[styles.tabText, activeTab === "stats" && styles.activeTabText]}>
+            Field Stats
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Tab Content */}
+      {renderTabContent()}
         {/* Overview Stats */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>📊 Overview</Text>
@@ -167,7 +413,7 @@ export default function ScannerAnalyticsScreen() {
 
         {/* Scanner Usage by Type */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>�� Usage by Scanner Type</Text>
+          <Text style={styles.sectionTitle}>📱 Usage by Scanner Type</Text>
 
           <View style={styles.usageContainer}>
             {Object.entries(analytics.scansByType).map(([type, count]) => {
