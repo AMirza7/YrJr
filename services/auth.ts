@@ -175,7 +175,7 @@ export const authService = {
     }
   },
 
-  async signup(data: SignupData): Promise<AuthResponse> {
+  async signup(data: SignupData, referralCode?: string): Promise<AuthResponse> {
     try {
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
