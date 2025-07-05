@@ -46,6 +46,7 @@ export default function SignupScreen() {
   });
 
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedSpecializations, setSelectedSpecializations] = useState<
     string[]
