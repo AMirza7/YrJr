@@ -269,7 +269,7 @@ export default function ExportModal({
                 { value: "7days", label: "Last 7 days", icon: "📅" },
                 { value: "30days", label: "Last 30 days", icon: "📅" },
                 { value: "90days", label: "Last 90 days", icon: "📅" },
-                { value: "all", label: "All time", icon: "🗓️" },
+                { value: "all", label: "All time", icon: "🗓��" },
               ].map((range) => (
                 <TouchableOpacity
                   key={range.value}
@@ -386,6 +386,22 @@ export default function ExportModal({
 
         {/* Export Button */}
         <View style={styles.footer}>
+          {exporting && exportProgress > 0 && (
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    { width: `${exportProgress * 100}%` },
+                  ]}
+                />
+              </View>
+              <Text style={styles.progressText}>
+                Exporting... {Math.round(exportProgress * 100)}%
+              </Text>
+            </View>
+          )}
+
           <TouchableOpacity
             style={[
               styles.exportButton,
