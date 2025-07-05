@@ -270,7 +270,10 @@ export default function ScannerScreen() {
             </View>
           </View>
 
-          <View style={styles.featureCard}>
+          <TouchableOpacity
+            style={styles.featureCard}
+            onPress={() => router.push("/scanner/analytics")}
+          >
             <Text style={styles.featureIcon}>📊</Text>
             <View style={styles.featureContent}>
               <Text style={styles.featureTitle}>Smart Analytics</Text>
@@ -278,7 +281,8 @@ export default function ScannerScreen() {
                 Get insights and summaries from your scanned legal documents
               </Text>
             </View>
-          </View>
+            <Text style={styles.featureArrow}>›</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Subscription CTA */}
