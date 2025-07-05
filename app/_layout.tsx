@@ -29,7 +29,6 @@ export default function RootLayout() {
           <Stack.Screen name="templates" />
           <Stack.Screen name="flashcards" />
           <Stack.Screen name="notifications" />
-          <Stack.Screen name="scanner" />
           <Stack.Screen name="notes-vault" />
           <Stack.Screen name="privacy-policy" />
           <Stack.Screen name="terms-of-service" />
