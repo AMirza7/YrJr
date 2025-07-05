@@ -302,6 +302,66 @@ export default function ScannerScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Scanner Modals */}
+      <Modal
+        visible={activeScanner === "document"}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setActiveScanner(null)}
+      >
+        <DocumentScanner onClose={() => setActiveScanner(null)} />
+      </Modal>
+
+      <Modal
+        visible={activeScanner === "barcode"}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setActiveScanner(null)}
+      >
+        <BarcodeScanner onClose={() => setActiveScanner(null)} />
+      </Modal>
+
+      <Modal
+        visible={activeScanner === "id_card"}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setActiveScanner(null)}
+      >
+        <IDCardScanner onClose={() => setActiveScanner(null)} />
+      </Modal>
+
+      <Modal
+        visible={activeScanner === "receipt"}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setActiveScanner(null)}
+      >
+        <ReceiptScanner onClose={() => setActiveScanner(null)} />
+      </Modal>
+
+      <Modal
+        visible={activeScanner === "signature"}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setActiveScanner(null)}
+      >
+        <SignatureCapture onClose={() => setActiveScanner(null)} />
+      </Modal>
+
+      <Modal
+        visible={activeScanner === "text"}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setActiveScanner(null)}
+      >
+        <TextExtractor onClose={() => setActiveScanner(null)} />
+      </Modal>
+
+      <ExportModal
+        visible={exportModalVisible}
+        onClose={() => setExportModalVisible(false)}
+      />
     </View>
   );
 }
