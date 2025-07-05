@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,20 +7,23 @@ import {
   Alert,
   Dimensions,
   StatusBar,
-} from 'react-native';
-import { Camera, CameraView, useCameraPermissions } from 'expo-camera';
-import * as Haptics from 'expo-haptics';
-import { scannerService } from '@/services/scanner';
-import { BarcodeScanResult } from '@/types/scanner';
+} from "react-native";
+import { Camera, CameraView, useCameraPermissions } from "expo-camera";
+import * as Haptics from "expo-haptics";
+import { scannerService } from "@/services/scanner";
+import { BarcodeScanResult } from "@/types/scanner";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 interface BarcodeScannerProps {
   onScanComplete?: (result: BarcodeScanResult) => void;
   onClose?: () => void;
 }
 
-export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScannerProps) {
+export default function BarcodeScanner({
+  onScanComplete,
+  onClose,
+}: BarcodeScannerProps) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scanResult, setScanResult] = useState<BarcodeScanResult | null>(null);
@@ -29,9 +32,15 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
     requestPermission();
   }, []);
 
-  const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
+  const handleBarCodeScanned = async ({
+    type,
+    data,
+  }: {
+    type: string;
+    data: string;
+  }) => {
     if (scanned) return;
-    
+
     setScanned(true);
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
@@ -40,7 +49,7 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
       setScanResult(result);
       onScanComplete?.(result);
     } catch (error) {
-      Alert.alert('Error', 'Failed to process barcode data');
+      Alert.alert("Error", "Failed to process barcode data");
       setScanned(false);
     }
   };
@@ -52,26 +61,31 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
 
   const handleTrackCase = () => {
     if (!scanResult?.data.isCourtFile) return;
-    
+
     Alert.alert(
-      'Track Case',
+      "Track Case",
       `This will add case ${scanResult.data.caseInfo?.caseNumber} to your tracking list.`,
       [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Add to Tracking', 
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Add to Tracking",
           onPress: () => {
-            Alert.alert('Success', 'Case has been added to your tracking list.');
-          }
-        }
-      ]
+            Alert.alert(
+              "Success",
+              "Case has been added to your tracking list.",
+            );
+          },
+        },
+      ],
     );
   };
 
   if (!permission) {
     return (
       <View style={styles.container}>
-        <Text style={styles.permissionText}>Requesting camera permission...</Text>
+        <Text style={styles.permissionText}>
+          Requesting camera permission...
+        </Text>
       </View>
     );
   }
@@ -80,11 +94,16 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
     return (
       <View style={styles.container}>
         <View style={styles.permissionContainer}>
-          <Text style={styles.permissionTitle}>📷 Camera Permission Required</Text>
+          <Text style={styles.permissionTitle}>
+            📷 Camera Permission Required
+          </Text>
           <Text style={styles.permissionText}>
             We need camera access to scan barcodes and QR codes.
           </Text>
-          <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+          <TouchableOpacity
+            style={styles.permissionButton}
+            onPress={requestPermission}
+          >
             <Text style={styles.permissionButtonText}>Grant Permission</Text>
           </TouchableOpacity>
         </View>
@@ -96,11 +115,13 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
     return (
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
-        
+
         <View style={styles.resultContainer}>
           <View style={styles.resultHeader}>
             <Text style={styles.resultTitle}>
-              {scanResult.type === 'qr' ? '📱 QR Code Detected' : '📊 Barcode Detected'}
+              {scanResult.type === "qr"
+                ? "📱 QR Code Detected"
+                : "📊 Barcode Detected"}
             </Text>
             {onClose && (
               <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -122,18 +143,22 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
           {scanResult.data.isCourtFile && scanResult.data.caseInfo && (
             <View style={styles.courtFileContainer}>
               <Text style={styles.courtFileTitle}>⚖️ Court File Detected</Text>
-              
+
               <View style={styles.caseInfoContainer}>
                 <View style={styles.caseInfoRow}>
                   <Text style={styles.caseInfoLabel}>Case Number:</Text>
-                  <Text style={styles.caseInfoValue}>{scanResult.data.caseInfo.caseNumber}</Text>
+                  <Text style={styles.caseInfoValue}>
+                    {scanResult.data.caseInfo.caseNumber}
+                  </Text>
                 </View>
-                
+
                 <View style={styles.caseInfoRow}>
                   <Text style={styles.caseInfoLabel}>Court:</Text>
-                  <Text style={styles.caseInfoValue}>{scanResult.data.caseInfo.court}</Text>
+                  <Text style={styles.caseInfoValue}>
+                    {scanResult.data.caseInfo.court}
+                  </Text>
                 </View>
-                
+
                 <View style={styles.caseInfoRow}>
                   <Text style={styles.caseInfoLabel}>Status:</Text>
                   <Text style={[styles.caseInfoValue, styles.statusActive]}>
@@ -142,25 +167,33 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
                 </View>
               </View>
 
-              <TouchableOpacity style={styles.trackButton} onPress={handleTrackCase}>
+              <TouchableOpacity
+                style={styles.trackButton}
+                onPress={handleTrackCase}
+              >
                 <Text style={styles.trackButtonText}>📌 Track Case</Text>
               </TouchableOpacity>
             </View>
           )}
 
           <View style={styles.actionsContainer}>
-            <TouchableOpacity style={styles.actionButton} onPress={resetScanner}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={resetScanner}
+            >
               <Text style={styles.actionButtonText}>🔄 Scan Again</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.primaryButton]} 
-              onPress={() => Alert.alert('Success', 'Scan result has been saved to history.')}
+
+            <TouchableOpacity
+              style={[styles.actionButton, styles.primaryButton]}
+              onPress={() =>
+                Alert.alert("Success", "Scan result has been saved to history.")
+              }
             >
               <Text style={styles.primaryButtonText}>💾 Save to History</Text>
             </TouchableOpacity>
           </View>
-        </div>
+        </View>
       </View>
     );
   }
@@ -168,20 +201,31 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
-      
+
       <CameraView
         style={styles.camera}
         facing="back"
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{
-          barcodeTypes: ['qr', 'pdf417', 'datamatrix', 'code128', 'code39', 'ean13', 'ean8'],
+          barcodeTypes: [
+            "qr",
+            "pdf417",
+            "datamatrix",
+            "code128",
+            "code39",
+            "ean13",
+            "ean8",
+          ],
         }}
       >
         <View style={styles.overlay}>
           {/* Header */}
           <View style={styles.header}>
             {onClose && (
-              <TouchableOpacity onPress={onClose} style={styles.headerCloseButton}>
+              <TouchableOpacity
+                onPress={onClose}
+                style={styles.headerCloseButton}
+              >
                 <Text style={styles.headerCloseText}>✕</Text>
               </TouchableOpacity>
             )}
@@ -201,7 +245,9 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
 
           {/* Instructions */}
           <View style={styles.instructionsContainer}>
-            <Text style={styles.instructionsTitle}>Position barcode within the frame</Text>
+            <Text style={styles.instructionsTitle}>
+              Position barcode within the frame
+            </Text>
             <Text style={styles.instructionsSubtitle}>
               Supports QR codes, barcodes, and court file codes
             </Text>
@@ -212,7 +258,9 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
             <View style={styles.featuresList}>
               <Text style={styles.featureItem}>📱 Auto-detect and vibrate</Text>
               <Text style={styles.featureItem}>⚖️ Court file recognition</Text>
-              <Text style={styles.featureItem}>📌 Case tracking integration</Text>
+              <Text style={styles.featureItem}>
+                📌 Case tracking integration
+              </Text>
             </View>
           </View>
         </View>
@@ -224,19 +272,19 @@ export default function BarcodeScanner({ onScanComplete, onClose }: BarcodeScann
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
   },
   camera: {
     flex: 1,
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingTop: 50,
     paddingHorizontal: 20,
     paddingBottom: 20,
@@ -245,38 +293,38 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerCloseText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: "600",
+    color: "#fff",
   },
   placeholder: {
     width: 36,
   },
   scanArea: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   scanFrame: {
     width: width * 0.7,
     height: width * 0.7,
-    position: 'relative',
+    position: "relative",
   },
   corner: {
-    position: 'absolute',
+    position: "absolute",
     width: 30,
     height: 30,
-    borderColor: '#00ff00',
+    borderColor: "#00ff00",
     borderWidth: 3,
   },
   topLeft: {
@@ -304,187 +352,187 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
   },
   instructionsContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingBottom: 30,
   },
   instructionsTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#fff",
+    textAlign: "center",
     marginBottom: 8,
   },
   instructionsSubtitle: {
     fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
+    color: "rgba(255,255,255,0.8)",
+    textAlign: "center",
   },
   footer: {
     paddingHorizontal: 20,
     paddingBottom: 40,
   },
   featuresList: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: "rgba(255,255,255,0.1)",
     borderRadius: 12,
     padding: 16,
   },
   featureItem: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.9)',
+    color: "rgba(255,255,255,0.9)",
     marginBottom: 4,
   },
   permissionContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: '#f8fafc',
+    backgroundColor: "#f8fafc",
   },
   permissionTitle: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#1e293b',
-    textAlign: 'center',
+    fontWeight: "700",
+    color: "#1e293b",
+    textAlign: "center",
     marginBottom: 16,
   },
   permissionText: {
     fontSize: 16,
-    color: '#64748b',
-    textAlign: 'center',
+    color: "#64748b",
+    textAlign: "center",
     marginBottom: 24,
     lineHeight: 24,
   },
   permissionButton: {
-    backgroundColor: '#059669',
+    backgroundColor: "#059669",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
   },
   permissionButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   resultContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   resultHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 20,
     paddingTop: 60,
-    backgroundColor: '#059669',
+    backgroundColor: "#059669",
   },
   resultTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
+    fontWeight: "700",
+    color: "#fff",
   },
   closeButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(255,255,255,0.2)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   closeButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   dataContainer: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: "#e2e8f0",
   },
   dataLabel: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#64748b',
+    fontWeight: "500",
+    color: "#64748b",
     marginBottom: 8,
   },
   dataValue: {
     fontSize: 16,
-    color: '#1e293b',
-    backgroundColor: '#f8fafc',
+    color: "#1e293b",
+    backgroundColor: "#f8fafc",
     padding: 12,
     borderRadius: 8,
-    fontFamily: 'monospace',
+    fontFamily: "monospace",
   },
   courtFileContainer: {
     margin: 20,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: "#f0fdf4",
     borderRadius: 12,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: '#22c55e',
+    borderLeftColor: "#22c55e",
   },
   courtFileTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#15803d',
+    fontWeight: "600",
+    color: "#15803d",
     marginBottom: 12,
   },
   caseInfoContainer: {
     marginBottom: 16,
   },
   caseInfoRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 8,
   },
   caseInfoLabel: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
+    fontWeight: "500",
+    color: "#374151",
     width: 100,
   },
   caseInfoValue: {
     fontSize: 14,
-    color: '#1f2937',
+    color: "#1f2937",
     flex: 1,
   },
   statusActive: {
-    color: '#15803d',
-    fontWeight: '600',
+    color: "#15803d",
+    fontWeight: "600",
   },
   trackButton: {
-    backgroundColor: '#22c55e',
+    backgroundColor: "#22c55e",
     borderRadius: 8,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   trackButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   actionsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
     padding: 20,
   },
   actionButton: {
     flex: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: "#f1f5f9",
     borderRadius: 12,
     paddingVertical: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   actionButtonText: {
-    color: '#475569',
+    color: "#475569",
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   primaryButton: {
-    backgroundColor: '#059669',
+    backgroundColor: "#059669",
   },
   primaryButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
