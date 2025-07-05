@@ -74,7 +74,7 @@ export default function ScannerScreen() {
       icon: "📊",
       color: "#059669",
       route: "/barcode-scanner",
-      premium: true,
+      premium: false,
     },
     {
       id: "id_scan",
@@ -83,7 +83,7 @@ export default function ScannerScreen() {
       icon: "🆔",
       color: "#dc2626",
       route: "/id-scanner",
-      premium: true,
+      premium: false,
     },
     {
       id: "receipt_scan",
@@ -101,7 +101,7 @@ export default function ScannerScreen() {
       icon: "✍️",
       color: "#ea580c",
       route: "/signature-capture",
-      premium: true,
+      premium: false,
     },
     {
       id: "text_extract",
