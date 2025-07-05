@@ -29,6 +29,12 @@ export default function DocumentScanner({
 }: DocumentScannerProps) {
   const [loading, setLoading] = useState(false);
   const [scanResult, setScanResult] = useState<DocumentScanResult | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<ToastType>("info");
+  const [showFirstTimeDisclaimer, setShowFirstTimeDisclaimer] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(true);
 
   const handleFileUpload = async () => {
     try {
