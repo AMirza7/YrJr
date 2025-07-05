@@ -152,9 +152,16 @@ export default function SignupScreen() {
             : undefined,
       };
 
-      const result = await authService.signup(formData);
+      const result = await authService.signup(formData, referralCode);
 
       if (result.success) {
+        // Show referral code applied toast if referral code was provided
+        if (referralCode.trim()) {
+          Alert.alert(
+            "🎉 Success!",
+            "Referral code applied! You'll earn rewards when you subscribe.",
+          );
+        }
         // For lawyers, redirect to profile completion after email verification
         const isLawyer =
           formData.role === "lawyer" || formData.role === "junior_lawyer";
