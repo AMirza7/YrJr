@@ -209,7 +209,11 @@ export default function ScannerHistoryScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <BackButton title="Scanner" color="#fff" />
+        <BackButton
+          title="Scanner"
+          color="#fff"
+          onPress={() => router.push("/(tabs)/scanner")}
+        />
         <Text style={styles.title}>📁 Scan History</Text>
         <TouchableOpacity onPress={exportHistory} style={styles.exportButton}>
           <Text style={styles.exportButtonText}>📤</Text>
