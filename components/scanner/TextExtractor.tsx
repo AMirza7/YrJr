@@ -50,7 +50,7 @@ export default function TextExtractor({
     if (!scanResult?.data.fullText) return;
 
     try {
-      await Clipboard.setString(scanResult.data.fullText);
+      await Clipboard.setStringAsync(scanResult.data.fullText);
       Alert.alert("Copied", "Text has been copied to clipboard.");
     } catch (error) {
       Alert.alert("Error", "Failed to copy text to clipboard.");
