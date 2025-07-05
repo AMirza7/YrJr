@@ -5,3 +5,4 @@ export * from "./auth";
 export * from "./navigation";
 export * from "./scanner";
 export * from "./legal";
+export * from "./admin";
