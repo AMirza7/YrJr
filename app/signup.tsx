@@ -278,6 +278,21 @@ export default function SignupScreen() {
               />
             </View>
 
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Referral Code (Optional)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter referral code"
+                value={referralCode}
+                onChangeText={setReferralCode}
+                autoCapitalize="characters"
+                maxLength={20}
+              />
+              <Text style={styles.inputHint}>
+                Have a referral code? Enter it to get special benefits!
+              </Text>
+            </View>
+
             <PasswordInput
               label={t("password") + " *"}
               value={formData.password}
