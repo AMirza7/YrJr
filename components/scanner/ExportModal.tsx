@@ -16,6 +16,8 @@ import { ExportOptions, ScannerType } from "@/types/scanner";
 interface ExportModalProps {
   visible: boolean;
   onClose: () => void;
+  qaMode?: boolean;
+  onQAModeToggle?: (enabled: boolean) => void;
 }
 
 export default function ExportModal({ visible, onClose }: ExportModalProps) {
