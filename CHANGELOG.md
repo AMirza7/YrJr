@@ -5,6 +5,92 @@ All notable changes to this legal assistant application will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2024-01-16
+
+### Added
+
+#### 🎁 Complete Referral System
+
+- **NEW**: ReferralDashboard screen with comprehensive referral management
+  - Prominent referral code banner with copy functionality
+  - Share buttons for WhatsApp, Email, and direct link copying
+  - Three info tiles: Total Referrals, Pending Rewards, Total Earnings (₹)
+  - How It Works section with step-by-step guide
+  - Share functionality across multiple platforms using native Share API
+- **NEW**: Referral code integration in SignupForm
+  - Optional referral code input field below email
+  - Referral code validation and processing
+  - Success toast: "Referral code applied!" with reward notification
+- **NEW**: Subscription-based access gating
+  - Premium feature restrictions for free users
+  - Upgrade prompts with consistent UI styling
+  - Component-level guards for all referral features
+
+#### 💰 Wallet Management System
+
+- **NEW**: WalletScreen with complete financial tracking
+  - Large balance display with pending and total earnings
+  - Quick action buttons for Add Money and Payment History
+  - Scrollable transaction list with date, amount, and type
+  - Transaction categorization: Referral Bonus, Subscription Cashback, Withdrawal, Adjustment
+  - Status indicators: Completed, Pending, Failed with color coding
+  - Real-time balance calculations and formatting
+- **NEW**: Transaction management with detailed metadata
+  - Reference ID tracking for all transactions
+  - Amount formatting with proper currency symbols
+  - Date formatting with localized display
+  - Transaction icons based on type
+
+#### 🛡️ Admin Referral Management
+
+- **NEW**: ReferralManager admin component
+  - Data table with columns: Referrer → Referee → Date → Rewarded
+  - Date range filtering with from/to date inputs
+  - Rewarded status filtering (All/Rewarded/Pending)
+  - Toggle "Rewarded" status with PATCH API simulation
+  - CSV export functionality for compliance reporting
+  - Summary statistics: Total Referrals, Pending Rewards, Total Paid
+  - Real-time status updates with confirmation dialogs
+
+#### 🎯 Navigation & User Experience
+
+- **NEW**: Premium tabs integration
+  - "Referrals" and "Wallet" tabs added to navigation
+  - Subscription-based tab visibility (hidden for free users)
+  - Role-based access control maintained for all features
+  - Consistent theming across all new screens
+- **NEW**: Accessibility improvements
+  - Comprehensive accessibility labels on all buttons and inputs
+  - Screen reader support for financial data
+  - Keyboard navigation support for all interactive elements
+
+#### 🔧 Technical Enhancements
+
+- **IMPROVED**: Auth service extended for referral code handling
+  - Signup method updated to accept optional referral code
+  - Mock referral processing with console logging
+  - Database relationship tracking preparation
+- **IMPROVED**: Tab configuration with subscription gating
+  - getVisibleTabs function enhanced for subscription filtering
+  - Dynamic tab rendering based on user subscription status
+  - Maintained backward compatibility for existing navigation
+
+### Technical Improvements
+
+- Enhanced TypeScript definitions for referral and wallet interfaces
+- Improved state management for financial data
+- Better error handling for referral and wallet operations
+- Optimized component re-rendering for subscription status changes
+- Platform-specific sharing functionality (iOS/Android/Web)
+
+### User Experience
+
+- Consistent UI/UX patterns across all new features
+- Responsive design for different screen sizes
+- Native platform integrations (Clipboard, Share, Linking)
+- Proper loading states and error handling
+- Toast notifications for user feedback
+
 ## [2.1.0] - 2024-01-15
 
 ### Added
@@ -166,7 +252,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ✅ Responsive modal and camera views
   - ✅ Device rotation support in camera mode
   - ✅ Android hardware back button handling
-  - ✅ iPhone safe area spacing fixes
+  - ��� iPhone safe area spacing fixes
 - **COMPLETED**: Enhanced analytics dashboard
   - ✅ Top 5 scanned document types chart
   - ✅ Weekly scan activity visualization
