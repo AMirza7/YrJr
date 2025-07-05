@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { authService } from "@/services/auth";
+import BackButton from "@/components/navigation/BackButton";
 
 export default function VerifyEmailScreen() {
   const { email, phone, nextStep } = useLocalSearchParams<{
