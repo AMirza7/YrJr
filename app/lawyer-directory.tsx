@@ -54,17 +54,9 @@ export default function LawyerDirectoryScreen() {
 
   const loadLawyers = async () => {
     try {
-      // Try to get all users and filter for verified lawyers and junior lawyers
-      const allUsers = await authService.getAllUsers();
-
-      const verifiedLawyers = allUsers
-        .filter(
-          (user) =>
-            (user.role === "lawyer" || user.role === "junior_lawyer") &&
-            user.isVerified &&
-            user.isApproved,
-        )
-        .map((lawyer) => ({
+      // Get public lawyer profiles (no admin access required)
+      const verifiedLawyers = (await authService.getPublicLawyers()).map(
+        (lawyer) => ({
           ...lawyer,
           rating: 4.2 + Math.random() * 0.8, // Mock rating 4.2-5.0
           totalCases: Math.floor(Math.random() * 200) + 50,
@@ -72,7 +64,8 @@ export default function LawyerDirectoryScreen() {
           specialization: lawyer.specialization || ["General Practice"],
           practiceYears:
             lawyer.practiceYears || Math.floor(Math.random() * 15) + 2,
-        }));
+        }),
+      );
 
       setLawyers(verifiedLawyers);
     } catch (error) {
