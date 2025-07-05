@@ -163,13 +163,23 @@ export default function DocumentScanner({
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2563eb" />
-        <Text style={styles.loadingText}>Processing document...</Text>
-        <Text style={styles.loadingSubtext}>
-          Extracting text and analyzing content
-        </Text>
-      </View>
+      <>
+        <ProgressIndicator
+          visible={loading}
+          title="Processing Document"
+          message="Extracting text and analyzing legal content"
+          progress={uploadProgress}
+          type="upload"
+        />
+        <Toast
+          visible={showToast}
+          message={toastMessage}
+          type={toastType}
+          onHide={() => setShowToast(false)}
+          actionText={toastType === "error" ? "🔁 Retry" : undefined}
+          onAction={toastType === "error" ? handleRetry : undefined}
+        />
+      </>
     );
   }
 
