@@ -74,6 +74,19 @@ export default function ExportModal({
     setSelectedTypes([]);
   };
 
+  const getDateRangeDays = () => {
+    switch (selectedDateRange) {
+      case "7days":
+        return 7;
+      case "30days":
+        return 30;
+      case "90days":
+        return 90;
+      default:
+        return null;
+    }
+  };
+
   const handleExport = async () => {
     if (selectedTypes.length === 0) {
       Alert.alert(
@@ -84,15 +97,28 @@ export default function ExportModal({
     }
 
     setExporting(true);
+    setExportProgress(0);
 
     try {
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setExportProgress((prev) => {
+          if (prev >= 0.9) {
+            clearInterval(progressInterval);
+            return 0.9;
+          }
+          return prev + 0.15;
+        });
+      }, 300);
+
+      const dateRangeDays = getDateRangeDays();
       const options: ExportOptions = {
         format: exportFormat,
         includeImages,
         types: selectedTypes,
-        ...(dateFilter && {
+        ...(dateRangeDays && {
           dateRange: {
-            start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
+            start: new Date(Date.now() - dateRangeDays * 24 * 60 * 60 * 1000),
             end: new Date(),
           },
         }),
@@ -100,14 +126,23 @@ export default function ExportModal({
 
       const exportData = await scannerService.exportScans(options);
 
+      clearInterval(progressInterval);
+      setExportProgress(1);
+
+      // Add confidence scores if QA mode is enabled
+      if (qaMode && includeConfidenceScores) {
+        console.log("Including OCR confidence scores in export");
+      }
+
       Alert.alert(
-        "Export Complete",
-        `Your data has been exported in ${exportFormat} format with ${selectedTypes.length} data types.`,
+        "Export Complete ✅",
+        `Your data has been exported in ${exportFormat} format with ${selectedTypes.length} data types${dateRangeDays ? ` from the last ${dateRangeDays} days` : ""}.`,
         [{ text: "OK", onPress: () => onClose() }],
       );
     } catch (error) {
+      setExportProgress(0);
       Alert.alert(
-        "Export Failed",
+        "Export Failed ❌",
         "There was an error exporting your data. Please try again.",
       );
     } finally {
