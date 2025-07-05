@@ -417,6 +417,22 @@ export const authService = {
     }
   },
 
+  // Public method to get verified lawyers for directory
+  async getPublicLawyers(): Promise<User[]> {
+    try {
+      // Return only public information for verified lawyers
+      return MOCK_USERS.filter(
+        (user) =>
+          (user.role === "lawyer" || user.role === "junior_lawyer") &&
+          user.isVerified &&
+          user.isApproved,
+      );
+    } catch (error) {
+      console.error("Error getting public lawyers:", error);
+      return [];
+    }
+  },
+
   // Admin functions
   async getAllUsers(): Promise<User[]> {
     try {
