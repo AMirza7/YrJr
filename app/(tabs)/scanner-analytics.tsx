@@ -11,6 +11,7 @@ import { router } from "expo-router";
 import { scannerService } from "@/services/scanner";
 import { ScannerAnalytics, ScannerType } from "@/types/scanner";
 import BackButton from "@/components/navigation/BackButton";
+import AnalyticsCharts from "@/components/scanner/AnalyticsCharts";
 
 const { width } = Dimensions.get("window");
 
