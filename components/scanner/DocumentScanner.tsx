@@ -184,6 +184,39 @@ export default function DocumentScanner({
   }
 
   if (scanResult) {
+    const parsedFields = [
+      {
+        label: "Petitioner",
+        value: scanResult.data.keyFields.petitioner || "",
+        key: "petitioner",
+      },
+      {
+        label: "Property Address",
+        value: scanResult.data.keyFields.propertyAddress || "",
+        key: "propertyAddress",
+      },
+      {
+        label: "Case Number",
+        value: scanResult.data.keyFields.caseNumber || "",
+        key: "caseNumber",
+      },
+      {
+        label: "Court",
+        value: scanResult.data.keyFields.court || "",
+        key: "court",
+      },
+      {
+        label: "IPC Sections",
+        value: scanResult.data.keyFields.ipcSections?.join(", ") || "",
+        key: "ipcSections",
+      },
+      {
+        label: "Dates",
+        value: scanResult.data.keyFields.dates?.join(", ") || "",
+        key: "dates",
+      },
+    ];
+
     return (
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
@@ -205,96 +238,37 @@ export default function DocumentScanner({
           </View>
         )}
 
-        {/* Key Fields */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔍 Key Fields Detected</Text>
-          <View style={styles.fieldsContainer}>
-            {scanResult.data.keyFields.petitioner && (
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Petitioner:</Text>
-                <Text style={styles.fieldValue}>
-                  {scanResult.data.keyFields.petitioner}
-                </Text>
-              </View>
-            )}
-            {scanResult.data.keyFields.propertyAddress && (
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Property Address:</Text>
-                <Text style={styles.fieldValue}>
-                  {scanResult.data.keyFields.propertyAddress}
-                </Text>
-              </View>
-            )}
-            {scanResult.data.keyFields.ipcSections &&
-              scanResult.data.keyFields.ipcSections.length > 0 && (
-                <View style={styles.fieldRow}>
-                  <Text style={styles.fieldLabel}>IPC Sections:</Text>
-                  <Text style={styles.fieldValue}>
-                    {scanResult.data.keyFields.ipcSections.join(", ")}
-                  </Text>
-                </View>
-              )}
-            {scanResult.data.keyFields.dates &&
-              scanResult.data.keyFields.dates.length > 0 && (
-                <View style={styles.fieldRow}>
-                  <Text style={styles.fieldLabel}>Dates:</Text>
-                  <Text style={styles.fieldValue}>
-                    {scanResult.data.keyFields.dates.join(", ")}
-                  </Text>
-                </View>
-              )}
-            {scanResult.data.keyFields.caseNumber && (
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Case Number:</Text>
-                <Text style={styles.fieldValue}>
-                  {scanResult.data.keyFields.caseNumber}
-                </Text>
-              </View>
-            )}
-            {scanResult.data.keyFields.court && (
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>Court:</Text>
-                <Text style={styles.fieldValue}>
-                  {scanResult.data.keyFields.court}
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
+        {/* OCR Result View */}
+        <OCRResultView
+          rawText={scanResult.data.fullText}
+          parsedFields={parsedFields}
+          onFieldUpdate={handleFieldUpdate}
+          documentType={scanResult.data.documentType || "Legal Document"}
+        />
 
-        {/* Full Text */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>📝 Full Extracted Text</Text>
-          <ScrollView style={styles.textContainer} nestedScrollEnabled>
-            <Text style={styles.extractedText}>{scanResult.data.fullText}</Text>
-          </ScrollView>
-        </View>
+        {/* AI Actions Panel */}
+        <AIActionsPanel
+          documentType="document"
+          extractedData={scanResult.data}
+          onActionSelect={(action) => {
+            console.log("AI Action selected:", action.title);
+          }}
+        />
 
-        {/* Action Buttons */}
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity
-            style={[styles.actionButton, styles.primaryButton]}
-            onPress={handleGeneratePetition}
-          >
-            <Text style={styles.primaryButtonText}>📋 Generate Petition</Text>
-          </TouchableOpacity>
+        {/* Legal Disclaimer */}
+        <LegalDisclaimer compact />
 
-          <View style={styles.secondaryActions}>
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={handleSaveToHistory}
-            >
-              <Text style={styles.secondaryButtonText}>💾 Save to History</Text>
-            </TouchableOpacity>
+        <Toast
+          visible={showToast}
+          message={toastMessage}
+          type={toastType}
+          onHide={() => setShowToast(false)}
+        />
 
-            <TouchableOpacity
-              style={styles.secondaryButton}
-              onPress={handleExportAsWord}
-            >
-              <Text style={styles.secondaryButtonText}>📄 Export as Word</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <LegalDisclaimer
+          showFirstTimeModal={showFirstTimeDisclaimer}
+          onFirstTimeAccept={handleFirstTimeAccept}
+        />
       </ScrollView>
     );
   }
