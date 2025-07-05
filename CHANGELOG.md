@@ -56,6 +56,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ✅ OCR confidence score logging
   - ✅ Edge case scenario testing tools
 
+### NEW MAJOR LEGAL FEATURES ADDED
+
+- **COMPLETED**: Case Timeline Visualizer
+  - ✅ Chronological legal timeline (FIR → Arrest → Bail → Chargesheet)
+  - ✅ Visual timeline with event icons and color coding
+  - ✅ Editable events with document attachments
+  - ✅ Add/edit/delete timeline events functionality
+  - ✅ Document linking per event
+  - ✅ "Add new event" and "Attach Petition" buttons
+
+- **COMPLETED**: Legal AI Chat Assistant UI
+  - ✅ Full-page chat interface with left panel for chat
+  - ✅ Right panel showing user's scanned documents
+  - ✅ AI responses for legal queries like "Which petition to file?"
+  - ✅ Section explanations (e.g., "Explain Section 420 IPC")
+  - ✅ Legal document preparation guidance
+  - ✅ Chat output attachment to documents
+  - ✅ Quick suggestion buttons for common legal queries
+
+- **COMPLETED**: Smart Legal Templates Library
+  - ✅ Searchable template library categorized by law (IPC, CrPC, CPC, Family, Property, Labor)
+  - ✅ Editable document templates with smart placeholders
+  - ✅ AI pre-filling from scanned data and user profile
+  - ✅ Multiple output options: "Save as Draft", "Download as Word", "Export as PDF"
+  - ✅ Template categories with icons and difficulty levels
+  - ✅ Real-time document preview with field highlighting
+
+- **COMPLETED**: Case Folder System
+  - ✅ Complete case folder manager with document organization
+  - ✅ Case folders with metadata (Case Title, Type, Court Name, Opponent Party, Filing Date)
+  - ✅ Document linking (scans, drafts, notes, attachments)
+  - ✅ Timeline integration within folders
+  - ✅ User linking system with roles (Lawyer, Client, Assistant, Expert)
+  - ✅ Case status tracking and priority management
+  - ✅ Search and filter functionality
+
+- **COMPLETED**: Auto-Drafter UI
+  - ✅ One-click legal document generation from scanned documents
+  - ✅ Template selection based on document type (FIR → Bail Application, Sale Deed → Cancellation Suit)
+  - ✅ Collapsible sections (Parties, Facts, Grounds, Prayer)
+  - ✅ AI-filled fields with edit capability
+  - ✅ Real-time document preview
+  - ✅ Multiple export formats (Word/PDF)
+  - ✅ Template dropdown for different legal document types
+
 ### Fixed
 
 - **COMPLETED**: Back button functionality across all pages
