@@ -460,3 +460,6 @@ export interface LoadingState {
   message?: string;
   progress?: number;
 }
+
+// Scanner types
+export * from "./scanner";
