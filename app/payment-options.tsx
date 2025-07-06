@@ -262,7 +262,13 @@ export default function PaymentOptionsScreen() {
       [
         {
           text: "OK",
-          onPress: () => router.back(),
+          onPress: () => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/(tabs)/home");
+            }
+          },
         },
       ],
     );

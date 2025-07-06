@@ -185,7 +185,18 @@ export default function TemplatesApprovalScreen() {
         Alert.alert(
           "Access Denied",
           "Only administrators can access this page.",
-          [{ text: "OK", onPress: () => router.back() }],
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/admin");
+                }
+              },
+            },
+          ],
         );
         return;
       }

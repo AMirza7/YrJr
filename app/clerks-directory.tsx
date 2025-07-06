@@ -195,7 +195,18 @@ export default function ClerksDirectoryScreen() {
         Alert.alert(
           "Access Restricted",
           "Only subscribed lawyers can access the clerks directory.",
-          [{ text: "OK", onPress: () => router.back() }],
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(tabs)/home");
+                }
+              },
+            },
+          ],
         );
         return;
       }
@@ -205,7 +216,16 @@ export default function ClerksDirectoryScreen() {
           "Subscription Required",
           "Please upgrade your subscription to access the clerks directory.",
           [
-            { text: "Cancel", onPress: () => router.back() },
+            {
+              text: "Cancel",
+              onPress: () => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(tabs)/home");
+                }
+              },
+            },
             {
               text: "Upgrade",
               onPress: () => router.push("/subscription"),
