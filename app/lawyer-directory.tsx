@@ -16,7 +16,7 @@ import { User } from "@/types";
 import BackButton from "@/components/navigation/BackButton";
 import StateDropdown from "@/components/ui/StateDropdown";
 import CityDropdown from "@/components/ui/CityDropdown";
-// import RatingSlider from "@/components/ui/RatingSlider";
+import RatingDropdown from "@/components/ui/RatingDropdown";
 
 const { width } = Dimensions.get("window");
 
@@ -396,38 +396,12 @@ export default function LawyerDirectoryScreen() {
           </View>
         </View>
 
-        {/* <RatingSlider
+        <RatingDropdown
           label="Minimum Rating"
           value={minRating}
           onValueChange={setMinRating}
-          minimumValue={0}
-          maximumValue={5}
-          step={0.1}
-        /> */}
-        <View style={styles.ratingFilterContainer}>
-          <Text style={styles.ratingLabel}>Minimum Rating</Text>
-          <View style={styles.ratingOptions}>
-            {[0, 1, 2, 3, 4, 5].map((rating) => (
-              <TouchableOpacity
-                key={rating}
-                style={[
-                  styles.ratingButton,
-                  minRating === rating && styles.selectedRatingButton,
-                ]}
-                onPress={() => setMinRating(rating)}
-              >
-                <Text
-                  style={[
-                    styles.ratingButtonText,
-                    minRating === rating && styles.selectedRatingButtonText,
-                  ]}
-                >
-                  {rating}⭐
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+          placeholder="Any rating"
+        />
       </View>
 
       <FlatList
