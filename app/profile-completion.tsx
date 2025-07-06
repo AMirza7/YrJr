@@ -15,6 +15,8 @@ import { authService } from "@/services/auth";
 import { User } from "@/types";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import StateDropdown from "@/components/ui/StateDropdown";
+import CityDropdown from "@/components/ui/CityDropdown";
 
 export default function ProfileCompletionScreen() {
   const { theme } = useTheme();
@@ -28,6 +30,10 @@ export default function ProfileCompletionScreen() {
     officeAddress: "",
     specialization: [] as string[],
     bio: "",
+    state: "",
+    city: "",
+    postalCode: "",
+    address: "",
   });
 
   const [selectedSpecializations, setSelectedSpecializations] = useState<
