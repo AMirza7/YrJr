@@ -6,9 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Modal,
   Alert,
-  Animated,
 } from "react-native";
 
 export interface ScanData {
@@ -18,27 +16,19 @@ export interface ScanData {
   confidence: number;
 }
 
-export interface DraftTemplate {
-  id: string;
-  name: string;
-  category: "Criminal" | "Civil" | "Property" | "Family" | "Constitutional";
-  description: string;
-  sections: Array<{
-    id: string;
-    title: string;
-    content: string;
-    editable: boolean;
-    required: boolean;
-    aiGenerated: boolean;
-  }>;
-  applicableFor: string[];
-}
-
 interface AutoDrafterProps {
   scanData: ScanData;
   onSaveDraft: (draftContent: string, title: string) => void;
   onExportWord: (draftContent: string, title: string) => void;
   onExportPDF: (draftContent: string, title: string) => void;
+}
+
+interface SimpleTemplate {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  content: string;
 }
 
 export default function AutoDrafter({
@@ -48,536 +38,289 @@ export default function AutoDrafter({
   onExportPDF,
 }: AutoDrafterProps) {
   const [selectedTemplate, setSelectedTemplate] =
-    useState<DraftTemplate | null>(null);
-  const [draftSections, setDraftSections] = useState<DraftTemplate["sections"]>(
-    [],
-  );
-  const [showTemplateSelector, setShowTemplateSelector] = useState(true);
-  const [editingSection, setEditingSection] = useState<string | null>(null);
+    useState<SimpleTemplate | null>(null);
+  const [draftContent, setDraftContent] = useState("");
   const [draftTitle, setDraftTitle] = useState("");
-  const [expandedSections, setExpandedSections] = useState<string[]>([]);
+  const [step, setStep] = useState<"templates" | "edit" | "preview">(
+    "templates",
+  );
 
-  // Mock templates based on scan data type
-  const getAvailableTemplates = (): DraftTemplate[] => {
-    const baseTemplates: Record<string, DraftTemplate[]> = {
-      fir: [
-        {
-          id: "bail_application",
-          name: "Bail Application",
-          category: "Criminal",
-          description: "Standard bail application under Section 437/438 CrPC",
-          applicableFor: ["fir", "arrest_warrant"],
-          sections: [
-            {
-              id: "header",
-              title: "Case Header",
-              content: `IN THE COURT OF [COURT_NAME]
+  // Simple templates based on scan data
+  const getTemplates = (): SimpleTemplate[] => {
+    const baseTemplates: SimpleTemplate[] = [
+      {
+        id: "bail_application",
+        name: "Bail Application",
+        icon: "🆓",
+        description: "Apply for bail in criminal cases",
+        content: `IN THE COURT OF ${scanData.extractedFields.court_name || "[COURT NAME]"}
 
-CRIMINAL MISC. APPLICATION NO. _____ OF [YEAR]
+CRIMINAL MISC. APPLICATION NO. _____ OF ${scanData.extractedFields.year || new Date().getFullYear()}
 
-[APPLICANT_NAME]                                   ...APPLICANT
-                    
-                    VERSUS
+${scanData.extractedFields.applicant_name || "[APPLICANT NAME]"}     ...APPLICANT
+VERSUS
+STATE OF ${scanData.extractedFields.state || "[STATE]"}     ...RESPONDENT
 
-STATE OF [STATE]                                   ...RESPONDENT`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-            {
-              id: "title",
-              title: "Application Title",
-              content:
-                "APPLICATION FOR GRANT OF BAIL UNDER SECTION 437/438 CR.P.C.",
-              editable: true,
-              required: true,
-              aiGenerated: false,
-            },
-            {
-              id: "address",
-              title: "Court Address",
-              content: `TO,
-THE HON'BLE JUDGE,
+APPLICATION FOR GRANT OF BAIL
 
-The humble petition of the applicant above named most respectfully showeth:`,
-              editable: true,
-              required: true,
-              aiGenerated: false,
-            },
-            {
-              id: "facts",
-              title: "Facts of the Case",
-              content: `1. That the applicant is a law-abiding citizen and has been falsely implicated in FIR No. [FIR_NUMBER] dated [FIR_DATE] registered at Police Station [POLICE_STATION] under Sections [IPC_SECTIONS] of the Indian Penal Code.
+TO,
+THE HON'BLE COURT
 
-2. That the applicant has been arrested on [ARREST_DATE] and is currently in judicial custody.
+MOST RESPECTFULLY SHOWETH:
 
-3. That the allegations against the applicant are baseless and the applicant has been falsely implicated due to [REASON].`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-            {
-              id: "grounds",
-              title: "Grounds for Bail",
-              content: `4. That the offences alleged against the applicant are bailable and punishable with imprisonment less than 7 years.
+1. That the applicant is a law-abiding citizen and has been falsely implicated in FIR No. ${scanData.extractedFields.fir_number || "[FIR NUMBER]"} dated ${scanData.extractedFields.fir_date || "[FIR DATE]"} registered at Police Station ${scanData.extractedFields.police_station || "[POLICE STATION]"} under Sections ${scanData.extractedFields.ipc_sections || "[IPC SECTIONS]"} of the Indian Penal Code.
 
-5. That the applicant has deep roots in society and is not likely to abscond or tamper with evidence.
+2. That the applicant is ready to abide by any terms and conditions that this Hon'ble Court may deem fit to impose.
 
-6. That the applicant is ready to furnish bail bond and surety as may be required by this Hon'ble Court.
+3. That the applicant is not a flight risk and will cooperate with the investigation.
 
-7. That no useful purpose will be served by keeping the applicant in custody.`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-            {
-              id: "prayer",
-              title: "Prayer",
-              content: `PRAYER:
+PRAYER:
+It is therefore most respectfully prayed that this Hon'ble Court may be pleased to grant bail to the applicant on such terms and conditions as this Hon'ble Court may deem fit and proper.
+
+For this act of kindness, the applicant shall ever pray.
+
+                                                    [ADVOCATE NAME]
+                                                    Advocate for Applicant`,
+      },
+      {
+        id: "complaint_application",
+        name: "Complaint Application",
+        icon: "📋",
+        description: "File a complaint in magistrate court",
+        content: `IN THE COURT OF ${scanData.extractedFields.court_name || "[MAGISTRATE COURT]"}
+
+COMPLAINT CASE NO. _____ OF ${scanData.extractedFields.year || new Date().getFullYear()}
+
+${scanData.extractedFields.applicant_name || "[COMPLAINANT NAME]"}     ...COMPLAINANT
+VERSUS
+${scanData.extractedFields.accused_name || "[ACCUSED NAME]"}     ...ACCUSED
+
+COMPLAINT UNDER SECTION 200 CR.P.C.
+
+TO,
+THE HON'BLE MAGISTRATE
+
+MOST RESPECTFULLY SHOWETH:
+
+1. That the complainant is a law-abiding citizen residing at [ADDRESS].
+
+2. That on ${scanData.extractedFields.incident_date || "[DATE]"}, the accused committed the offence of [OFFENCE DESCRIPTION] at [PLACE].
+
+3. That the complainant tried to resolve the matter amicably but the accused refused to cooperate.
+
+PRAYER:
 It is therefore most respectfully prayed that this Hon'ble Court may be pleased to:
-(a) Grant bail to the applicant;
-(b) Pass such other orders as this Hon'ble Court may deem fit and proper.
+(a) Take cognizance of the offence;
+(b) Issue summons to the accused;
+(c) Award appropriate punishment as per law.
 
-                                                    [APPLICANT_NAME]
-                                                    Through Counsel`,
-              editable: true,
-              required: true,
-              aiGenerated: false,
-            },
-          ],
-        },
-        {
-          id: "quashing_petition",
-          name: "Quashing Petition",
-          category: "Criminal",
-          description: "Petition for quashing FIR under Section 482 CrPC",
-          applicableFor: ["fir"],
-          sections: [
-            {
-              id: "header",
-              title: "Petition Header",
-              content: `IN THE HIGH COURT OF [STATE]
+                                                    [COMPLAINANT SIGNATURE]
+                                                    Complainant`,
+      },
+      {
+        id: "legal_notice",
+        name: "Legal Notice",
+        icon: "📧",
+        description: "Send a formal legal notice",
+        content: `LEGAL NOTICE
 
-CRIMINAL MISC. PETITION NO. _____ OF [YEAR]
+TO: ${scanData.extractedFields.recipient_name || "[RECIPIENT NAME]"}
+${scanData.extractedFields.recipient_address || "[RECIPIENT ADDRESS]"}
 
-[PETITIONER_NAME]                                  ...PETITIONER
-                    
-                    VERSUS
+THROUGH: ${scanData.extractedFields.advocate_name || "[ADVOCATE NAME]"}
 
-STATE OF [STATE] & ANR.                           ...RESPONDENTS`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-            {
-              id: "title",
-              title: "Petition Title",
-              content: "PETITION UNDER SECTION 482 CR.P.C. FOR QUASHING OF FIR",
-              editable: true,
-              required: true,
-              aiGenerated: false,
-            },
-            {
-              id: "facts",
-              title: "Facts and Circumstances",
-              content: `1. That the petitioner is a law-abiding citizen and has been falsely implicated in FIR No. [FIR_NUMBER] dated [FIR_DATE] registered at Police Station [POLICE_STATION].
+Sir/Madam,
 
-2. That the allegations made in the FIR are completely false, frivolous and vexatious.
+1. I am instructed by my client ${scanData.extractedFields.client_name || "[CLIENT NAME]"} to serve upon you this legal notice and to state as under:
 
-3. That the FIR has been filed with malafide intentions to harass and humiliate the petitioner.`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-            {
-              id: "legal_grounds",
-              title: "Legal Grounds",
-              content: `4. That the present case falls under the category where the High Court should exercise its inherent powers under Section 482 CrPC to prevent abuse of process of law.
+2. That my client has a genuine grievance against you regarding [MATTER DESCRIPTION].
 
-5. That the allegations, even if taken on face value, do not constitute any offence.
+3. That despite repeated requests, you have failed to [SPECIFIC DEMAND].
 
-6. That continuing the proceedings would be an abuse of process of law and would cause irreparable harm to the petitioner.`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-          ],
-        },
-      ],
-      sale_deed: [
-        {
-          id: "cancellation_suit",
-          name: "Sale Deed Cancellation Suit",
-          category: "Property",
-          description: "Suit for cancellation of sale deed due to fraud",
-          applicableFor: ["sale_deed"],
-          sections: [
-            {
-              id: "header",
-              title: "Suit Header",
-              content: `IN THE COURT OF [COURT_NAME]
+4. That your actions have caused financial and mental agony to my client.
 
-CIVIL SUIT NO. _____ OF [YEAR]
+NOTICE:
+You are hereby called upon to [SPECIFIC DEMAND] within 15 days from the receipt of this notice, failing which my client will be constrained to initiate appropriate legal proceedings against you for recovery of damages and other reliefs as may be deemed fit.
 
-[PLAINTIFF_NAME]                                   ...PLAINTIFF
-                    
-                    VERSUS
+Take notice that if you fail to comply with the above demand within the stipulated time, my client will initiate legal proceedings against you without any further notice.
 
-[DEFENDANT_NAME]                                   ...DEFENDANT`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-            {
-              id: "title",
-              title: "Plaint Title",
-              content: "PLAINT FOR CANCELLATION OF SALE DEED",
-              editable: true,
-              required: true,
-              aiGenerated: false,
-            },
-            {
-              id: "facts",
-              title: "Facts of the Case",
-              content: `1. That the plaintiff is the rightful owner of the property bearing [PROPERTY_DESCRIPTION] situated at [PROPERTY_ADDRESS].
+Date: ${new Date().toLocaleDateString("en-IN")}
+Place: [PLACE]
 
-2. That on [SALE_DEED_DATE], the plaintiff executed a sale deed in favor of the defendant for a consideration of Rs. [SALE_AMOUNT].
+                                                    [ADVOCATE NAME]
+                                                    Advocate for [CLIENT NAME]`,
+      },
+    ];
 
-3. That the said sale deed was executed under fraud, coercion, and misrepresentation by the defendant.`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-          ],
-        },
-        {
-          id: "specific_performance",
-          name: "Specific Performance Suit",
-          category: "Property",
-          description: "Suit for specific performance of sale agreement",
-          applicableFor: ["sale_deed", "agreement"],
-          sections: [
-            {
-              id: "header",
-              title: "Suit Header",
-              content: `IN THE COURT OF [COURT_NAME]
-
-CIVIL SUIT NO. _____ OF [YEAR]
-
-[PLAINTIFF_NAME]                                   ...PLAINTIFF
-                    
-                    VERSUS
-
-[DEFENDANT_NAME]                                   ...DEFENDANT`,
-              editable: true,
-              required: true,
-              aiGenerated: true,
-            },
-            {
-              id: "title",
-              title: "Plaint Title",
-              content: "PLAINT FOR SPECIFIC PERFORMANCE OF AGREEMENT TO SELL",
-              editable: true,
-              required: true,
-              aiGenerated: false,
-            },
-          ],
-        },
-      ],
-    };
-
-    return baseTemplates[scanData.type] || [];
+    return baseTemplates;
   };
 
-  const fillTemplateWithAI = (template: DraftTemplate): DraftTemplate => {
-    const filledSections = template.sections.map((section) => {
-      if (section.aiGenerated) {
-        let content = section.content;
+  const templates = getTemplates();
 
-        // Fill placeholders with extracted data
-        Object.entries(scanData.extractedFields).forEach(([key, value]) => {
-          const placeholder = `[${key.toUpperCase()}]`;
-          content = content.replace(
-            new RegExp(placeholder, "g"),
-            value || placeholder,
-          );
-        });
-
-        // Auto-fill common fields
-        content = content.replace(
-          /\[YEAR\]/g,
-          new Date().getFullYear().toString(),
-        );
-        content = content.replace(
-          /\[STATE\]/g,
-          scanData.extractedFields.state || "DELHI",
-        );
-
-        return { ...section, content };
-      }
-      return section;
-    });
-
-    return { ...template, sections: filledSections };
+  const handleTemplateSelect = (template: SimpleTemplate) => {
+    setSelectedTemplate(template);
+    setDraftContent(template.content);
+    setDraftTitle(template.name);
+    setStep("edit");
   };
 
-  const handleTemplateSelect = (template: DraftTemplate) => {
-    const filledTemplate = fillTemplateWithAI(template);
-    setSelectedTemplate(filledTemplate);
-    setDraftSections(filledTemplate.sections);
-    setDraftTitle(`${template.name} - ${new Date().toLocaleDateString()}`);
-    setShowTemplateSelector(false);
-    setExpandedSections(filledTemplate.sections.map((s) => s.id));
+  const handlePreview = () => {
+    if (!draftContent.trim()) {
+      Alert.alert("Error", "Please add some content to the draft");
+      return;
+    }
+    setStep("preview");
   };
 
-  const handleSectionEdit = (sectionId: string, newContent: string) => {
-    setDraftSections((prev) =>
-      prev.map((section) =>
-        section.id === sectionId
-          ? { ...section, content: newContent }
-          : section,
-      ),
+  const handleSave = () => {
+    if (!draftTitle.trim()) {
+      Alert.alert("Error", "Please provide a title for the draft");
+      return;
+    }
+    onSaveDraft(draftContent, draftTitle);
+  };
+
+  // Step 1: Template Selection
+  if (step === "templates") {
+    return (
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>📝 Choose Document Type</Text>
+          <Text style={styles.subtitle}>
+            Select the type of legal document you want to create
+          </Text>
+        </View>
+
+        <View style={styles.detectedInfo}>
+          <Text style={styles.detectedTitle}>🔍 Detected Information</Text>
+          <Text style={styles.detectedText}>
+            From scanned document: {scanData.type.toUpperCase()}
+          </Text>
+          {scanData.extractedFields.fir_number && (
+            <Text style={styles.detectedField}>
+              FIR: {scanData.extractedFields.fir_number}
+            </Text>
+          )}
+          {scanData.extractedFields.applicant_name && (
+            <Text style={styles.detectedField}>
+              Name: {scanData.extractedFields.applicant_name}
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.templatesContainer}>
+          {templates.map((template) => (
+            <TouchableOpacity
+              key={template.id}
+              style={styles.templateCard}
+              onPress={() => handleTemplateSelect(template)}
+            >
+              <Text style={styles.templateIcon}>{template.icon}</Text>
+              <View style={styles.templateInfo}>
+                <Text style={styles.templateName}>{template.name}</Text>
+                <Text style={styles.templateDescription}>
+                  {template.description}
+                </Text>
+              </View>
+              <Text style={styles.arrow}>›</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
     );
-  };
+  }
 
-  const toggleSectionExpansion = (sectionId: string) => {
-    setExpandedSections((prev) =>
-      prev.includes(sectionId)
-        ? prev.filter((id) => id !== sectionId)
-        : [...prev, sectionId],
-    );
-  };
+  // Step 2: Edit Content
+  if (step === "edit") {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => setStep("templates")}
+          >
+            <Text style={styles.backText}>← Back</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>✏️ Edit Document</Text>
+          <TouchableOpacity style={styles.previewBtn} onPress={handlePreview}>
+            <Text style={styles.previewText}>Preview →</Text>
+          </TouchableOpacity>
+        </View>
 
-  const generateCompleteDraft = () => {
-    return draftSections.map((section) => section.content).join("\n\n");
-  };
+        <View style={styles.editContainer}>
+          <Text style={styles.fieldLabel}>Document Title</Text>
+          <TextInput
+            style={styles.titleInput}
+            value={draftTitle}
+            onChangeText={setDraftTitle}
+            placeholder="Enter document title"
+          />
 
-  const getDocumentTypeIcon = (type: string) => {
-    const icons = {
-      fir: "🚨",
-      sale_deed: "🏠",
-      affidavit: "📋",
-      notice: "📢",
-      complaint: "⚖️",
-      other: "📄",
-    };
-    return icons[type as keyof typeof icons] || "📄";
-  };
+          <Text style={styles.fieldLabel}>Document Content</Text>
+          <TextInput
+            style={styles.contentInput}
+            value={draftContent}
+            onChangeText={setDraftContent}
+            placeholder="Enter your content here..."
+            multiline
+            textAlignVertical="top"
+          />
 
-  const TemplateCard = ({ template }: { template: DraftTemplate }) => (
-    <TouchableOpacity
-      style={styles.templateCard}
-      onPress={() => handleTemplateSelect(template)}
-    >
-      <View style={styles.templateHeader}>
-        <Text style={styles.templateName}>{template.name}</Text>
-        <View style={styles.categoryBadge}>
-          <Text style={styles.categoryText}>{template.category}</Text>
+          <View style={styles.helpBox}>
+            <Text style={styles.helpTitle}>💡 Editing Tips</Text>
+            <Text style={styles.helpText}>
+              • Replace [PLACEHOLDERS] with actual information{"\n"}• Add or
+              remove paragraphs as needed{"\n"}• Review all details before
+              saving
+            </Text>
+          </View>
         </View>
       </View>
-      <Text style={styles.templateDescription}>{template.description}</Text>
-      <View style={styles.templateFooter}>
-        <Text style={styles.sectionCount}>
-          {template.sections.length} sections
-        </Text>
-        <Text style={styles.generateButton}>Generate →</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const SectionEditor = ({
-    section,
-  }: {
-    section: DraftTemplate["sections"][0];
-  }) => {
-    const isExpanded = expandedSections.includes(section.id);
-    const isEditing = editingSection === section.id;
-
-    return (
-      <View style={styles.sectionContainer}>
-        <TouchableOpacity
-          style={styles.sectionHeader}
-          onPress={() => toggleSectionExpansion(section.id)}
-        >
-          <View style={styles.sectionTitleContainer}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            {section.aiGenerated && (
-              <View style={styles.aiGeneratedBadge}>
-                <Text style={styles.aiGeneratedText}>AI</Text>
-              </View>
-            )}
-            {section.required && (
-              <Text style={styles.requiredIndicator}>*</Text>
-            )}
-          </View>
-          <Text style={styles.expandIcon}>{isExpanded ? "▼" : "▶"}</Text>
-        </TouchableOpacity>
-
-        {isExpanded && (
-          <View style={styles.sectionContent}>
-            {isEditing ? (
-              <View style={styles.editContainer}>
-                <TextInput
-                  style={styles.editInput}
-                  value={section.content}
-                  onChangeText={(text) => handleSectionEdit(section.id, text)}
-                  multiline
-                  placeholder="Enter section content..."
-                />
-                <View style={styles.editActions}>
-                  <TouchableOpacity
-                    style={styles.cancelEdit}
-                    onPress={() => setEditingSection(null)}
-                  >
-                    <Text style={styles.cancelEditText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.saveEdit}
-                    onPress={() => setEditingSection(null)}
-                  >
-                    <Text style={styles.saveEditText}>Save</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.previewContainer}>
-                <Text style={styles.previewText}>{section.content}</Text>
-                {section.editable && (
-                  <TouchableOpacity
-                    style={styles.editButton}
-                    onPress={() => setEditingSection(section.id)}
-                  >
-                    <Text style={styles.editButtonText}>✏️ Edit</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-          </View>
-        )}
-      </View>
     );
-  };
+  }
 
+  // Step 3: Preview & Export
   return (
     <View style={styles.container}>
-      {/* Template Selector */}
-      <Modal
-        visible={showTemplateSelector}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowTemplateSelector(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              {getDocumentTypeIcon(scanData.type)} Generate Legal Document
-            </Text>
-            <Text style={styles.modalSubtitle}>
-              Choose a template based on your scanned{" "}
-              {scanData.type.replace("_", " ")}
-            </Text>
-            <TouchableOpacity
-              style={styles.closeModal}
-              onPress={() => setShowTemplateSelector(false)}
-            >
-              <Text style={styles.closeModalText}>✕</Text>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => setStep("edit")}
+        >
+          <Text style={styles.backText}>← Edit</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>👁️ Preview</Text>
+        <View style={styles.placeholder} />
+      </View>
 
-          <ScrollView style={styles.templatesContainer}>
-            {getAvailableTemplates().map((template) => (
-              <TemplateCard key={template.id} template={template} />
-            ))}
-
-            {getAvailableTemplates().length === 0 && (
-              <View style={styles.noTemplates}>
-                <Text style={styles.noTemplatesIcon}>📄</Text>
-                <Text style={styles.noTemplatesTitle}>
-                  No Templates Available
-                </Text>
-                <Text style={styles.noTemplatesMessage}>
-                  No specific templates found for{" "}
-                  {scanData.type.replace("_", " ")} documents.
-                </Text>
-              </View>
-            )}
-          </ScrollView>
+      <ScrollView style={styles.previewContainer}>
+        <View style={styles.documentPreview}>
+          <Text style={styles.documentTitle}>{draftTitle}</Text>
+          <Text style={styles.documentContent}>{draftContent}</Text>
         </View>
-      </Modal>
+      </ScrollView>
 
-      {/* Draft Editor */}
-      {selectedTemplate && (
-        <View style={styles.draftContainer}>
-          <View style={styles.draftHeader}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => setShowTemplateSelector(true)}
-            >
-              <Text style={styles.backButtonText}>← Templates</Text>
-            </TouchableOpacity>
-            <Text style={styles.draftTitle}>{draftTitle}</Text>
-          </View>
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity style={styles.saveBtn} onPress={handleSave}>
+          <Text style={styles.saveBtnText}>💾 Save Draft</Text>
+        </TouchableOpacity>
 
-          <ScrollView style={styles.sectionsContainer}>
-            <View style={styles.titleSection}>
-              <Text style={styles.titleLabel}>Document Title:</Text>
-              <TextInput
-                style={styles.titleInput}
-                value={draftTitle}
-                onChangeText={setDraftTitle}
-                placeholder="Enter document title"
-              />
-            </View>
+        <View style={styles.exportRow}>
+          <TouchableOpacity
+            style={styles.exportBtn}
+            onPress={() => onExportWord(draftContent, draftTitle)}
+          >
+            <Text style={styles.exportBtnText}>📄 Word</Text>
+          </TouchableOpacity>
 
-            {draftSections.map((section) => (
-              <SectionEditor key={section.id} section={section} />
-            ))}
-
-            <View style={styles.completeDraftPreview}>
-              <Text style={styles.previewTitle}>
-                📄 Complete Document Preview
-              </Text>
-              <ScrollView style={styles.fullPreviewContainer}>
-                <Text style={styles.fullPreviewText}>
-                  {generateCompleteDraft()}
-                </Text>
-              </ScrollView>
-            </View>
-          </ScrollView>
-
-          <View style={styles.draftActions}>
-            <TouchableOpacity
-              style={styles.saveButton}
-              onPress={() => {
-                onSaveDraft(generateCompleteDraft(), draftTitle);
-                Alert.alert("Success", "Draft saved successfully");
-              }}
-            >
-              <Text style={styles.saveButtonText}>💾 Save Draft</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.exportWordButton}
-              onPress={() => {
-                onExportWord(generateCompleteDraft(), draftTitle);
-                Alert.alert("Success", "Document exported as Word file");
-              }}
-            >
-              <Text style={styles.exportWordButtonText}>📄 Export Word</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.exportPdfButton}
-              onPress={() => {
-                onExportPDF(generateCompleteDraft(), draftTitle);
-                Alert.alert("Success", "Document exported as PDF");
-              }}
-            >
-              <Text style={styles.exportPdfButtonText}>📋 Export PDF</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.exportBtn}
+            onPress={() => onExportPDF(draftContent, draftTitle)}
+          >
+            <Text style={styles.exportBtnText}>📋 PDF</Text>
+          </TouchableOpacity>
         </View>
-      )}
+      </View>
     </View>
   );
 }
@@ -585,353 +328,218 @@ CIVIL SUIT NO. _____ OF [YEAR]
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f9fafb",
   },
-  modalContainer: {
+  header: {
+    backgroundColor: "#fff",
+    padding: 20,
+    paddingTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#111827",
     flex: 1,
-    backgroundColor: "#f8fafc",
+    textAlign: "center",
   },
-  modalHeader: {
-    backgroundColor: "#8b5cf6",
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    position: "relative",
+  subtitle: {
+    fontSize: 14,
+    color: "#6b7280",
+    textAlign: "center",
+    marginTop: 4,
   },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
+  backBtn: {
+    padding: 8,
+  },
+  backText: {
+    fontSize: 16,
+    color: "#1D4ED8",
+    fontWeight: "500",
+  },
+  previewBtn: {
+    padding: 8,
+  },
+  previewText: {
+    fontSize: 16,
+    color: "#1D4ED8",
+    fontWeight: "500",
+  },
+  placeholder: {
+    width: 60,
+  },
+  detectedInfo: {
+    backgroundColor: "#EFF6FF",
+    margin: 16,
+    padding: 16,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#1D4ED8",
+  },
+  detectedTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1E40AF",
+    marginBottom: 8,
+  },
+  detectedText: {
+    fontSize: 14,
+    color: "#374151",
     marginBottom: 4,
   },
-  modalSubtitle: {
-    fontSize: 16,
-    color: "#ddd6fe",
-  },
-  closeModal: {
-    position: "absolute",
-    top: 60,
-    right: 20,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  closeModalText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+  detectedField: {
+    fontSize: 12,
+    color: "#6B7280",
+    marginBottom: 2,
   },
   templatesContainer: {
-    flex: 1,
-    padding: 20,
+    padding: 16,
   },
   templateCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  templateHeader: {
+    marginBottom: 12,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  templateIcon: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  templateInfo: {
+    flex: 1,
   },
   templateName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1e293b",
-    flex: 1,
-  },
-  categoryBadge: {
-    backgroundColor: "#3b82f6",
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  categoryText: {
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 4,
   },
   templateDescription: {
     fontSize: 14,
-    color: "#64748b",
-    lineHeight: 20,
-    marginBottom: 12,
+    color: "#6b7280",
   },
-  templateFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  sectionCount: {
-    fontSize: 12,
-    color: "#94a3b8",
-  },
-  generateButton: {
-    fontSize: 14,
-    color: "#3b82f6",
-    fontWeight: "600",
-  },
-  noTemplates: {
-    alignItems: "center",
-    paddingVertical: 60,
-  },
-  noTemplatesIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-    opacity: 0.3,
-  },
-  noTemplatesTitle: {
+  arrow: {
     fontSize: 20,
-    fontWeight: "600",
-    color: "#64748b",
-    marginBottom: 8,
+    color: "#9CA3AF",
   },
-  noTemplatesMessage: {
-    fontSize: 14,
-    color: "#94a3b8",
-    textAlign: "center",
-    lineHeight: 20,
-    paddingHorizontal: 40,
-  },
-  draftContainer: {
-    flex: 1,
-  },
-  draftHeader: {
-    backgroundColor: "#8b5cf6",
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  backButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  draftTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
-    flex: 1,
-  },
-  sectionsContainer: {
+  editContainer: {
     flex: 1,
     padding: 16,
   },
-  titleSection: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  titleLabel: {
+  fieldLabel: {
     fontSize: 14,
     fontWeight: "500",
     color: "#374151",
     marginBottom: 8,
   },
   titleInput: {
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#d1d5db",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: "#1e293b",
+    marginBottom: 16,
   },
-  sectionContainer: {
+  contentInput: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    minHeight: 300,
+    fontFamily: "monospace",
+  },
+  helpBox: {
+    backgroundColor: "#FFF7ED",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: "#F59E0B",
+  },
+  helpTitle: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#D97706",
+    marginBottom: 4,
+  },
+  helpText: {
+    fontSize: 12,
+    color: "#92400E",
+    lineHeight: 18,
+  },
+  previewContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  documentPreview: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    marginBottom: 12,
-    overflow: "hidden",
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  documentTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  documentContent: {
+    fontSize: 14,
+    color: "#374151",
+    lineHeight: 22,
+    fontFamily: "monospace",
+  },
+  actionsContainer: {
     padding: 16,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#e5e7eb",
   },
-  sectionTitleContainer: {
-    flexDirection: "row",
+  saveBtn: {
+    backgroundColor: "#059669",
+    borderRadius: 12,
+    padding: 16,
     alignItems: "center",
-    flex: 1,
+    marginBottom: 12,
   },
-  sectionTitle: {
+  saveBtnText: {
+    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
-    color: "#1e293b",
-    marginRight: 8,
   },
-  aiGeneratedBadge: {
-    backgroundColor: "#10b981",
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginRight: 8,
-  },
-  aiGeneratedText: {
-    color: "#fff",
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  requiredIndicator: {
-    color: "#ef4444",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  expandIcon: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  sectionContent: {
-    padding: 16,
-  },
-  editContainer: {
-    marginBottom: 12,
-  },
-  editInput: {
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
-    color: "#1e293b",
-    minHeight: 120,
-    textAlignVertical: "top",
-    fontFamily: "monospace",
-    marginBottom: 12,
-  },
-  editActions: {
+  exportRow: {
     flexDirection: "row",
     gap: 12,
   },
-  cancelEdit: {
+  exportBtn: {
     flex: 1,
-    backgroundColor: "#f1f5f9",
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  cancelEditText: {
-    color: "#64748b",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  saveEdit: {
-    flex: 1,
-    backgroundColor: "#3b82f6",
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: "center",
-  },
-  saveEditText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  previewContainer: {
-    position: "relative",
-  },
-  previewText: {
-    fontSize: 13,
-    color: "#374151",
-    lineHeight: 18,
-    fontFamily: "monospace",
-    marginBottom: 12,
-  },
-  editButton: {
-    alignSelf: "flex-start",
-    backgroundColor: "#f1f5f9",
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  editButtonText: {
-    color: "#64748b",
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  completeDraftPreview: {
-    backgroundColor: "#fff",
+    backgroundColor: "#1D4ED8",
     borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
-  },
-  previewTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 12,
-  },
-  fullPreviewContainer: {
-    backgroundColor: "#f8fafc",
-    borderRadius: 8,
-    padding: 16,
-    maxHeight: 300,
-  },
-  fullPreviewText: {
-    fontSize: 12,
-    color: "#374151",
-    lineHeight: 16,
-    fontFamily: "monospace",
-  },
-  draftActions: {
-    flexDirection: "row",
-    padding: 16,
-    gap: 8,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-  },
-  saveButton: {
-    flex: 1,
-    backgroundColor: "#10b981",
-    borderRadius: 8,
-    paddingVertical: 12,
+    padding: 14,
     alignItems: "center",
   },
-  saveButtonText: {
+  exportBtnText: {
     color: "#fff",
     fontSize: 14,
-    fontWeight: "600",
-  },
-  exportWordButton: {
-    flex: 1,
-    backgroundColor: "#3b82f6",
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  exportWordButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  exportPdfButton: {
-    flex: 1,
-    backgroundColor: "#ef4444",
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  exportPdfButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "500",
   },
 });
