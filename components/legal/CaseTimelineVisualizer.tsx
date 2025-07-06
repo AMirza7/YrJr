@@ -113,23 +113,34 @@ export default function CaseTimelineVisualizer({
   };
 
   const handleAddEvent = () => {
-    if (newEvent.title && newEvent.description) {
-      onEventAdd({
-        ...newEvent,
-        id: Date.now().toString(),
-      } as Omit<TimelineEvent, "id">);
-      setNewEvent({
-        title: "",
-        description: "",
-        date: new Date(),
-        type: "custom",
-        documents: [],
-        editable: true,
-      });
-      setShowAddModal(false);
-    } else {
-      Alert.alert("Error", "Please fill in all required fields");
+    if (!newEvent.title?.trim()) {
+      Alert.alert("Missing Title", "Please enter an event title");
+      return;
     }
+    if (!newEvent.description?.trim()) {
+      Alert.alert("Missing Description", "Please enter an event description");
+      return;
+    }
+
+    onEventAdd({
+      title: newEvent.title.trim(),
+      description: newEvent.description.trim(),
+      date: newEvent.date || new Date(),
+      type: newEvent.type || "custom",
+      documents: newEvent.documents || [],
+      editable: true,
+    });
+
+    setNewEvent({
+      title: "",
+      description: "",
+      date: new Date(),
+      type: "custom",
+      documents: [],
+      editable: true,
+    });
+    setShowAddModal(false);
+    Alert.alert("Success", "Event added to timeline successfully!");
   };
 
   const EventCard = ({
