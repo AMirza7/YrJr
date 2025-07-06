@@ -16,7 +16,7 @@ import { User } from "@/types";
 import BackButton from "@/components/navigation/BackButton";
 import StateDropdown from "@/components/ui/StateDropdown";
 import CityDropdown from "@/components/ui/CityDropdown";
-import RatingSlider from "@/components/ui/RatingSlider";
+// import RatingSlider from "@/components/ui/RatingSlider";
 
 const { width } = Dimensions.get("window");
 
