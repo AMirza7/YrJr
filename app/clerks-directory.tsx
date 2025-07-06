@@ -547,14 +547,38 @@ export default function ClerksDirectoryScreen() {
           </View>
         </View>
 
-        <RatingSlider
+        {/* <RatingSlider
           label="Minimum Rating"
           value={minRating}
           onValueChange={setMinRating}
           minimumValue={0}
           maximumValue={5}
           step={0.1}
-        />
+        /> */}
+        <View style={styles.ratingFilterContainer}>
+          <Text style={styles.ratingLabel}>Minimum Rating</Text>
+          <View style={styles.ratingOptions}>
+            {[0, 1, 2, 3, 4, 5].map((rating) => (
+              <TouchableOpacity
+                key={rating}
+                style={[
+                  styles.ratingButton,
+                  minRating === rating && styles.selectedRatingButton,
+                ]}
+                onPress={() => setMinRating(rating)}
+              >
+                <Text
+                  style={[
+                    styles.ratingButtonText,
+                    minRating === rating && styles.selectedRatingButtonText,
+                  ]}
+                >
+                  {rating}⭐
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
       </View>
 
       {activeTab === "clerks" ? (
@@ -973,5 +997,40 @@ const styles = StyleSheet.create({
   templatesRedirectArrow: {
     fontSize: 24,
     color: "#9ca3af",
+  },
+  ratingFilterContainer: {
+    marginBottom: 16,
+  },
+  ratingLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 8,
+  },
+  ratingOptions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  ratingButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    backgroundColor: "#fff",
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  selectedRatingButton: {
+    backgroundColor: "#8B5A3F",
+    borderColor: "#8B5A3F",
+  },
+  ratingButtonText: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  selectedRatingButtonText: {
+    color: "#fff",
   },
 });
