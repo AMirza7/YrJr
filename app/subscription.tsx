@@ -53,17 +53,23 @@ export default function SubscriptionScreen() {
           {
             text: "Continue",
             onPress: () => {
-              const amount =
-                tier === "pro"
-                  ? SUBSCRIPTION_PRICING.pro.monthly
-                  : SUBSCRIPTION_PRICING.premium.monthly;
-              router.push({
-                pathname: "/payment-options",
-                params: {
-                  amount: amount.toString(),
-                  plan: tier.charAt(0).toUpperCase() + tier.slice(1),
-                },
-              });
+              try {
+                const amount =
+                  tier === "pro"
+                    ? SUBSCRIPTION_PRICING.pro.monthly
+                    : SUBSCRIPTION_PRICING.premium.monthly;
+                console.log("Navigating to payment with:", { amount, tier });
+                router.push({
+                  pathname: "/payment-options",
+                  params: {
+                    amount: amount.toString(),
+                    plan: tier.charAt(0).toUpperCase() + tier.slice(1),
+                  },
+                });
+              } catch (error) {
+                console.error("Navigation error:", error);
+                Alert.alert("Error", "Unable to navigate to payment options");
+              }
             },
           },
         ],
