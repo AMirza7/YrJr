@@ -45,6 +45,7 @@ export default function AdminLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="users" />
       <Stack.Screen name="pending-approvals" />
+      <Stack.Screen name="templates-approval" />
       <Stack.Screen name="analytics" />
       <Stack.Screen name="settings" />
     </Stack>
