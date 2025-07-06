@@ -78,6 +78,10 @@ export default function ProfileCompletionScreen() {
         officeAddress: currentUser.officeAddress || "",
         specialization: currentUser.specialization || [],
         bio: currentUser.bio || "",
+        state: currentUser.state || "",
+        city: currentUser.city || "",
+        postalCode: currentUser.postalCode || "",
+        address: currentUser.address || "",
       });
 
       setSelectedSpecializations(currentUser.specialization || []);
