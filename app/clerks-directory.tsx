@@ -166,6 +166,7 @@ export default function ClerksDirectoryScreen() {
   const [minRating, setMinRating] = useState(0);
   const [selectedClerk, setSelectedClerk] = useState<ClerkProfile | null>(null);
   const [showHireModal, setShowHireModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<"clerks" | "templates">("clerks");
 
   useEffect(() => {
     checkAccess();
@@ -456,12 +457,41 @@ export default function ClerksDirectoryScreen() {
       <View style={styles.header}>
         <BackButton color="#fff" />
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>Clerks Directory</Text>
+          <Text style={styles.headerTitle}>Legal Clerks Hub</Text>
           <Text style={styles.headerSubtitle}>
-            {filteredClerks.length} verified clerk
-            {filteredClerks.length !== 1 ? "s" : ""}
+            Find clerks and professional templates
           </Text>
         </View>
+      </View>
+
+      {/* Tab Navigation */}
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "clerks" && styles.activeTab]}
+          onPress={() => setActiveTab("clerks")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "clerks" && styles.activeTabText,
+            ]}
+          >
+            Clerks ({filteredClerks.length})
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "templates" && styles.activeTab]}
+          onPress={() => setActiveTab("templates")}
+        >
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "templates" && styles.activeTabText,
+            ]}
+          >
+            Templates
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Filters */}
@@ -507,22 +537,42 @@ export default function ClerksDirectoryScreen() {
         />
       </View>
 
-      <FlatList
-        data={filteredClerks}
-        renderItem={renderClerk}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.clerksList}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>⌨️</Text>
-            <Text style={styles.emptyTitle}>No Clerks Found</Text>
-            <Text style={styles.emptySubtitle}>
-              Try adjusting your search or filters to find more clerks.
-            </Text>
-          </View>
-        }
-      />
+      {activeTab === "clerks" ? (
+        <FlatList
+          data={filteredClerks}
+          renderItem={renderClerk}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.clerksList}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyIcon}>⌨️</Text>
+              <Text style={styles.emptyTitle}>No Clerks Found</Text>
+              <Text style={styles.emptySubtitle}>
+                Try adjusting your search or filters to find more clerks.
+              </Text>
+            </View>
+          }
+        />
+      ) : (
+        <View style={styles.templatesContainer}>
+          <TouchableOpacity
+            style={styles.templatesRedirectButton}
+            onPress={() => router.push("/clerk-templates")}
+          >
+            <Text style={styles.templatesRedirectIcon}>📄</Text>
+            <View style={styles.templatesRedirectContent}>
+              <Text style={styles.templatesRedirectTitle}>
+                Browse Templates
+              </Text>
+              <Text style={styles.templatesRedirectSubtitle}>
+                Professional legal document templates created by verified clerks
+              </Text>
+            </View>
+            <Text style={styles.templatesRedirectArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <HireModal
         visible={showHireModal}
@@ -840,5 +890,68 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#8B5A3F",
     fontWeight: "bold",
+  },
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e5e7eb",
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 16,
+    alignItems: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+  },
+  activeTab: {
+    borderBottomColor: "#8B5A3F",
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#6b7280",
+  },
+  activeTabText: {
+    color: "#8B5A3F",
+    fontWeight: "600",
+  },
+  templatesContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  templatesRedirectButton: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  templatesRedirectIcon: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  templatesRedirectContent: {
+    flex: 1,
+  },
+  templatesRedirectTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 4,
+  },
+  templatesRedirectSubtitle: {
+    fontSize: 14,
+    color: "#6b7280",
+    lineHeight: 20,
+  },
+  templatesRedirectArrow: {
+    fontSize: 24,
+    color: "#9ca3af",
   },
 });
