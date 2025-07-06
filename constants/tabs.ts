@@ -36,6 +36,7 @@ export const TAB_CONFIGS: TabConfig[] = [
       "lawyer",
       "junior_lawyer",
       "lawyer_assistant",
+      "legal_clerk_typist",
       "law_office_helper",
     ],
     color: "#dc2626",
