@@ -416,6 +416,7 @@ export default function FlashcardsLearning() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
+        <BackButton color="#111827" />
         <Text style={styles.screenTitle}>🧠 Flashcards Learning</Text>
         <Text style={styles.subtitle}>{flashcards.length} cards available</Text>
       </View>
