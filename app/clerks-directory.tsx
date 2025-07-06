@@ -972,39 +972,4 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#9ca3af",
   },
-  ratingFilterContainer: {
-    marginBottom: 16,
-  },
-  ratingLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#374151",
-    marginBottom: 8,
-  },
-  ratingOptions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  ratingButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    backgroundColor: "#fff",
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  selectedRatingButton: {
-    backgroundColor: "#8B5A3F",
-    borderColor: "#8B5A3F",
-  },
-  ratingButtonText: {
-    fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "500",
-  },
-  selectedRatingButtonText: {
-    color: "#fff",
-  },
 });

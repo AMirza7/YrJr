@@ -478,41 +478,6 @@ const styles = StyleSheet.create({
   filterRow: {
     flex: 1,
   },
-  ratingFilterContainer: {
-    marginBottom: 16,
-  },
-  ratingLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#374151",
-    marginBottom: 8,
-  },
-  ratingOptions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  ratingButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    backgroundColor: "#fff",
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  selectedRatingButton: {
-    backgroundColor: "#1D4ED8",
-    borderColor: "#1D4ED8",
-  },
-  ratingButtonText: {
-    fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "500",
-  },
-  selectedRatingButtonText: {
-    color: "#fff",
-  },
   specializationFilter: {
     backgroundColor: "#f3f4f6",
     paddingHorizontal: 16,
