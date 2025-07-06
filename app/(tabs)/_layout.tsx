@@ -69,28 +69,28 @@ export default function TabLayout() {
           backgroundColor: "#fff",
           borderTopWidth: 1,
           borderTopColor: "#E5E7EB",
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          paddingBottom: Platform.OS === "ios" ? 20 : 10,
+          paddingTop: 10,
+          height: Platform.OS === "ios" ? 90 : 70,
           ...Platform.select({
             ios: {
               shadowColor: "#000",
               shadowOffset: { width: 0, height: -2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
+              shadowOpacity: 0.15,
+              shadowRadius: 6,
             },
             android: {
-              elevation: 8,
+              elevation: 12,
             },
             default: {
-              boxShadow: "0px -2px 4px rgba(0, 0, 0, 0.1)",
+              boxShadow: "0px -4px 8px rgba(0, 0, 0, 0.15)",
             },
           }),
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: "600",
-          marginTop: 4,
+          marginTop: 2,
         },
       }}
     >
@@ -101,12 +101,17 @@ export default function TabLayout() {
           options={{
             title: tab.title,
             tabBarIcon: ({ focused, color }) => (
-              <View style={{ alignItems: "center" }}>
+              <View style={{ alignItems: "center", minHeight: 32 }}>
                 <Text
                   style={{
-                    fontSize: 20,
-                    opacity: focused ? 1 : 0.6,
-                    marginBottom: 2,
+                    fontSize: Platform.OS === "ios" ? 26 : 24,
+                    opacity: focused ? 1 : 0.7,
+                    marginBottom: 3,
+                    textShadowColor: focused
+                      ? "rgba(0,0,0,0.1)"
+                      : "transparent",
+                    textShadowOffset: { width: 0, height: 1 },
+                    textShadowRadius: 2,
                   }}
                 >
                   {tab.icon}
@@ -114,10 +119,15 @@ export default function TabLayout() {
                 {focused && (
                   <View
                     style={{
-                      width: 4,
-                      height: 4,
-                      borderRadius: 2,
+                      width: 6,
+                      height: 6,
+                      borderRadius: 3,
                       backgroundColor: tab.color,
+                      shadowColor: tab.color,
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.5,
+                      shadowRadius: 2,
+                      elevation: 2,
                     }}
                   />
                 )}
