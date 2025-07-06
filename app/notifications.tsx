@@ -58,7 +58,13 @@ export default function NotificationCenter() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/(tabs)/home");
+            }
+          }}
         >
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>

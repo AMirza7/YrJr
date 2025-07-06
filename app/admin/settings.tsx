@@ -147,7 +147,13 @@ export default function AdminSettingsScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/admin");
+            }
+          }}
         >
           <Text style={styles.backButtonText}>← {t("back")}</Text>
         </TouchableOpacity>
