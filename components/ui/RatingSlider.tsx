@@ -1,12 +1,10 @@
 import React, { useState } from "react";
+import { View, Text, StyleSheet } from "react-native";
 import {
-  View,
-  Text,
-  StyleSheet,
   PanGestureHandler,
   GestureHandlerRootView,
-} from "react-native";
-import { PanGestureHandlerGestureEvent } from "react-native-gesture-handler";
+  PanGestureHandlerGestureEvent,
+} from "react-native-gesture-handler";
 import Animated, {
   useAnimatedGestureHandler,
   useAnimatedStyle,
