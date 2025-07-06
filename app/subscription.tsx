@@ -52,34 +52,18 @@ export default function SubscriptionScreen() {
           { text: "Cancel", style: "cancel" },
           {
             text: "Continue",
-            onPress: async () => {
-              // Simulate payment process
-              Alert.alert(
-                "Payment",
-                "This will redirect to payment gateway in production",
-                [
-                  {
-                    text: "Simulate Success",
-                    onPress: async () => {
-                      try {
-                        await authService.updateUser({
-                          subscriptionTier: tier,
-                        });
-                        setUser((prev) =>
-                          prev ? { ...prev, subscriptionTier: tier } : null,
-                        );
-                        Alert.alert(
-                          "Success",
-                          `Successfully upgraded to ${tier} plan!`,
-                        );
-                      } catch (error) {
-                        Alert.alert("Error", "Failed to upgrade subscription");
-                      }
-                    },
-                  },
-                  { text: "Cancel", style: "cancel" },
-                ],
-              );
+            onPress: () => {
+              const amount =
+                tier === "pro"
+                  ? SUBSCRIPTION_PRICING.pro.monthly
+                  : SUBSCRIPTION_PRICING.premium.monthly;
+              router.push({
+                pathname: "/payment-options",
+                params: {
+                  amount: amount.toString(),
+                  plan: tier.charAt(0).toUpperCase() + tier.slice(1),
+                },
+              });
             },
           },
         ],
