@@ -38,6 +38,7 @@ export default function LoginScreen() {
         "9876543210": { email: "lawyer@yrjr.app", password: "demo123" },
         "9123456780": { email: "jr.lawyer@yrjr.app", password: "demo123" },
         "9234567890": { email: "assistant@yrjr.app", password: "demo123" },
+        "9333333333": { email: "clerk@yrjr.app", password: "demo123" },
         "9345678901": { email: "helper@yrjr.app", password: "demo123" },
         "9456789012": { email: "student@yrjr.app", password: "demo123" },
         "9567890123": { email: "user@yrjr.app", password: "demo123" },
@@ -173,6 +174,18 @@ export default function LoginScreen() {
           >
             <Text style={styles.demoText}>📋 Legal Assistant</Text>
             <Text style={styles.demoEmail}>📱 9234567890 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9333333333");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>⌨️ Legal Clerk/Typist</Text>
+            <Text style={styles.demoEmail}>📱 9333333333 | 🔑 demo123</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
