@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
   optionsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
     marginBottom: 12,
   },
   optionButton: {
@@ -119,6 +118,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     minWidth: 50,
     alignItems: "center",
+    marginRight: 8,
+    marginBottom: 8,
   },
   selectedOption: {
     backgroundColor: "#1D4ED8",
