@@ -101,7 +101,18 @@ export default function NotesVault() {
         Alert.alert(
           "Access Restricted",
           "Secure Notes feature requires appropriate role and subscription.",
-          [{ text: "OK", onPress: () => router.back() }],
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(tabs)/home");
+                }
+              },
+            },
+          ],
         );
         return;
       }

@@ -174,7 +174,18 @@ export default function TemplatesHub() {
         Alert.alert(
           "Access Restricted",
           "Templates feature requires appropriate subscription level.",
-          [{ text: "OK", onPress: () => router.back() }],
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(tabs)/home");
+                }
+              },
+            },
+          ],
         );
         return;
       }
