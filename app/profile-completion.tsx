@@ -417,6 +417,62 @@ export default function ProfileCompletionScreen() {
             </View>
           </View>
 
+          {/* Location Information */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Location Information</Text>
+            <Text style={styles.sectionDescription}>
+              Your location helps connect you with relevant clients and
+              colleagues
+            </Text>
+
+            <StateDropdown
+              label="State"
+              value={formData.state}
+              onValueChange={(state) => {
+                setFormData((prev) => ({ ...prev, state, city: "" }));
+              }}
+              placeholder="Select your state"
+            />
+
+            <CityDropdown
+              label="City"
+              value={formData.city}
+              onValueChange={(city) =>
+                setFormData((prev) => ({ ...prev, city }))
+              }
+              selectedState={formData.state}
+              placeholder="Select your city"
+            />
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Postal Code</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter 6-digit postal code"
+                value={formData.postalCode}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, postalCode: text }))
+                }
+                keyboardType="numeric"
+                maxLength={6}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Complete Address</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Enter your complete address"
+                value={formData.address}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, address: text }))
+                }
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+          </View>
+
           {/* Specializations */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Areas of Specialization</Text>
