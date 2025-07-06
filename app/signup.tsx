@@ -28,6 +28,8 @@ import { useLocalization } from "@/contexts/LocalizationContext";
 import TermsCheckbox from "@/components/auth/TermsCheckbox";
 import PasswordInput from "@/components/ui/PasswordInput";
 import PhoneInput from "@/components/ui/PhoneInput";
+import StateDropdown from "@/components/ui/StateDropdown";
+import CityDropdown from "@/components/ui/CityDropdown";
 
 export default function SignupScreen() {
   const { theme } = useTheme();
@@ -43,6 +45,10 @@ export default function SignupScreen() {
     practiceYears: undefined,
     barCouncilNumber: "",
     officeAddress: "",
+    state: "",
+    city: "",
+    postalCode: "",
+    address: "",
   });
 
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -64,6 +70,11 @@ export default function SignupScreen() {
       value: "law_office_helper",
       label: t("lawOfficeHelper"),
       description: "Administrative support",
+    },
+    {
+      value: "legal_clerk_typist",
+      label: "Legal Clerk/Typist",
+      description: "Legal typing and clerical services",
     },
     {
       value: "lawyer_assistant",
@@ -125,6 +136,29 @@ export default function SignupScreen() {
 
     if (formData.password !== confirmPassword) {
       Alert.alert(t("error"), t("passwordsNotMatch"));
+      return false;
+    }
+
+    // Required location fields validation
+    if (!formData.state?.trim()) {
+      Alert.alert("Error", "State is required");
+      return false;
+    }
+
+    if (!formData.city?.trim()) {
+      Alert.alert("Error", "City is required");
+      return false;
+    }
+
+    if (!formData.postalCode?.trim()) {
+      Alert.alert("Error", "Postal Code is required");
+      return false;
+    }
+
+    // Postal code validation (basic Indian postal code format)
+    const postalCodeRegex = /^[1-9][0-9]{5}$/;
+    if (!postalCodeRegex.test(formData.postalCode)) {
+      Alert.alert("Error", "Please enter a valid 6-digit postal code");
       return false;
     }
 
@@ -325,6 +359,62 @@ export default function SignupScreen() {
                   : undefined
               }
             />
+          </View>
+
+          {/* Location Information */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Location Information</Text>
+            <Text style={styles.sectionDescription}>
+              Your location helps connect you with relevant professionals and
+              services
+            </Text>
+
+            <StateDropdown
+              label="State *"
+              value={formData.state}
+              onValueChange={(state) => {
+                setFormData((prev) => ({ ...prev, state, city: "" }));
+              }}
+              placeholder="Select your state"
+            />
+
+            <CityDropdown
+              label="City *"
+              value={formData.city}
+              onValueChange={(city) =>
+                setFormData((prev) => ({ ...prev, city }))
+              }
+              selectedState={formData.state}
+              placeholder="Select your city"
+            />
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Postal Code *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter 6-digit postal code"
+                value={formData.postalCode}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, postalCode: text }))
+                }
+                keyboardType="numeric"
+                maxLength={6}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Address (Optional)</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Enter your complete address"
+                value={formData.address}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, address: text }))
+                }
+                multiline
+                numberOfLines={3}
+              />
+            </View>
           </View>
 
           {/* Role Selection */}
