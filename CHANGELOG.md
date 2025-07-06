@@ -5,6 +5,137 @@ All notable changes to this legal assistant application will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2024-01-22
+
+### Added
+
+#### 🆕 Legal Clerk/Typist Role & Features
+
+- **NEW**: Legal Clerk/Typist role added to user hierarchy
+  - Added `legal_clerk_typist` role with appropriate permissions
+  - Icon: ⌨️ representing typing and clerical work
+  - Role hierarchy position between lawyer_assistant and law_office_helper
+  - Access to templates, notes, flashcards, and document scanner
+  - Demo account: 📱 9333333333 | 🔑 demo123
+
+#### 🏪 Clerks Directory & Marketplace
+
+- **NEW**: Clerks Directory with hire functionality
+  - Dedicated directory accessible only to subscribed lawyers
+  - Location-based filtering (State, City) and rating filters
+  - Clerk profiles showing availability status, ratings, and experience
+  - "Hire Now" button with integrated payment flow
+  - Platform commission calculation (15% fee)
+  - Real-time availability indicators (Available/Busy/Offline)
+
+- **NEW**: Clerk Templates Marketplace
+  - Template browsing by category with purchase functionality
+  - Upload system for clerks to submit templates
+  - Admin approval workflow for template quality control
+  - Price-based marketplace with rating system
+  - Template categories: Legal Documents, Court Applications, Contracts, etc.
+
+#### 🌍 Location-Based Features
+
+- **NEW**: Comprehensive location system for Indian geography
+  - State and City dropdowns with 29 states and major cities
+  - Dependent city dropdown based on selected state
+  - Added to Signup, Profile Completion, and Settings forms
+  - Postal code validation (6-digit Indian format)
+  - Address field for complete location information
+
+- **NEW**: Location-based professional search
+  - State and City filters on lawyer directory
+  - Rating dropdown with specific values (2.5, 3.5-5.0)
+  - Enhanced search functionality combining location and rating
+  - Real-time filtering with improved user experience
+
+#### 💳 Payment Gateway & Subscription System
+
+- **NEW**: Complete payment gateway UI
+  - Payment options: UPI, PhonePe, Google Pay, Bank Pay, Credit/Debit Card
+  - Modal-based payment flows with form validation
+  - Loading states and success/error handling
+  - Integrated with subscription upgrade flow
+  - Commission calculation for clerk hiring
+
+- **FIXED**: Subscription upgrade functionality
+  - Fixed navigation to payment options screen
+  - Proper parameter passing for amount and plan type
+  - Error handling and debugging for payment flow
+  - Success feedback and confirmation messages
+
+#### 🛠️ Admin Panel Enhancements
+
+- **NEW**: Templates Approval System
+  - Admin screen for reviewing submitted templates
+  - Approve/reject functionality with reason tracking
+  - Template preview with metadata display
+  - File size and format validation
+  - Notification system for template creators
+
+#### 📱 Mobile UI Improvements
+
+- **IMPROVED**: Enhanced tab navigation for mobile
+  - Increased icon sizes: iOS (26px), Android (24px)
+  - Better spacing and padding for touch targets
+  - Platform-specific height adjustments
+  - Enhanced shadows and visual feedback
+  - Improved accessibility with larger tap areas
+
+#### 🔧 Component Improvements
+
+- **NEW**: Location dropdown components
+  - `StateDropdown.tsx` with search functionality
+  - `CityDropdown.tsx` with state dependency
+  - Modal-based selection with smooth animations
+  - Support for all Indian states and major cities
+
+- **NEW**: Rating dropdown component
+  - Specific rating values as requested
+  - Star visualization for ratings
+  - Dropdown interface replacing complex slider
+  - Better mobile interaction
+
+#### ✨ User Experience Enhancements
+
+- **IMPROVED**: Auto Drafter component completely simplified
+  - 3-step process: Template Selection → Edit → Preview
+  - Clear visual progress indicators
+  - Simple template cards with descriptions
+  - Real-time content editing with monospace font
+  - Helpful editing tips and guidance
+
+- **IMPROVED**: Navigation consistency
+  - Added back buttons to all scanner modals
+  - Fixed navigation fallback handling
+  - Consistent router.back() behavior across app
+  - Proper error handling for navigation edge cases
+
+### Technical Improvements
+
+- Enhanced role-based access control for new clerk features
+- Improved type definitions for location and clerk interfaces
+- Better error handling for payment and navigation flows
+- Platform-specific UI optimizations for iOS and Android
+- Enhanced form validation for location fields
+
+### Bug Fixes
+
+- **FIXED**: React component errors with rating slider
+- **FIXED**: Navigation errors when no back history exists
+- **FIXED**: Subscription upgrade button not working
+- **FIXED**: Missing back buttons on scanner and timeline pages
+- **FIXED**: Tab icon sizes too small on mobile devices
+- **FIXED**: Location validation and postal code format checking
+
+### Dependencies
+
+- Added `react-native-reanimated` for smooth animations
+- Added `react-native-gesture-handler` for better touch handling
+- Added `expo-document-picker` for template file uploads
+- Maintained compatibility with existing React Native Web setup
+
 ## [2.2.0] - 2024-01-16
 
 ### Added
