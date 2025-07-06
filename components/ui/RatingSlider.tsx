@@ -1,18 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import {
-  PanGestureHandler,
-  GestureHandlerRootView,
-  PanGestureHandlerGestureEvent,
-} from "react-native-gesture-handler";
-import Animated, {
-  useAnimatedGestureHandler,
-  useAnimatedStyle,
-  useSharedValue,
-  runOnJS,
-  interpolate,
-  Extrapolate,
-} from "react-native-reanimated";
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 interface RatingSliderProps {
   label?: string;
@@ -29,55 +16,8 @@ export default function RatingSlider({
   onValueChange,
   minimumValue = 0,
   maximumValue = 5,
-  step = 0.1,
+  step = 0.5,
 }: RatingSliderProps) {
-  const [sliderWidth, setSliderWidth] = useState(300);
-  const translateX = useSharedValue(0);
-
-  React.useEffect(() => {
-    const position =
-      ((value - minimumValue) / (maximumValue - minimumValue)) * sliderWidth;
-    translateX.value = Math.max(0, Math.min(position, sliderWidth));
-  }, [value, sliderWidth, minimumValue, maximumValue]);
-
-  const gestureHandler =
-    useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
-      onStart: (_, context) => {
-        context.startX = translateX.value;
-      },
-      onActive: (event, context) => {
-        const newX = Math.max(
-          0,
-          Math.min(context.startX + event.translationX, sliderWidth),
-        );
-        translateX.value = newX;
-
-        const newValue = interpolate(
-          newX,
-          [0, sliderWidth],
-          [minimumValue, maximumValue],
-          Extrapolate.CLAMP,
-        );
-
-        const steppedValue = Math.round(newValue / step) * step;
-        runOnJS(onValueChange)(
-          Math.max(minimumValue, Math.min(steppedValue, maximumValue)),
-        );
-      },
-    });
-
-  const thumbStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: translateX.value - 12 }],
-    };
-  });
-
-  const trackStyle = useAnimatedStyle(() => {
-    return {
-      width: translateX.value,
-    };
-  });
-
   const getRatingStars = (rating: number) => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
@@ -86,8 +26,18 @@ export default function RatingSlider({
     return stars || "☆";
   };
 
+  const generateOptions = () => {
+    const options = [];
+    for (let i = minimumValue; i <= maximumValue; i += step) {
+      options.push(Number(i.toFixed(1)));
+    }
+    return options;
+  };
+
+  const options = generateOptions();
+
   return (
-    <GestureHandlerRootView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.labelContainer}>
         <Text style={styles.label}>{label}</Text>
         <View style={styles.valueContainer}>
@@ -96,28 +46,33 @@ export default function RatingSlider({
         </View>
       </View>
 
-      <View
-        style={styles.sliderContainer}
-        onLayout={(event) => {
-          setSliderWidth(event.nativeEvent.layout.width - 24);
-        }}
-      >
-        <View style={styles.track}>
-          <Animated.View style={[styles.activeTrack, trackStyle]} />
-        </View>
-
-        <PanGestureHandler onGestureEvent={gestureHandler}>
-          <Animated.View style={[styles.thumb, thumbStyle]}>
-            <View style={styles.thumbInner} />
-          </Animated.View>
-        </PanGestureHandler>
+      <View style={styles.optionsContainer}>
+        {options.map((option) => (
+          <TouchableOpacity
+            key={option}
+            style={[
+              styles.optionButton,
+              value === option && styles.selectedOption,
+            ]}
+            onPress={() => onValueChange(option)}
+          >
+            <Text
+              style={[
+                styles.optionText,
+                value === option && styles.selectedOptionText,
+              ]}
+            >
+              {option.toFixed(1)}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       <View style={styles.rangeLabels}>
-        <Text style={styles.rangeLabel}>{minimumValue.toFixed(1)}</Text>
-        <Text style={styles.rangeLabel}>{maximumValue.toFixed(1)}</Text>
+        <Text style={styles.rangeLabel}>Min: {minimumValue.toFixed(1)}</Text>
+        <Text style={styles.rangeLabel}>Max: {maximumValue.toFixed(1)}</Text>
       </View>
-    </GestureHandlerRootView>
+    </View>
   );
 }
 
@@ -149,44 +104,38 @@ const styles = StyleSheet.create({
   starsText: {
     fontSize: 14,
   },
-  sliderContainer: {
-    height: 40,
-    justifyContent: "center",
+  optionsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 12,
+  },
+  optionButton: {
     paddingHorizontal: 12,
-  },
-  track: {
-    height: 4,
-    backgroundColor: "#E5E7EB",
-    borderRadius: 2,
-  },
-  activeTrack: {
-    height: 4,
-    backgroundColor: "#1D4ED8",
-    borderRadius: 2,
-  },
-  thumb: {
-    position: "absolute",
-    width: 24,
-    height: 24,
-    justifyContent: "center",
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    backgroundColor: "#fff",
+    minWidth: 50,
     alignItems: "center",
   },
-  thumbInner: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+  selectedOption: {
     backgroundColor: "#1D4ED8",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
+    borderColor: "#1D4ED8",
+  },
+  optionText: {
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  selectedOptionText: {
+    color: "#fff",
   },
   rangeLabels: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 8,
-    paddingHorizontal: 12,
   },
   rangeLabel: {
     fontSize: 12,
