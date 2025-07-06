@@ -146,6 +146,15 @@ export default function HomeScreen() {
       route: "/lawyer-directory",
     },
     {
+      title: "Clerks Directory",
+      icon: "⌨️",
+      available:
+        user?.role === "lawyer" ||
+        user?.role === "junior_lawyer" ||
+        user?.role === "admin",
+      route: "/clerks-directory",
+    },
+    {
       title: t("searchLegal"),
       icon: "🔍",
       available: true,
