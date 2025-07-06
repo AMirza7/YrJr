@@ -14,6 +14,9 @@ import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { User } from "@/types";
 import BackButton from "@/components/navigation/BackButton";
+import StateDropdown from "@/components/ui/StateDropdown";
+import CityDropdown from "@/components/ui/CityDropdown";
+import RatingSlider from "@/components/ui/RatingSlider";
 
 const { width } = Dimensions.get("window");
 
@@ -33,6 +36,9 @@ export default function LawyerDirectoryScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSpecialization, setSelectedSpecialization] = useState("all");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [minRating, setMinRating] = useState(0);
 
   const specializations = [
     "All",
@@ -50,7 +56,14 @@ export default function LawyerDirectoryScreen() {
 
   useEffect(() => {
     applyFilters();
-  }, [lawyers, searchQuery, selectedSpecialization]);
+  }, [
+    lawyers,
+    searchQuery,
+    selectedSpecialization,
+    selectedState,
+    selectedCity,
+    minRating,
+  ]);
 
   const loadLawyers = async () => {
     try {
@@ -88,6 +101,8 @@ export default function LawyerDirectoryScreen() {
           practiceYears: 12,
           barCouncilNumber: "D/12345/2012",
           officeAddress: "Supreme Court Bar Association, New Delhi",
+          state: "Delhi",
+          city: "New Delhi",
           rating: 4.8,
           totalCases: 180,
           successRate: 94,
@@ -123,6 +138,8 @@ export default function LawyerDirectoryScreen() {
           practiceYears: 5,
           barCouncilNumber: "D/67890/2019",
           officeAddress: "Delhi High Court Bar Association",
+          state: "Delhi",
+          city: "New Delhi",
           rating: 4.5,
           totalCases: 85,
           successRate: 89,
@@ -165,6 +182,32 @@ export default function LawyerDirectoryScreen() {
       );
     }
 
+    // Apply location filters
+    if (selectedState) {
+      filtered = filtered.filter(
+        (lawyer) =>
+          lawyer.state === selectedState ||
+          lawyer.officeAddress
+            ?.toLowerCase()
+            .includes(selectedState.toLowerCase()),
+      );
+    }
+
+    if (selectedCity) {
+      filtered = filtered.filter(
+        (lawyer) =>
+          lawyer.city === selectedCity ||
+          lawyer.officeAddress
+            ?.toLowerCase()
+            .includes(selectedCity.toLowerCase()),
+      );
+    }
+
+    // Apply rating filter
+    if (minRating > 0) {
+      filtered = filtered.filter((lawyer) => (lawyer.rating || 0) >= minRating);
+    }
+
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -174,7 +217,9 @@ export default function LawyerDirectoryScreen() {
           lawyer.specialization?.some((spec) =>
             spec.toLowerCase().includes(query),
           ) ||
-          lawyer.officeAddress?.toLowerCase().includes(query),
+          lawyer.officeAddress?.toLowerCase().includes(query) ||
+          lawyer.state?.toLowerCase().includes(query) ||
+          lawyer.city?.toLowerCase().includes(query),
       );
     }
 
@@ -326,6 +371,39 @@ export default function LawyerDirectoryScreen() {
           )}
           contentContainerStyle={styles.filtersList}
         />
+
+        <View style={styles.locationFilters}>
+          <View style={styles.filterRow}>
+            <StateDropdown
+              label="Filter by State"
+              value={selectedState}
+              onValueChange={(state) => {
+                setSelectedState(state);
+                setSelectedCity("");
+              }}
+              placeholder="All States"
+            />
+          </View>
+
+          <View style={styles.filterRow}>
+            <CityDropdown
+              label="Filter by City"
+              value={selectedCity}
+              onValueChange={setSelectedCity}
+              selectedState={selectedState}
+              placeholder="All Cities"
+            />
+          </View>
+        </View>
+
+        <RatingSlider
+          label="Minimum Rating"
+          value={minRating}
+          onValueChange={setMinRating}
+          minimumValue={0}
+          maximumValue={5}
+          step={0.1}
+        />
       </View>
 
       <FlatList
@@ -392,6 +470,15 @@ const styles = StyleSheet.create({
   },
   filtersList: {
     paddingVertical: 4,
+  },
+  locationFilters: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 16,
+    marginBottom: 16,
+  },
+  filterRow: {
+    flex: 1,
   },
   specializationFilter: {
     backgroundColor: "#f3f4f6",
