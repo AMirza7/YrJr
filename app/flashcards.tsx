@@ -7,9 +7,12 @@ import {
   FlatList,
   Alert,
   Animated,
+  ScrollView,
 } from "react-native";
+import { router } from "expo-router";
 import { dataService } from "@/services/dataService";
 import { Flashcard, FlashcardSession } from "@/types/features";
+import BackButton from "@/components/navigation/BackButton";
 
 export default function FlashcardsLearning() {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
