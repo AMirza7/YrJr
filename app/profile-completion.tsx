@@ -131,6 +131,10 @@ export default function ProfileCompletionScreen() {
             ? selectedSpecializations
             : undefined,
         bio: formData.bio || undefined,
+        state: formData.state || undefined,
+        city: formData.city || undefined,
+        postalCode: formData.postalCode || undefined,
+        address: formData.address || undefined,
       };
 
       const success = await authService.updateUser(updateData);
