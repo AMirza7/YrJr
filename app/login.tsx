@@ -23,6 +23,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    Alert.alert("Debug", `Attempting login with phone: ${phone}`);
     console.log("🚀 Login attempt started");
     console.log("📱 Phone:", phone);
     console.log("🔑 Password length:", password?.length);
