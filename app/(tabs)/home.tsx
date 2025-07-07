@@ -155,6 +155,12 @@ export default function HomeScreen() {
       route: "/clerks-directory",
     },
     {
+      title: "Clerk Marketplace",
+      icon: "🛒",
+      available: user?.role === "legal_clerk_typist",
+      route: "/clerk-marketplace",
+    },
+    {
       title: "My Templates",
       icon: "📄",
       available: user?.role === "legal_clerk_typist",
