@@ -23,6 +23,10 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    console.log("🚀 Login attempt started");
+    console.log("📱 Phone:", phone);
+    console.log("🔑 Password length:", password?.length);
+
     if (!phone || !password) {
       Alert.alert(t("error"), t("enterPhone") + " and " + t("enterPassword"));
       return;
@@ -46,10 +50,14 @@ export default function LoginScreen() {
       };
 
       const demoAccount = demoPhoneMap[phone];
+      console.log("👤 Demo account found:", !!demoAccount);
+      console.log("📧 Demo email:", demoAccount?.email);
 
       if (demoAccount) {
+        console.log("🔍 Checking password match...");
         // Verify password matches
         if (password !== demoAccount.password) {
+          console.log("❌ Password mismatch");
           Alert.alert(
             t("error"),
             `Invalid password for this demo account. Use '${demoAccount.password}'`,
@@ -58,23 +66,42 @@ export default function LoginScreen() {
           return;
         }
 
+        console.log("✅ Password matches, calling authService.login...");
         const response = await authService.login(
           demoAccount.email,
           demoAccount.password,
         );
 
+        console.log("📝 Login response:", {
+          success: response.success,
+          hasUser: !!response.user,
+          userRole: response.user?.role,
+          message: response.message,
+        });
+
         if (response.success && response.user) {
+          console.log("🎉 Login successful, navigating...");
           if (response.user.role === "admin") {
+            console.log("🏛️ Navigating to admin");
             router.replace("/admin");
           } else {
+            console.log("📱 Navigating to tabs");
             router.replace("/(tabs)");
           }
         } else {
+          console.log("❌ Login failed:", response.message);
           Alert.alert(t("error"), response.message || "Demo login failed");
         }
       } else {
+        console.log("📱 Non-demo account, using phone login...");
         // For non-demo accounts, use phone-based login
         const response = await authService.loginWithPhone(phone, password);
+
+        console.log("📝 Phone login response:", {
+          success: response.success,
+          hasUser: !!response.user,
+          message: response.message,
+        });
 
         if (response.success && response.user) {
           if (response.user.role === "admin") {
@@ -87,8 +114,10 @@ export default function LoginScreen() {
         }
       }
     } catch (error) {
+      console.error("💥 Login error:", error);
       Alert.alert(t("error"), "Login failed. Please try again.");
     } finally {
+      console.log("🏁 Login process finished, setting loading to false");
       setLoading(false);
     }
   };
