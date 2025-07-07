@@ -186,6 +186,20 @@ export const getRolePermissions = (role: UserRole): NavigationPermissions => {
         canAccessNotifications: true,
       };
 
+    case "legal_clerk_typist":
+      return {
+        ...basePermissions,
+        canAccessPinboard: true,
+        canAccessCaseTimeline: true,
+        canAccessSecureNotes: true,
+        canAccessTemplates: true,
+        canAccessFlashcards: true,
+        canAccessCaseFolders: true,
+        canAccessDocumentScanner: true,
+        canAccessCalendar: true,
+        canAccessNotifications: true,
+      };
+
     case "law_office_helper":
       return {
         ...basePermissions,
