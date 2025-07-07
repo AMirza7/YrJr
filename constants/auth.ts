@@ -23,6 +23,13 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     displayTitle: "Legal Assistant",
   },
   {
+    email: "clerk@yrjr.app",
+    password: "demo123",
+    role: "legal_clerk_typist",
+    name: "Kavya Menon",
+    displayTitle: "Legal Clerk/Typist",
+  },
+  {
     email: "helper@yrjr.app",
     password: "demo123",
     role: "law_office_helper",
