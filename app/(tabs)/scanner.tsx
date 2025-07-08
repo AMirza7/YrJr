@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Dimensions,
   Modal,
 } from "react-native";
@@ -13,6 +12,7 @@ import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { User } from "@/types";
 import { canAccessFeature } from "@/constants/roles";
+import { useModal } from "@/contexts/ModalContext";
 import DocumentScanner from "@/components/scanner/DocumentScanner";
 import BarcodeScanner from "@/components/scanner/BarcodeScanner";
 import IDCardScanner from "@/components/scanner/IDCardScanner";
@@ -37,6 +37,7 @@ export default function ScannerScreen() {
   const [loading, setLoading] = useState(true);
   const [activeScanner, setActiveScanner] = useState<ActiveScanner>(null);
   const [exportModalVisible, setExportModalVisible] = useState(false);
+  const { showAlert } = useModal();
 
   useEffect(() => {
     loadUser();
@@ -134,13 +135,12 @@ export default function ScannerScreen() {
 
   const handleToolPress = (tool: (typeof scannerTools)[0]) => {
     if (tool.premium && user?.subscriptionTier === "free") {
-      Alert.alert(
+      showAlert(
         "Premium Feature",
         `${tool.title} requires a premium subscription. Would you like to upgrade?`,
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Upgrade", onPress: () => router.push("/subscription") },
-        ],
+        () => router.push("/subscription"),
+        "primary",
+        "Upgrade",
       );
       return;
     }
