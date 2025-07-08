@@ -746,13 +746,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f9ff",
   },
   filterIcon: {
-    fontSize: 16,
-    marginRight: 6,
+    fontSize: 24,
+    marginBottom: 6,
   },
   filterText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
     color: "#64748b",
+    textAlign: "center",
   },
   foldersList: {
     flex: 1,
