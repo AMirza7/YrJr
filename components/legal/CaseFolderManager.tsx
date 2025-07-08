@@ -340,33 +340,36 @@ export default function CaseFolderManager({
       </View>
 
       {/* Type Filter */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterContainer}
-      >
-        {caseTypes.map((type) => (
-          <TouchableOpacity
-            key={type}
-            style={[
-              styles.filterButton,
-              filterType === type && styles.filterButtonSelected,
-              { borderColor: getCaseTypeColor(type) },
-            ]}
-            onPress={() => setFilterType(type)}
-          >
-            <Text style={styles.filterIcon}>{getCaseTypeIcon(type)}</Text>
-            <Text
+      <View style={styles.filterContainer}>
+        <FlatList
+          data={caseTypes}
+          numColumns={4}
+          keyExtractor={(item) => item}
+          renderItem={({ item: type }) => (
+            <TouchableOpacity
               style={[
-                styles.filterText,
-                filterType === type && { color: getCaseTypeColor(type) },
+                styles.filterButton,
+                filterType === type && styles.filterButtonSelected,
+                { borderColor: getCaseTypeColor(type) },
               ]}
+              onPress={() => setFilterType(type)}
             >
-              {type}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Text style={styles.filterIcon}>{getCaseTypeIcon(type)}</Text>
+              <Text
+                style={[
+                  styles.filterText,
+                  filterType === type && { color: getCaseTypeColor(type) },
+                ]}
+                numberOfLines={1}
+              >
+                {type}
+              </Text>
+            </TouchableOpacity>
+          )}
+          scrollEnabled={false}
+          contentContainerStyle={styles.filterGrid}
+        />
+      </View>
 
       {/* Folders List */}
       <FlatList
