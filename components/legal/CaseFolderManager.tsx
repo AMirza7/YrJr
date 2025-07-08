@@ -200,9 +200,9 @@ export default function CaseFolderManager({
         tags: [],
       });
       setShowCreateModal(false);
-      Alert.alert("Success", "Case folder created successfully");
+      showSuccess("Success", "Case folder created successfully");
     } else {
-      Alert.alert("Error", "Please fill in all required fields");
+      showError("Error", "Please fill in all required fields");
     }
   };
 
