@@ -169,7 +169,7 @@ Place: [PLACE]
 
   const handlePreview = () => {
     if (!draftContent.trim()) {
-      Alert.alert("Error", "Please add some content to the draft");
+      showError("Error", "Please add some content to the draft");
       return;
     }
     setStep("preview");
@@ -177,7 +177,7 @@ Place: [PLACE]
 
   const handleSave = () => {
     if (!draftTitle.trim()) {
-      Alert.alert("Error", "Please provide a title for the draft");
+      showError("Error", "Please provide a title for the draft");
       return;
     }
     onSaveDraft(draftContent, draftTitle);
