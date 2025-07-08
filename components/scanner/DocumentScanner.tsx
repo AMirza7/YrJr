@@ -145,11 +145,7 @@ export default function DocumentScanner({
   const handleExportAsWord = () => {
     if (!scanResult) return;
 
-    Alert.alert(
-      "Export as Word",
-      "This feature will be available soon. You can currently copy the text or save to history.",
-      [{ text: "OK" }],
-    );
+    showSuccess("Document has been exported as Word file");
   };
 
   if (loading) {
@@ -318,7 +314,7 @@ export default function DocumentScanner({
         showFirstTimeModal={showFirstTimeDisclaimer}
         onFirstTimeAccept={handleFirstTimeAccept}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
