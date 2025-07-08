@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
-  Alert,
   TextInput,
 } from "react-native";
 import { biometricService, BiometricCapabilities } from "@/services/biometric";
+import { useModal } from "@/contexts/ModalContext";
 
 interface BiometricAuthProps {
   visible: boolean;
