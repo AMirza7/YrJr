@@ -197,6 +197,13 @@ export default function HomeScreen() {
       description: "Legal document templates",
     },
     {
+      title: "🧪 Component Tests",
+      icon: "⚡",
+      available: true,
+      route: "/test-components",
+      description: "Test new features and components",
+    },
+    {
       title: t("flashcards"),
       icon: "🧠",
       available: permissions.canAccessFlashcards,
