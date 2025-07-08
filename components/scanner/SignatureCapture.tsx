@@ -4,12 +4,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   Dimensions,
 } from "react-native";
 import SignatureCanvas from "react-native-signature-canvas";
 import { scannerService } from "@/services/scanner";
 import { SignatureScanResult } from "@/types/scanner";
+import { useModal } from "@/contexts/ModalContext";
 
 const { width } = Dimensions.get("window");
 
@@ -25,6 +25,7 @@ export default function SignatureCapture({
   const signatureRef = useRef<any>(null);
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [hasSignature, setHasSignature] = useState(false);
+  const { showAlert, showError, showSuccess, showConfirm } = useModal();
 
   const handleOK = (signature: string) => {
     setSignatureData(signature);
