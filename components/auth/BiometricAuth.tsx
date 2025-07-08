@@ -59,16 +59,12 @@ export default function BiometricAuth({
     setLoading(true);
     try {
       if (!capabilities.hasHardware) {
-        Alert.alert(
-          "Not Available",
-          "Biometric hardware is not available on this device.",
-        );
+        showError("Biometric hardware is not available on this device.");
         return;
       }
 
       if (!capabilities.isEnrolled) {
-        Alert.alert(
-          "No Biometrics Enrolled",
+        showError(
           "Please enroll your fingerprint or face in device settings first.",
         );
         return;
@@ -81,7 +77,7 @@ export default function BiometricAuth({
       }
 
       if (mode === "setup" && pin !== confirmPin) {
-        Alert.alert("Error", "PINs do not match. Please try again.");
+        showError("PINs do not match. Please try again.");
         return;
       }
 
