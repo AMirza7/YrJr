@@ -226,6 +226,13 @@ export const getRolePermissions = (role: UserRole): NavigationPermissions => {
         canAccessVoiceAssistant: true,
       };
 
+    case "general_user":
+      return {
+        ...basePermissions,
+        canAccessTemplates: true,
+        canAccessFlashcards: true,
+      };
+
     default:
       return basePermissions;
   }
