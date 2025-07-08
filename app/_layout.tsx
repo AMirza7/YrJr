@@ -41,6 +41,7 @@ export default function RootLayout() {
             <Stack.Screen name="test-case-folders" />
             <Stack.Screen name="minimal-test" />
             <Stack.Screen name="simple-test" />
+            <Stack.Screen name="status-check" />
           </Stack>
         </ModalProvider>
       </ThemeProvider>
