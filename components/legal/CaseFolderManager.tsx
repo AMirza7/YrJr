@@ -98,6 +98,26 @@ export default function CaseFolderManager({
       isMounted.current = false;
     };
   }, []);
+
+  // Safe state update functions
+  const safeSetSelectedFolder = (folder: CaseFolder | null) => {
+    if (isMounted.current) {
+      setSelectedFolder(folder);
+    }
+  };
+
+  const safeSetShowCreateModal = (show: boolean) => {
+    if (isMounted.current) {
+      setShowCreateModal(show);
+    }
+  };
+
+  const safeSetShowFolderDetails = (show: boolean) => {
+    if (isMounted.current) {
+      setShowFolderDetails(show);
+    }
+  };
+
   const [newFolder, setNewFolder] = useState<Partial<CaseFolder>>({
     title: "",
     caseType: "Civil",
