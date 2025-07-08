@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Alert } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import BackButton from "@/components/navigation/BackButton";
 import LegalChatAssistant, {
   ChatMessage,
   ScannedDocument,
 } from "@/components/legal/LegalChatAssistant";
+import { useModal } from "@/contexts/ModalContext";
 
 export default function LegalChatScreen() {
   const [scannedDocuments] = useState<ScannedDocument[]>([
