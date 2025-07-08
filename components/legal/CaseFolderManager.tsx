@@ -738,7 +738,7 @@ const styles = StyleSheet.create({
     margin: 2,
     borderWidth: 1,
     borderColor: "#e2e8f0",
-    width: (screenWidth - 48) / 4,
+    width: (Dimensions.get("window").width - 48) / 4,
     minHeight: 80,
   },
   filterButtonSelected: {
