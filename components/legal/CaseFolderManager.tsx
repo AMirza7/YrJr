@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -84,12 +84,20 @@ export default function CaseFolderManager({
   onAddNote,
   onLinkUser,
 }: CaseFolderManagerProps) {
+  const isMounted = useRef(true);
   const [selectedFolder, setSelectedFolder] = useState<CaseFolder | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showFolderDetails, setShowFolderDetails] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("All");
   const { showSuccess, showError } = useModal();
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
   const [newFolder, setNewFolder] = useState<Partial<CaseFolder>>({
     title: "",
     caseType: "Civil",
