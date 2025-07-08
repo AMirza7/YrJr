@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LocalizationProvider } from "@/contexts/LocalizationContext";
+import { ModalProvider } from "@/contexts/ModalContext";
 
 export default function RootLayout() {
   return (
