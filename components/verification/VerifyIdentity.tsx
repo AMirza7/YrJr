@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useModal } from "@/contexts/ModalContext";
 import * as DocumentPicker from "expo-document-picker";
-import * as ImagePicker from "expo-image-picker";
+// import * as ImagePicker from "expo-image-picker";
 
 const { width } = Dimensions.get("window");
 
