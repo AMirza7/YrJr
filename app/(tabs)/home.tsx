@@ -131,7 +131,7 @@ export default function HomeScreen() {
       title: "Case Folders",
       icon: "📁",
       available: true,
-      route: "/case-folders",
+      route: "/(tabs)/case-folders",
     },
     {
       title: "Auto Drafter",
@@ -141,7 +141,7 @@ export default function HomeScreen() {
     },
     {
       title: "Find Lawyers",
-      icon: "⚖️",
+      icon: "⚖��",
       available: true, // Available to all users
       route: "/lawyer-directory",
     },
