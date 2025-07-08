@@ -35,7 +35,7 @@ export default function LegalTemplatesScreen() {
     templateId: string,
     filledData: Record<string, any>,
   ) => {
-    Alert.alert("Success", "Draft saved successfully to your documents");
+    showSuccess("Success", "Draft saved successfully to your documents");
     console.log("Saving draft:", { templateId, filledData });
   };
 
@@ -43,7 +43,7 @@ export default function LegalTemplatesScreen() {
     templateId: string,
     filledData: Record<string, any>,
   ) => {
-    Alert.alert("Success", "Document downloaded as Word file");
+    showSuccess("Success", "Document downloaded as Word file");
     console.log("Downloading Word:", { templateId, filledData });
   };
 
@@ -52,7 +52,7 @@ export default function LegalTemplatesScreen() {
     filledData: Record<string, any>,
     folderId: string,
   ) => {
-    Alert.alert("Success", `Document attached to case folder`);
+    showSuccess("Success", `Document attached to case folder`);
     console.log("Attaching to folder:", { templateId, filledData, folderId });
   };
 
