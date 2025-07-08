@@ -802,6 +802,147 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 400,
   },
+  largeModal: {
+    maxWidth: "95%",
+    maxHeight: "90%",
+    padding: 0,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  modalCloseButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#f5f5f5",
+  },
+  modalCloseText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  modalScrollContent: {
+    flex: 1,
+    padding: 20,
+  },
+  formSection: {
+    marginBottom: 24,
+  },
+  sectionLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 12,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#555",
+    marginBottom: 6,
+  },
+  documentsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  attachButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#3b82f6",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 6,
+  },
+  attachButtonIcon: {
+    fontSize: 14,
+  },
+  attachButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  documentsList: {
+    gap: 8,
+  },
+  documentItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#f8f9fa",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e9ecef",
+  },
+  documentInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  documentIcon: {
+    fontSize: 20,
+    marginRight: 12,
+  },
+  documentDetails: {
+    flex: 1,
+  },
+  documentName: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#333",
+    marginBottom: 2,
+  },
+  documentSize: {
+    fontSize: 12,
+    color: "#666",
+  },
+  removeDocButton: {
+    padding: 6,
+    borderRadius: 4,
+    backgroundColor: "#ef4444",
+  },
+  removeDocText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  noDocuments: {
+    alignItems: "center",
+    padding: 32,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 8,
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "#dee2e6",
+  },
+  noDocumentsIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+    opacity: 0.5,
+  },
+  noDocumentsText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#666",
+    marginBottom: 4,
+  },
+  noDocumentsSubtext: {
+    fontSize: 12,
+    color: "#888",
+    textAlign: "center",
+    lineHeight: 16,
+  },
+  saveButtonDisabled: {
+    backgroundColor: "#d1d5db",
+  },
   modalTitle: {
     fontSize: 20,
     fontWeight: "700",
