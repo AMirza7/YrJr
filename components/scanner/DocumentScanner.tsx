@@ -323,6 +323,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8fafc",
   },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#8b5cf6",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.2)",
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  backIcon: {
+    fontSize: 24,
+    color: "#fff",
+    marginRight: 4,
+  },
+  backText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "500",
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  headerSpacer: {
+    width: 60,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
