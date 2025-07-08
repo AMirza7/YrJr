@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Alert } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import BackButton from "@/components/navigation/BackButton";
 import LegalTemplatesLibrary, {
   LegalTemplate,
 } from "@/components/legal/LegalTemplatesLibrary";
+import { useModal } from "@/contexts/ModalContext";
 
 export default function LegalTemplatesScreen() {
   const [templates] = useState<LegalTemplate[]>([]);
