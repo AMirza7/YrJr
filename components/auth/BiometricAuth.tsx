@@ -86,19 +86,15 @@ export default function BiometricAuth({
       );
 
       if (result.success) {
-        Alert.alert(
-          "Success!",
+        showSuccess(
           `${biometricService.getBiometricTypeString(result.authType!)} authentication has been enabled.`,
-          [{ text: "OK", onPress: onSuccess }],
+          onSuccess,
         );
       } else {
-        Alert.alert(
-          "Error",
-          result.error || "Failed to enable biometric authentication",
-        );
+        showError(result.error || "Failed to enable biometric authentication");
       }
     } catch (error) {
-      Alert.alert("Error", "An unexpected error occurred");
+      showError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -114,13 +110,10 @@ export default function BiometricAuth({
       if (result.success) {
         onSuccess();
       } else {
-        Alert.alert(
-          "Authentication Failed",
-          result.error || "Please try again",
-        );
+        showError(result.error || "Authentication Failed. Please try again");
       }
     } catch (error) {
-      Alert.alert("Error", "Authentication error occurred");
+      showError("Authentication error occurred");
     } finally {
       setLoading(false);
     }
