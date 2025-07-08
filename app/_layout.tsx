@@ -38,6 +38,7 @@ export default function RootLayout() {
             <Stack.Screen name="help-support" />
             <Stack.Screen name="subscription" />
             <Stack.Screen name="test-components" />
+            <Stack.Screen name="test-case-folders" />
           </Stack>
         </ModalProvider>
       </ThemeProvider>
