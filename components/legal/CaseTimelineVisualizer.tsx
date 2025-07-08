@@ -8,7 +8,11 @@ import {
   Modal,
   TextInput,
   Alert,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
+import PremiumModal from "@/components/ui/PremiumModal";
+import * as DocumentPicker from "expo-document-picker";
 
 export interface TimelineEvent {
   id: string;
