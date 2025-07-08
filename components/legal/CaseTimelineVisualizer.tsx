@@ -116,13 +116,86 @@ export default function CaseTimelineVisualizer({
     }
   };
 
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const handleDocumentPick = async () => {
+    try {
+      setUploading(true);
+      const result = await DocumentPicker.getDocumentAsync({
+        type: [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "image/*",
+        ],
+        multiple: true,
+      });
+
+      if (!result.canceled && result.assets) {
+        const newDocuments = result.assets.map((asset) => ({
+          id: `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          name: asset.name,
+          type: asset.mimeType || "application/octet-stream",
+          uri: asset.uri,
+          size: asset.size || 0,
+        }));
+
+        if (editingEvent) {
+          setEditingEvent((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  documents: [...(prev.documents || []), ...newDocuments],
+                }
+              : null,
+          );
+        } else {
+          setNewEvent((prev) => ({
+            ...prev,
+            documents: [...(prev.documents || []), ...newDocuments],
+          }));
+        }
+      }
+    } catch (error) {
+      setErrorMessage("Failed to pick document. Please try again.");
+      setShowErrorModal(true);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeDocument = (documentId: string) => {
+    if (editingEvent) {
+      setEditingEvent((prev) =>
+        prev
+          ? {
+              ...prev,
+              documents: prev.documents.filter((doc) => doc.id !== documentId),
+            }
+          : null,
+      );
+    } else {
+      setNewEvent((prev) => ({
+        ...prev,
+        documents: (prev.documents || []).filter(
+          (doc) => doc.id !== documentId,
+        ),
+      }));
+    }
+  };
+
   const handleAddEvent = () => {
     if (!newEvent.title?.trim()) {
-      Alert.alert("Missing Title", "Please enter an event title");
+      setErrorMessage("Please enter an event title");
+      setShowErrorModal(true);
       return;
     }
     if (!newEvent.description?.trim()) {
-      Alert.alert("Missing Description", "Please enter an event description");
+      setErrorMessage("Please enter an event description");
+      setShowErrorModal(true);
       return;
     }
 
@@ -144,7 +217,7 @@ export default function CaseTimelineVisualizer({
       editable: true,
     });
     setShowAddModal(false);
-    Alert.alert("Success", "Event added to timeline successfully!");
+    setShowSuccessModal(true);
   };
 
   const EventCard = ({
