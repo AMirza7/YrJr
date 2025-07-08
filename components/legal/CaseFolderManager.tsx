@@ -90,7 +90,7 @@ export default function CaseFolderManager({
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string>("All");
   const { showSuccess, showError } = useModal();
-  const { width: screenWidth } = Dimensions.get("window");
+  const screenWidth = Dimensions.get("window").width;
   const [newFolder, setNewFolder] = useState<Partial<CaseFolder>>({
     title: "",
     caseType: "Civil",
