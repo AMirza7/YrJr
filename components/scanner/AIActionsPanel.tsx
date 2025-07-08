@@ -5,10 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { ScannerType } from "@/types/scanner";
+import { useModal } from "@/contexts/ModalContext";
 
 interface AIAction {
   id: string;
@@ -32,6 +32,7 @@ export default function AIActionsPanel({
   extractedData,
   onActionSelect,
 }: AIActionsPanelProps) {
+  const { showSuccess, showError, showAlert } = useModal();
   const getAIActions = (): AIAction[] => {
     const baseActions: AIAction[] = [
       {
@@ -41,7 +42,7 @@ export default function AIActionsPanel({
         icon: "💾",
         color: "#10b981",
         handler: () => {
-          Alert.alert("Saved", "Document saved to scan history");
+          showSuccess("Document saved to scan history");
         },
       },
       {
