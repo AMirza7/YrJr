@@ -157,8 +157,14 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     backgroundColor: "#fff",
     paddingVertical: 16,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
+  },
+  categoriesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   categoryChip: {
     flexDirection: "row",
@@ -167,8 +173,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: width < 400 ? 12 : 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginHorizontal: 6,
-    minWidth: width < 400 ? 80 : 100,
+    marginBottom: 8,
+    width: (width - 60) / 2,
+    justifyContent: "center",
   },
   activeCategoryChip: {
     backgroundColor: "#1e40af",
