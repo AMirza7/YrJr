@@ -126,20 +126,9 @@ export default function DocumentScanner({
   const handleGeneratePetition = () => {
     if (!scanResult) return;
 
-    Alert.alert(
-      "Generate Petition",
-      "This will open the petition form with auto-filled data from the scan.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Continue",
-          onPress: () => {
-            // Navigate to petition form with scan data
-            router.push("/petition-form");
-          },
-        },
-      ],
-    );
+    // Navigate to petition form with scan data
+    router.push("/petition-form");
+    showSuccess("Opening petition form with auto-filled data");
   };
 
   const handleSaveToHistory = async () => {
@@ -147,9 +136,9 @@ export default function DocumentScanner({
 
     try {
       // Already saved in service, just show confirmation
-      Alert.alert("Saved", "Document has been saved to your scan history.");
+      showSuccess("Document has been saved to your scan history");
     } catch (error) {
-      Alert.alert("Error", "Failed to save to history.");
+      showError("Failed to save to history");
     }
   };
 
@@ -276,7 +265,17 @@ export default function DocumentScanner({
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      {/* Header with back button */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={onClose}>
+          <Text style={styles.backIcon}>‹</Text>
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Document Scanner</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
       <View style={styles.uploadContainer}>
         <Text style={styles.title}>📄 Document Scanner</Text>
         <Text style={styles.subtitle}>
