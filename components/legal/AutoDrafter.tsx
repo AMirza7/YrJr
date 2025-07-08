@@ -45,6 +45,8 @@ export default function AutoDrafter({
   const [step, setStep] = useState<"templates" | "edit" | "preview">(
     "templates",
   );
+  const { showError } = useModal();
+  const { width: screenWidth } = Dimensions.get("window");
 
   // Simple templates based on scan data
   const getTemplates = (): SimpleTemplate[] => {
