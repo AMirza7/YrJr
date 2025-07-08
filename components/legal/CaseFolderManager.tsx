@@ -305,7 +305,7 @@ export default function CaseFolderManager({
 
       <View style={styles.folderStats}>
         <View style={styles.statItem}>
-          <Text style={styles.statIcon}>���</Text>
+          <Text style={styles.statIcon}>📄</Text>
           <Text style={styles.statText}>{folder.documents.length} docs</Text>
         </View>
         <View style={styles.statItem}>
@@ -430,7 +430,7 @@ export default function CaseFolderManager({
         visible={showCreateModal}
         transparent
         animationType="slide"
-        onRequestClose={() => setShowCreateModal(false)}
+        onRequestClose={() => safeSetShowCreateModal(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
@@ -537,7 +537,7 @@ export default function CaseFolderManager({
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => setShowCreateModal(false)}
+                onPress={() => safeSetShowCreateModal(false)}
               >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
@@ -557,13 +557,13 @@ export default function CaseFolderManager({
         visible={showFolderDetails}
         animationType="slide"
         presentationStyle="fullScreen"
-        onRequestClose={() => setShowFolderDetails(false)}
+        onRequestClose={() => safeSetShowFolderDetails(false)}
       >
         <View style={styles.detailsContainer}>
           <View style={styles.detailsHeader}>
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => setShowFolderDetails(false)}
+              onPress={() => safeSetShowFolderDetails(false)}
             >
               <Text style={styles.backButtonText}>← Back</Text>
             </TouchableOpacity>
