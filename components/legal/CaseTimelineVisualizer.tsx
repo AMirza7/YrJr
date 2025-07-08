@@ -397,62 +397,156 @@ export default function CaseTimelineVisualizer({
         onRequestClose={() => setShowAddModal(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Add New Event</Text>
-
-            <TextInput
-              style={styles.input}
-              placeholder="Event Title"
-              value={newEvent.title || ""}
-              onChangeText={(text) =>
-                setNewEvent((prev) => ({ ...prev, title: text }))
-              }
-            />
-
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Event Description"
-              value={newEvent.description || ""}
-              onChangeText={(text) =>
-                setNewEvent((prev) => ({ ...prev, description: text }))
-              }
-              multiline
-              numberOfLines={4}
-            />
-
-            <View style={styles.typeSelector}>
-              <Text style={styles.typeSelectorTitle}>Event Type:</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {(
-                  [
-                    "fir",
-                    "arrest",
-                    "bail",
-                    "chargesheet",
-                    "hearing",
-                    "judgment",
-                    "custom",
-                  ] as const
-                ).map((type) => (
-                  <TouchableOpacity
-                    key={type}
-                    style={[
-                      styles.typeOption,
-                      newEvent.type === type && styles.typeOptionSelected,
-                      { borderColor: getEventColor(type) },
-                    ]}
-                    onPress={() => setNewEvent((prev) => ({ ...prev, type }))}
-                  >
-                    <Text style={styles.typeOptionIcon}>
-                      {getEventIcon(type)}
-                    </Text>
-                    <Text style={styles.typeOptionText}>
-                      {type.toUpperCase()}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+          <View style={[styles.modalContainer, styles.largeModal]}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add New Event</Text>
+              <TouchableOpacity
+                onPress={() => setShowAddModal(false)}
+                style={styles.modalCloseButton}
+              >
+                <Text style={styles.modalCloseText}>✕</Text>
+              </TouchableOpacity>
             </View>
+
+            <ScrollView
+              style={styles.modalScrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.formSection}>
+                <Text style={styles.sectionLabel}>Basic Information</Text>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Event Title *</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter event title"
+                    value={newEvent.title || ""}
+                    onChangeText={(text) =>
+                      setNewEvent((prev) => ({ ...prev, title: text }))
+                    }
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Event Description *</Text>
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    placeholder="Describe what happened in this event..."
+                    value={newEvent.description || ""}
+                    onChangeText={(text) =>
+                      setNewEvent((prev) => ({ ...prev, description: text }))
+                    }
+                    multiline
+                    numberOfLines={4}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.formSection}>
+                <Text style={styles.sectionLabel}>Event Type</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.typeSelector}
+                >
+                  {(
+                    [
+                      "fir",
+                      "arrest",
+                      "bail",
+                      "chargesheet",
+                      "hearing",
+                      "judgment",
+                      "custom",
+                    ] as const
+                  ).map((type) => (
+                    <TouchableOpacity
+                      key={type}
+                      style={[
+                        styles.typeOption,
+                        newEvent.type === type && styles.typeOptionSelected,
+                        { borderColor: getEventColor(type) },
+                      ]}
+                      onPress={() => setNewEvent((prev) => ({ ...prev, type }))}
+                    >
+                      <Text style={styles.typeOptionIcon}>
+                        {getEventIcon(type)}
+                      </Text>
+                      <Text style={styles.typeOptionText}>
+                        {type.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.formSection}>
+                <View style={styles.documentsHeader}>
+                  <Text style={styles.sectionLabel}>Attached Documents</Text>
+                  <TouchableOpacity
+                    style={styles.attachButton}
+                    onPress={handleDocumentPick}
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <>
+                        <Text style={styles.attachButtonIcon}>📎</Text>
+                        <Text style={styles.attachButtonText}>Attach</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+
+                {newEvent.documents && newEvent.documents.length > 0 ? (
+                  <View style={styles.documentsList}>
+                    {newEvent.documents.map((doc) => (
+                      <View key={doc.id} style={styles.documentItem}>
+                        <View style={styles.documentInfo}>
+                          <Text style={styles.documentIcon}>
+                            {doc.type?.includes("pdf")
+                              ? "📄"
+                              : doc.type?.includes("image")
+                                ? "🖼️"
+                                : doc.type?.includes("word")
+                                  ? "📝"
+                                  : "📎"}
+                          </Text>
+                          <View style={styles.documentDetails}>
+                            <Text style={styles.documentName} numberOfLines={1}>
+                              {doc.name}
+                            </Text>
+                            <Text style={styles.documentSize}>
+                              {doc.size
+                                ? `${(doc.size / 1024).toFixed(1)} KB`
+                                : "Unknown size"}
+                            </Text>
+                          </View>
+                        </View>
+                        <TouchableOpacity
+                          style={styles.removeDocButton}
+                          onPress={() => removeDocument(doc.id)}
+                        >
+                          <Text style={styles.removeDocText}>✕</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                ) : (
+                  <View style={styles.noDocuments}>
+                    <Text style={styles.noDocumentsIcon}>📎</Text>
+                    <Text style={styles.noDocumentsText}>
+                      No documents attached
+                    </Text>
+                    <Text style={styles.noDocumentsSubtext}>
+                      Attach relevant documents like petitions, orders, or
+                      evidence
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </ScrollView>
 
             <View style={styles.modalActions}>
               <TouchableOpacity
@@ -462,8 +556,15 @@ export default function CaseTimelineVisualizer({
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.saveButton}
+                style={[
+                  styles.saveButton,
+                  (!newEvent.title?.trim() || !newEvent.description?.trim()) &&
+                    styles.saveButtonDisabled,
+                ]}
                 onPress={handleAddEvent}
+                disabled={
+                  !newEvent.title?.trim() || !newEvent.description?.trim()
+                }
               >
                 <Text style={styles.saveButtonText}>Add Event</Text>
               </TouchableOpacity>
@@ -471,6 +572,38 @@ export default function CaseTimelineVisualizer({
           </View>
         </View>
       </Modal>
+
+      {/* Success Modal */}
+      <PremiumModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Success"
+        message="Event added to timeline successfully!"
+        icon="✅"
+        actions={[
+          {
+            text: "OK",
+            onPress: () => setShowSuccessModal(false),
+            style: "primary",
+          },
+        ]}
+      />
+
+      {/* Error Modal */}
+      <PremiumModal
+        visible={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title="Error"
+        message={errorMessage}
+        icon="❌"
+        actions={[
+          {
+            text: "OK",
+            onPress: () => setShowErrorModal(false),
+            style: "primary",
+          },
+        ]}
+      />
     </View>
   );
 }
