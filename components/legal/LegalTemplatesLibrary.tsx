@@ -704,13 +704,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f9ff",
   },
   categoryIcon: {
-    fontSize: 16,
-    marginRight: 6,
+    fontSize: 20,
+    marginBottom: 4,
   },
   categoryButtonText: {
-    fontSize: 14,
+    fontSize: 11,
     fontWeight: "500",
     color: "#64748b",
+    textAlign: "center",
   },
   templatesList: {
     flex: 1,
