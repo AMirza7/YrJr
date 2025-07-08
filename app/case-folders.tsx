@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Alert } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import BackButton from "@/components/navigation/BackButton";
+import { useModal } from "@/contexts/ModalContext";
 import CaseFolderManager, {
   CaseFolder,
 } from "@/components/legal/CaseFolderManager";
@@ -181,22 +182,17 @@ export default function CaseFoldersScreen() {
     );
   };
 
+  const { showConfirm, showSuccess } = useModal();
+
   const handleDeleteFolder = (folderId: string) => {
-    Alert.alert(
+    showConfirm(
       "Delete Folder",
       "Are you sure you want to delete this case folder? This action cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            setFolders((prev) =>
-              prev.filter((folder) => folder.id !== folderId),
-            );
-          },
-        },
-      ],
+      () => {
+        setFolders((prev) => prev.filter((folder) => folder.id !== folderId));
+        showSuccess("Case folder deleted successfully");
+      },
+      "destructive",
     );
   };
 
