@@ -9,6 +9,7 @@ import LegalChatAssistant, {
 import { useModal } from "@/contexts/ModalContext";
 
 export default function LegalChatScreen() {
+  const { showConfirm, showSuccess } = useModal();
   const [scannedDocuments] = useState<ScannedDocument[]>([
     {
       id: "doc1",
