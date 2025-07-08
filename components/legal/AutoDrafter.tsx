@@ -6,8 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Alert,
+  Dimensions,
 } from "react-native";
+import { useModal } from "@/contexts/ModalContext";
 
 export interface ScanData {
   type: "fir" | "sale_deed" | "affidavit" | "notice" | "complaint" | "other";
