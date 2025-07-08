@@ -179,13 +179,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#1e40af",
   },
   categoryIcon: {
-    fontSize: 16,
-    marginRight: 6,
+    fontSize: 20,
+    marginBottom: 4,
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
     color: "#64748b",
+    textAlign: "center",
   },
   activeCategoryText: {
     color: "#fff",
