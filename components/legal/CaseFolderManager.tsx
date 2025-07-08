@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   TextInput,
   Modal,
-  Alert,
   FlatList,
+  Dimensions,
 } from "react-native";
+import { useModal } from "@/contexts/ModalContext";
 
 export interface CaseFolder {
   id: string;
