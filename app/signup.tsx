@@ -63,13 +63,18 @@ export default function SignupScreen() {
   const roles: { value: UserRole; label: string; description: string }[] = [
     {
       value: "law_student",
+      label: "General User",
+      description: "Regular user with basic access to legal resources",
+    },
+    {
+      value: "law_student",
       label: t("lawStudent"),
-      description: "Currently studying law or general user",
+      description: "Currently studying law or preparing for legal exams",
     },
     {
       value: "law_office_helper",
       label: t("lawOfficeHelper"),
-      description: "Administrative support",
+      description: "Administrative support in legal offices",
     },
     {
       value: "legal_clerk_typist",
@@ -84,12 +89,12 @@ export default function SignupScreen() {
     {
       value: "junior_lawyer",
       label: t("juniorLawyer"),
-      description: "Early career lawyer",
+      description: "Early career lawyer (0-5 years experience)",
     },
     {
       value: "lawyer",
       label: t("seniorLawyer"),
-      description: "Experienced legal practitioner",
+      description: "Experienced legal practitioner (5+ years)",
     },
   ];
 
