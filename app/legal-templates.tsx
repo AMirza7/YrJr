@@ -9,6 +9,7 @@ import { useModal } from "@/contexts/ModalContext";
 
 export default function LegalTemplatesScreen() {
   const [templates] = useState<LegalTemplate[]>([]);
+  const { showSuccess } = useModal();
 
   const mockScannedData = {
     applicant_name: "Raj Kumar",
