@@ -36,6 +36,7 @@ export default function DocumentScanner({
   const [toastType, setToastType] = useState<ToastType>("info");
   const [showFirstTimeDisclaimer, setShowFirstTimeDisclaimer] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(true);
+  const { showError, showSuccess } = useModal();
 
   const showToastMessage = (message: string, type: ToastType) => {
     setToastMessage(message);
