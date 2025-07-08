@@ -120,31 +120,20 @@ export default function BiometricAuth({
   };
 
   const handleDisableBiometric = async () => {
-    Alert.alert(
+    showConfirm(
       "Disable Biometric Authentication",
       "Are you sure you want to disable biometric authentication?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Disable",
-          style: "destructive",
-          onPress: async () => {
-            const success = await biometricService.disableBiometric();
-            if (success) {
-              setIsEnabled(false);
-              Alert.alert(
-                "Disabled",
-                "Biometric authentication has been disabled.",
-              );
-            } else {
-              Alert.alert(
-                "Error",
-                "Failed to disable biometric authentication",
-              );
-            }
-          },
-        },
-      ],
+      async () => {
+        const success = await biometricService.disableBiometric();
+        if (success) {
+          setIsEnabled(false);
+          showSuccess("Biometric authentication has been disabled.");
+        } else {
+          showError("Failed to disable biometric authentication");
+        }
+      },
+      "destructive",
+      "Disable",
     );
   };
 
