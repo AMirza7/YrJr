@@ -97,7 +97,7 @@ export default function LegalTemplatesLibrary({
 CRIMINAL MISC. APPLICATION NO. _____ OF {YEAR}
 
 {APPLICANT_NAME}                                   ...APPLICANT
-                    
+
                     VERSUS
 
 STATE OF {STATE}                                   ...RESPONDENT
@@ -181,7 +181,7 @@ It is therefore most respectfully prayed that this Hon'ble Court may be pleased 
 CIVIL SUIT NO. _____ OF {YEAR}
 
 {PLAINTIFF_NAME}                                   ...PLAINTIFF
-                    
+
                     VERSUS
 
 {DEFENDANT_NAME}                                   ...DEFENDANT
@@ -498,36 +498,39 @@ PRAYER:
       </View>
 
       {/* Category Filter */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesContainer}
-      >
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.value}
-            style={[
-              styles.categoryButton,
-              selectedCategory === category.value &&
-                styles.categoryButtonSelected,
-              { borderColor: category.color },
-            ]}
-            onPress={() => setSelectedCategory(category.value)}
-          >
-            <Text style={styles.categoryIcon}>{category.icon}</Text>
-            <Text
+      <View style={styles.categoriesContainer}>
+        <FlatList
+          data={categories}
+          numColumns={3}
+          keyExtractor={(item) => item.value}
+          renderItem={({ item: category }) => (
+            <TouchableOpacity
               style={[
-                styles.categoryButtonText,
-                selectedCategory === category.value && {
-                  color: category.color,
-                },
+                styles.categoryButton,
+                selectedCategory === category.value &&
+                  styles.categoryButtonSelected,
+                { borderColor: category.color },
               ]}
+              onPress={() => setSelectedCategory(category.value)}
             >
-              {category.value}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Text style={styles.categoryIcon}>{category.icon}</Text>
+              <Text
+                style={[
+                  styles.categoryButtonText,
+                  selectedCategory === category.value && {
+                    color: category.color,
+                  },
+                ]}
+                numberOfLines={1}
+              >
+                {category.value}
+              </Text>
+            </TouchableOpacity>
+          )}
+          scrollEnabled={false}
+          contentContainerStyle={styles.categoryGrid}
+        />
+      </View>
 
       {/* Templates List */}
       <FlatList
