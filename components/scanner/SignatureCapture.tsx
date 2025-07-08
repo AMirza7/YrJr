@@ -65,25 +65,18 @@ export default function SignatureCapture({
 
   const handleUseOnPetition = () => {
     if (!signatureData) {
-      Alert.alert("No Signature", "Please draw a signature before using it.");
+      showError("Please draw a signature before using it.");
       return;
     }
 
-    Alert.alert(
+    showConfirm(
       "Use on Petition",
       "This will inject your signature into the petition PDF.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Use Signature",
-          onPress: () => {
-            Alert.alert(
-              "Success",
-              "Signature has been applied to the petition.",
-            );
-          },
-        },
-      ],
+      () => {
+        showSuccess("Signature has been applied to the petition.");
+      },
+      "primary",
+      "Use Signature",
     );
   };
 
