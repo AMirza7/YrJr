@@ -45,7 +45,7 @@ export default function SignatureCapture({
 
   const handleSave = async () => {
     if (!signatureData) {
-      Alert.alert("No Signature", "Please draw a signature before saving.");
+      showError("Please draw a signature before saving.");
       return;
     }
 
@@ -56,15 +56,10 @@ export default function SignatureCapture({
         fileName,
       );
 
-      Alert.alert(
-        "Signature Saved",
-        "Your signature has been saved to your profile.",
-        [{ text: "OK" }],
-      );
-
+      showSuccess("Your signature has been saved to your profile.");
       onSaveComplete?.(result);
     } catch (error) {
-      Alert.alert("Error", "Failed to save signature. Please try again.");
+      showError("Failed to save signature. Please try again.");
     }
   };
 
