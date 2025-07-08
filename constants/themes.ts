@@ -166,5 +166,16 @@ export const resolveTheme = (themeMode: ThemeMode): AppTheme => {
     const systemTheme = getSystemTheme();
     return THEME_CONFIG[systemTheme];
   }
-  return THEME_CONFIG[themeMode] || LIGHT_THEME;
+
+  // Handle all theme modes properly
+  switch (themeMode) {
+    case "light":
+      return THEME_CONFIG.light;
+    case "dark":
+      return THEME_CONFIG.dark;
+    case "modern":
+      return THEME_CONFIG.modern;
+    default:
+      return LIGHT_THEME;
+  }
 };

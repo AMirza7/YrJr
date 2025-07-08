@@ -38,7 +38,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   const loadThemePreference = async () => {
     try {
       const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-      if (savedTheme && ["light", "dark", "system"].includes(savedTheme)) {
+      if (
+        savedTheme &&
+        ["light", "dark", "modern", "system"].includes(savedTheme)
+      ) {
         const mode = savedTheme as ThemeMode;
         setThemeModeState(mode);
         setTheme(resolveTheme(mode));
@@ -50,18 +53,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setThemeMode = async (mode: ThemeMode) => {
     try {
-      const newTheme = resolveTheme(mode);
-      setThemeModeState(mode);
-      setTheme(newTheme);
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
+      setThemeModeState(mode);
+
+      const newTheme = resolveTheme(mode);
+      setTheme(newTheme);
 
       console.log(`Theme changed to: ${mode}`);
-      console.log(`New theme colors:`, newTheme.colors);
+      console.log(`Theme colors updated:`, newTheme.colors);
 
-      // Force a complete re-render by triggering a state change with a slight delay
+      // Force re-render by updating state with new object reference
       setTimeout(() => {
-        setTheme({ ...newTheme });
-      }, 50);
+        setTheme({ ...newTheme, _forceUpdate: Date.now() });
+      }, 100);
     } catch (error) {
       console.error("Error saving theme preference:", error);
     }
