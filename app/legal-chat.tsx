@@ -66,18 +66,18 @@ export default function LegalChatScreen() {
     message: ChatMessage,
     documentId?: string,
   ) => {
-    Alert.alert(
+    showConfirm(
       "Attach Chat Output",
       `Do you want to attach this AI response to ${documentId ? "the selected document" : "a new document"}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Attach",
-          onPress: () => {
-            Alert.alert("Success", "Chat output attached successfully");
-          },
-        },
-      ],
+      () => {
+        showSuccess("Success", "Chat output attached successfully");
+      },
+      undefined,
+      {
+        confirmText: "Attach",
+        cancelText: "Cancel",
+        icon: "📎",
+      },
     );
   };
 
