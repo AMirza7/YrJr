@@ -200,6 +200,12 @@ export default function VerifyIdentity({
   };
 
   const handleCameraCapture = async (documentType: string) => {
+    // Temporarily disabled - ImagePicker not available
+    showError(
+      "Camera capture feature temporarily disabled. Please use file upload.",
+    );
+    return;
+    /*
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
@@ -235,6 +241,7 @@ export default function VerifyIdentity({
     } catch (error) {
       showError("Failed to capture image. Please try again.");
     }
+    */
   };
 
   const handleDocumentAction = (documentType: string) => {
