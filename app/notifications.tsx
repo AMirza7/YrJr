@@ -72,33 +72,37 @@ export default function NotificationCenter() {
       </View>
 
       {/* Categories */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesContainer}
-      >
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.value}
-            style={[
-              styles.categoryChip,
-              selectedCategory === category.value && styles.activeCategoryChip,
-            ]}
-            onPress={() => setSelectedCategory(category.value)}
-          >
-            <Text style={styles.categoryIcon}>{category.icon}</Text>
-            <Text
+      <View style={styles.categoriesContainer}>
+        <FlatList
+          data={categories}
+          numColumns={3}
+          keyExtractor={(item) => item.value}
+          renderItem={({ item: category }) => (
+            <TouchableOpacity
               style={[
-                styles.categoryText,
+                styles.categoryChip,
                 selectedCategory === category.value &&
-                  styles.activeCategoryText,
+                  styles.activeCategoryChip,
               ]}
+              onPress={() => setSelectedCategory(category.value)}
             >
-              {category.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Text style={styles.categoryIcon}>{category.icon}</Text>
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === category.value &&
+                    styles.activeCategoryText,
+                ]}
+                numberOfLines={1}
+              >
+                {category.label}
+              </Text>
+            </TouchableOpacity>
+          )}
+          scrollEnabled={false}
+          contentContainerStyle={styles.categoryGrid}
+        />
+      </View>
 
       {/* Notifications List */}
       <FlatList
