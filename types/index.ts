@@ -5,6 +5,7 @@ export type UserRole =
   | "legal_clerk_typist"
   | "law_office_helper"
   | "law_student"
+  | "general_user"
   | "admin";
 
 export type SubscriptionTier = "free" | "pro" | "premium";
