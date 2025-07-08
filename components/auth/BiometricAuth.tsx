@@ -34,6 +34,7 @@ export default function BiometricAuth({
   const [confirmPin, setConfirmPin] = useState("");
   const [showPinInput, setShowPinInput] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
+  const { showAlert, showError, showSuccess, showConfirm } = useModal();
 
   useEffect(() => {
     if (visible) {
