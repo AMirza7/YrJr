@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useRef,
+  useEffect,
+} from "react";
 import PremiumModal from "@/components/ui/PremiumModal";
 
 interface ModalAction {
@@ -147,7 +154,7 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     message: string,
     onConfirm?: () => void,
   ) => {
-    showAlert(title, message, onConfirm, "❌");
+    showAlert(title, message, onConfirm, "��");
   };
 
   const value: ModalContextType = {
