@@ -226,16 +226,16 @@ export default function CaseFolderManager({
         notes: [],
         tags: [],
       });
-      setShowCreateModal(false);
-      showSuccess("Success", "Case folder created successfully");
+      safeSetShowCreateModal(false);
+      showSuccess("Case folder created successfully");
     } else {
       showError("Error", "Please fill in all required fields");
     }
   };
 
   const handleFolderSelect = (folder: CaseFolder) => {
-    setSelectedFolder(folder);
-    setShowFolderDetails(true);
+    safeSetSelectedFolder(folder);
+    safeSetShowFolderDetails(true);
   };
 
   const formatDate = (date: Date) => {
