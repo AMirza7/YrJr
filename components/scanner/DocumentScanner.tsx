@@ -46,7 +46,7 @@ export default function DocumentScanner({
 
   const handleFileUpload = async () => {
     // Show first time disclaimer if needed
-    if (isFirstTime) {
+    if (isFirstTime && !showFirstTimeDisclaimer) {
       setShowFirstTimeDisclaimer(true);
       return;
     }
@@ -100,7 +100,10 @@ export default function DocumentScanner({
   const handleFirstTimeAccept = () => {
     setIsFirstTime(false);
     setShowFirstTimeDisclaimer(false);
-    handleFileUpload();
+    // Proceed with file upload after accepting disclaimer
+    setTimeout(() => {
+      handleFileUpload();
+    }, 100);
   };
 
   const handleFieldUpdate = (key: string, value: string) => {
