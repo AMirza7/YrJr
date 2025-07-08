@@ -266,6 +266,8 @@ export const getRoleColor = (role: UserRole): string => {
       return "#F59E0B";
     case "law_student":
       return "#EF4444";
+    case "general_user":
+      return "#6366F1";
     default:
       return "#64748b";
   }
