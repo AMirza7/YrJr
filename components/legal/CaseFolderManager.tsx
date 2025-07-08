@@ -305,7 +305,7 @@ export default function CaseFolderManager({
 
       <View style={styles.folderStats}>
         <View style={styles.statItem}>
-          <Text style={styles.statIcon}>📄</Text>
+          <Text style={styles.statIcon}>���</Text>
           <Text style={styles.statText}>{folder.documents.length} docs</Text>
         </View>
         <View style={styles.statItem}>
@@ -360,7 +360,7 @@ export default function CaseFolderManager({
 
         <TouchableOpacity
           style={styles.createButton}
-          onPress={() => setShowCreateModal(true)}
+          onPress={() => safeSetShowCreateModal(true)}
         >
           <Text style={styles.createButtonText}>➕ New Case</Text>
         </TouchableOpacity>
@@ -415,7 +415,7 @@ export default function CaseFolderManager({
             </Text>
             <TouchableOpacity
               style={styles.emptyCreateButton}
-              onPress={() => setShowCreateModal(true)}
+              onPress={() => safeSetShowCreateModal(true)}
             >
               <Text style={styles.emptyCreateButtonText}>
                 Create First Case
