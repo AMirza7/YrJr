@@ -66,17 +66,33 @@ interface ModalProviderProps {
 }
 
 export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
+  const isMounted = useRef(true);
   const [modalConfig, setModalConfig] = useState<ModalConfig | null>(null);
   const [visible, setVisible] = useState(false);
 
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   const showModal = (config: ModalConfig) => {
-    setModalConfig(config);
-    setVisible(true);
+    if (isMounted.current) {
+      setModalConfig(config);
+      setVisible(true);
+    }
   };
 
   const hideModal = () => {
-    setVisible(false);
-    setTimeout(() => setModalConfig(null), 300); // Wait for animation to complete
+    if (isMounted.current) {
+      setVisible(false);
+      setTimeout(() => {
+        if (isMounted.current) {
+          setModalConfig(null);
+        }
+      }, 300); // Wait for animation to complete
+    }
   };
 
   const showAlert = (
