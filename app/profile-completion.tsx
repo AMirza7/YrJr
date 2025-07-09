@@ -282,6 +282,18 @@ export default function ProfileCompletionScreen() {
       fontSize: 16,
       fontWeight: "600",
     },
+    verifyButton: {
+      flex: 1,
+      backgroundColor: "#8b5cf6",
+      padding: 16,
+      borderRadius: 12,
+      alignItems: "center",
+    },
+    verifyButtonText: {
+      color: "#fff",
+      fontSize: 14,
+      fontWeight: "600",
+    },
     completeButton: {
       flex: 2,
       backgroundColor: theme.colors.primary,
@@ -514,6 +526,13 @@ export default function ProfileCompletionScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
+              style={styles.verifyButton}
+              onPress={() => setShowVerification(true)}
+            >
+              <Text style={styles.verifyButtonText}>🔐 Verify Identity</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={[styles.completeButton, { opacity: loading ? 0.7 : 1 }]}
               onPress={handleComplete}
               disabled={loading}
@@ -524,6 +543,16 @@ export default function ProfileCompletionScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {showVerification && (
+          <VerifyIdentity
+            userType={user.role === "lawyer" ? "lawyer" : "clerk"}
+            onComplete={() => {
+              setShowVerification(false);
+            }}
+            onClose={() => setShowVerification(false)}
+          />
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
