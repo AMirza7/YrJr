@@ -224,13 +224,20 @@ export default function AdminAnalyticsScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() =>
-            Alert.alert("Coming Soon", "Export feature coming soon")
-          }
+          onPress={() => setShowExportModal(true)}
         >
           <Text style={styles.actionButtonText}>📊 Export Data</Text>
         </TouchableOpacity>
       </View>
+
+      <EnhancedDataExport
+        visible={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={(config) => {
+          console.log("Exporting data with config:", config);
+          setShowExportModal(false);
+        }}
+      />
     </ScrollView>
   );
 }
