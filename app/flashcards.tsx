@@ -59,8 +59,6 @@ const mockFlashcards = [
 ];
 
 export default function FlashcardsLearning() {
-  const [showAdvancedMode, setShowAdvancedMode] = useState(false);
-
   const handleClose = () => {
     try {
       if (router.canGoBack()) {
@@ -73,14 +71,13 @@ export default function FlashcardsLearning() {
     }
   };
 
-  if (showAdvancedMode) {
-    return (
-      <AdvancedFlashcards
-        cards={mockFlashcards}
-        onClose={() => setShowAdvancedMode(false)}
-      />
-    );
-  }
+  return (
+    <AdvancedFlashcards
+      cards={mockFlashcards}
+      onClose={handleClose}
+    />
+  );
+}
 
   return (
     <View style={styles.container}>
