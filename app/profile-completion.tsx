@@ -40,6 +40,7 @@ export default function ProfileCompletionScreen() {
   const [selectedSpecializations, setSelectedSpecializations] = useState<
     string[]
   >([]);
+  const [showVerification, setShowVerification] = useState(false);
 
   const specializations = [
     "Civil Law",
