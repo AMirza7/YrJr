@@ -40,6 +40,7 @@ export default function LawyerDirectoryScreen() {
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [minRating, setMinRating] = useState(0);
+  const [selectedLawyer, setSelectedLawyer] = useState<string | null>(null);
 
   const specializations = [
     "All",
