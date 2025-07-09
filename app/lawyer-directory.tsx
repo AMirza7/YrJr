@@ -422,6 +422,22 @@ export default function LawyerDirectoryScreen() {
           </View>
         }
       />
+
+      {selectedLawyer && (
+        <ProfessionalProfile
+          professionalId={selectedLawyer}
+          onClose={() => setSelectedLawyer(null)}
+          onHire={(professionalId) => {
+            console.log("Hiring professional:", professionalId);
+            setSelectedLawyer(null);
+          }}
+          onMessage={(professionalId) => {
+            console.log("Messaging professional:", professionalId);
+            router.push("/messaging");
+            setSelectedLawyer(null);
+          }}
+        />
+      )}
     </View>
   );
 }
