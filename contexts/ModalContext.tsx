@@ -39,13 +39,15 @@ interface ModalContextType {
     title: string,
     message: string,
     onConfirm: () => void,
-    onCancel?: () => void,
-    options?: {
-      confirmText?: string;
-      cancelText?: string;
-      destructive?: boolean;
-      icon?: string;
-    },
+    styleOrOnCancel?: "destructive" | "primary" | (() => void),
+    confirmTextOrOptions?:
+      | string
+      | {
+          confirmText?: string;
+          cancelText?: string;
+          destructive?: boolean;
+          icon?: string;
+        },
   ) => void;
   showSuccess: (title: string, message: string, onConfirm?: () => void) => void;
   showError: (title: string, message: string, onConfirm?: () => void) => void;
