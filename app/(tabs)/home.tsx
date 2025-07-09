@@ -202,13 +202,7 @@ export default function HomeScreen() {
       route: "/templates",
       description: "Legal document templates",
     },
-    {
-      title: "🧪 Component Tests",
-      icon: "⚡",
-      available: true,
-      route: "/test-components",
-      description: "Test new features and components",
-    },
+
     {
       title: t("flashcards"),
       icon: "🧠",
