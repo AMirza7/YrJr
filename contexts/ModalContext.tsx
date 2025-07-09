@@ -123,14 +123,39 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     title: string,
     message: string,
     onConfirm: () => void,
-    onCancel?: () => void,
-    options?: {
+    styleOrOnCancel?: "destructive" | "primary" | (() => void),
+    confirmTextOrOptions?:
+      | string
+      | {
+          confirmText?: string;
+          cancelText?: string;
+          destructive?: boolean;
+          icon?: string;
+        },
+  ) => {
+    // Handle different parameter patterns
+    let onCancel: (() => void) | undefined;
+    let options: {
       confirmText?: string;
       cancelText?: string;
       destructive?: boolean;
       icon?: string;
-    },
-  ) => {
+    } = {};
+
+    if (typeof styleOrOnCancel === "function") {
+      onCancel = styleOrOnCancel;
+      if (typeof confirmTextOrOptions === "object") {
+        options = confirmTextOrOptions;
+      }
+    } else if (typeof styleOrOnCancel === "string") {
+      // Legacy pattern: showConfirm(title, message, onConfirm, "destructive")
+      options.destructive = styleOrOnCancel === "destructive";
+      if (typeof confirmTextOrOptions === "string") {
+        options.confirmText = confirmTextOrOptions;
+      }
+    } else if (typeof confirmTextOrOptions === "object") {
+      options = confirmTextOrOptions;
+    }
     showModal({
       title,
       message,
