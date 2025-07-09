@@ -122,6 +122,12 @@ export default function HomeScreen() {
       route: "/case-timeline",
     },
     {
+      title: "Professional Messaging",
+      icon: "💬",
+      available: true,
+      route: "/messaging",
+    },
+    {
       title: "Legal Chat AI",
       icon: "🤖",
       available: true,
