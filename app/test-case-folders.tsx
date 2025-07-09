@@ -14,7 +14,16 @@ export default function TestCaseFolders() {
         <Text style={styles.buttonText}>📁 Test Case Folders Route</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => {
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            router.push("/(tabs)/home");
+          }
+        }}
+      >
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
 

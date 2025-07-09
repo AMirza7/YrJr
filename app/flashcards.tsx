@@ -62,7 +62,11 @@ export default function FlashcardsLearning() {
   const [showAdvancedMode, setShowAdvancedMode] = useState(false);
 
   const handleClose = () => {
-    router.back();
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.push("/(tabs)/home");
+    }
   };
 
   if (showAdvancedMode) {

@@ -33,7 +33,13 @@ export default function SimpleTest() {
 
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.push("/(tabs)/home");
+            }
+          }}
         >
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
