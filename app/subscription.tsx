@@ -169,9 +169,13 @@ export default function SubscriptionScreen() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
-            if (router.canGoBack()) {
-              router.back();
-            } else {
+            try {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.replace("/(tabs)/home");
+              }
+            } catch (error) {
               router.replace("/(tabs)/home");
             }
           }}
