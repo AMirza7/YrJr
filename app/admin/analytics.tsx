@@ -10,6 +10,7 @@ import {
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import EnhancedDataExport from "@/components/admin/EnhancedDataExport";
 
 interface AnalyticsData {
   totalUsers: number;
