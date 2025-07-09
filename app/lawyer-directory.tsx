@@ -267,7 +267,7 @@ export default function LawyerDirectoryScreen() {
   const renderLawyer = ({ item }: { item: LawyerProfile }) => (
     <TouchableOpacity
       style={styles.lawyerCard}
-      onPress={() => handleContactLawyer(item)}
+      onPress={() => setSelectedLawyer(item.id)}
     >
       <View style={styles.lawyerHeader}>
         <View style={styles.lawyerInfo}>
