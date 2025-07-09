@@ -17,6 +17,7 @@ import BackButton from "@/components/navigation/BackButton";
 import StateDropdown from "@/components/ui/StateDropdown";
 import CityDropdown from "@/components/ui/CityDropdown";
 import RatingDropdown from "@/components/ui/RatingDropdown";
+import ProfessionalProfile from "@/components/profiles/ProfessionalProfile";
 
 const { width } = Dimensions.get("window");
 

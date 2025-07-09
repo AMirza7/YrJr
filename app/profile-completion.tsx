@@ -17,6 +17,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
 import StateDropdown from "@/components/ui/StateDropdown";
 import CityDropdown from "@/components/ui/CityDropdown";
+import VerifyIdentity from "@/components/verification/VerifyIdentity";
 
 export default function ProfileCompletionScreen() {
   const { theme } = useTheme();
