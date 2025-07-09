@@ -27,6 +27,7 @@ export default function AdminAnalyticsScreen() {
   const { t } = useLocalization();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     checkAdminAccess();
