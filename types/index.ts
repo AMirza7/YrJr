@@ -2,13 +2,15 @@ export type UserRole =
   | "lawyer"
   | "junior_lawyer"
   | "lawyer_assistant"
+  | "legal_clerk_typist"
   | "law_office_helper"
   | "law_student"
+  | "general_user"
   | "admin";
 
 export type SubscriptionTier = "free" | "pro" | "premium";
 
-export type ThemeMode = "light" | "dark" | "system";
+export type ThemeMode = "light" | "dark" | "modern" | "system";
 
 export type Language =
   | "en"
@@ -38,6 +40,11 @@ export interface User {
   practiceYears?: number;
   barCouncilNumber?: string;
   officeAddress?: string;
+  state?: string;
+  city?: string;
+  postalCode?: string;
+  address?: string;
+  rating?: number;
   createdAt: string;
   lastActiveAt: string;
   preferences: UserPreferences;
@@ -354,6 +361,10 @@ export interface SignupData {
   practiceYears?: number;
   barCouncilNumber?: string;
   officeAddress?: string;
+  state?: string;
+  city?: string;
+  postalCode?: string;
+  address?: string;
 }
 
 export interface BiometricAuthResult {
@@ -460,3 +471,6 @@ export interface LoadingState {
   message?: string;
   progress?: number;
 }
+
+// Scanner types
+export * from "./scanner";

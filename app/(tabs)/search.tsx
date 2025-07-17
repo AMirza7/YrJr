@@ -7,7 +7,10 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Dimensions,
 } from "react-native";
+
+const { width } = Dimensions.get("window");
 
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,32 +76,30 @@ export default function SearchScreen() {
       </View>
 
       {/* Categories */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesContainer}
-      >
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.id}
-            style={[
-              styles.categoryChip,
-              selectedCategory === category.id && styles.activeCategoryChip,
-            ]}
-            onPress={() => setSelectedCategory(category.id)}
-          >
-            <Text style={styles.categoryIcon}>{category.icon}</Text>
-            <Text
+      <View style={styles.categoriesContainer}>
+        <View style={styles.categoriesGrid}>
+          {categories.map((category) => (
+            <TouchableOpacity
+              key={category.id}
               style={[
-                styles.categoryText,
-                selectedCategory === category.id && styles.activeCategoryText,
+                styles.categoryChip,
+                selectedCategory === category.id && styles.activeCategoryChip,
               ]}
+              onPress={() => setSelectedCategory(category.id)}
             >
-              {category.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Text style={styles.categoryIcon}>{category.icon}</Text>
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === category.id && styles.activeCategoryText,
+                ]}
+              >
+                {category.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
 
       {/* Search Results */}
       <FlatList
@@ -156,27 +157,35 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     backgroundColor: "#fff",
     paddingVertical: 16,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
+  },
+  categoriesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
   categoryChip: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#f1f5f9",
-    paddingHorizontal: 16,
+    paddingHorizontal: width < 400 ? 12 : 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginHorizontal: 8,
+    marginBottom: 8,
+    width: (width - 60) / 2,
+    justifyContent: "center",
   },
   activeCategoryChip: {
     backgroundColor: "#1e40af",
   },
   categoryIcon: {
-    fontSize: 16,
-    marginRight: 6,
+    fontSize: width < 400 ? 14 : 16,
+    marginRight: 4,
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: width < 400 ? 12 : 14,
     fontWeight: "500",
     color: "#64748b",
   },
@@ -185,30 +194,36 @@ const styles = StyleSheet.create({
   },
   resultsList: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: width < 400 ? 16 : 20,
   },
   resultCard: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 8,
-    borderLeftWidth: 4,
+    borderRadius: width < 400 ? 8 : 12,
+    padding: width < 400 ? 10 : 16,
+    marginVertical: width < 400 ? 4 : 6,
+    borderLeftWidth: 3,
     borderLeftColor: "#1e40af",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   resultTitle: {
-    fontSize: 16,
+    fontSize: width < 400 ? 14 : 16,
     fontWeight: "600",
     color: "#1e293b",
     marginBottom: 4,
+    lineHeight: 20,
   },
   resultDescription: {
-    fontSize: 14,
+    fontSize: width < 400 ? 13 : 14,
     color: "#64748b",
-    lineHeight: 20,
+    lineHeight: width < 400 ? 18 : 20,
     marginBottom: 8,
   },
   resultType: {
-    fontSize: 12,
+    fontSize: width < 400 ? 10 : 12,
     color: "#1e40af",
     fontWeight: "500",
     textTransform: "uppercase",

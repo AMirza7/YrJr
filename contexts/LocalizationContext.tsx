@@ -48,6 +48,20 @@ export const LocalizationProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       setLanguageState(newLanguage);
       await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
+
+      // Force a re-render by triggering a state change
+      console.log(`Language changed to: ${newLanguage}`);
+
+      // Force a complete re-render by triggering multiple state updates
+      setTimeout(() => {
+        setLanguageState(newLanguage);
+        console.log(`Language fully applied: ${newLanguage}`);
+      }, 50);
+
+      // Additional state update to ensure all components refresh
+      setTimeout(() => {
+        setLanguageState(newLanguage);
+      }, 100);
     } catch (error) {
       console.error("Error saving language preference:", error);
     }

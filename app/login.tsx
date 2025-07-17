@@ -23,6 +23,11 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    Alert.alert("Debug", `Attempting login with phone: ${phone}`);
+    console.log("🚀 Login attempt started");
+    console.log("📱 Phone:", phone);
+    console.log("🔑 Password length:", password?.length);
+
     if (!phone || !password) {
       Alert.alert(t("error"), t("enterPhone") + " and " + t("enterPassword"));
       return;
@@ -31,24 +36,89 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      // Convert phone to email format for demo accounts compatibility
-      const phoneToEmail =
-        phone === "9876543210" ? "demo@yrjr.app" : `${phone}@phone.login`;
-      const response = await authService.login(phoneToEmail, password);
+      // Map demo phone numbers to email accounts
+      const demoPhoneMap: {
+        [key: string]: { email: string; password: string };
+      } = {
+        "9876543210": { email: "lawyer@yrjr.app", password: "demo123" },
+        "9123456780": { email: "jr.lawyer@yrjr.app", password: "demo123" },
+        "9234567890": { email: "assistant@yrjr.app", password: "demo123" },
+        "9333333333": { email: "clerk@yrjr.app", password: "demo123" },
+        "9345678901": { email: "helper@yrjr.app", password: "demo123" },
+        "9456789012": { email: "student@yrjr.app", password: "demo123" },
+        "9567890123": { email: "user@yrjr.app", password: "demo123" },
+        "9999999999": { email: "admin@yrjr.app", password: "admin123" },
+      };
 
-      if (response.success && response.user) {
-        // Navigate based on role
-        if (response.user.role === "admin") {
-          router.replace("/admin");
+      const demoAccount = demoPhoneMap[phone];
+      console.log("👤 Demo account found:", !!demoAccount);
+      console.log("📧 Demo email:", demoAccount?.email);
+
+      if (demoAccount) {
+        console.log("🔍 Checking password match...");
+        // Verify password matches
+        if (password !== demoAccount.password) {
+          console.log("❌ Password mismatch");
+          Alert.alert(
+            t("error"),
+            `Invalid password for this demo account. Use '${demoAccount.password}'`,
+          );
+          setLoading(false);
+          return;
+        }
+
+        console.log("✅ Password matches, calling authService.login...");
+        const response = await authService.login(
+          demoAccount.email,
+          demoAccount.password,
+        );
+
+        console.log("📝 Login response:", {
+          success: response.success,
+          hasUser: !!response.user,
+          userRole: response.user?.role,
+          message: response.message,
+        });
+
+        if (response.success && response.user) {
+          console.log("🎉 Login successful, navigating...");
+          if (response.user.role === "admin") {
+            console.log("🏛️ Navigating to admin");
+            router.replace("/admin");
+          } else {
+            console.log("📱 Navigating to tabs");
+            router.replace("/(tabs)");
+          }
         } else {
-          router.replace("/(tabs)");
+          console.log("❌ Login failed:", response.message);
+          Alert.alert(t("error"), response.message || "Demo login failed");
         }
       } else {
-        Alert.alert(t("error"), response.message || t("invalidCredentials"));
+        console.log("📱 Non-demo account, using phone login...");
+        // For non-demo accounts, use phone-based login
+        const response = await authService.loginWithPhone(phone, password);
+
+        console.log("📝 Phone login response:", {
+          success: response.success,
+          hasUser: !!response.user,
+          message: response.message,
+        });
+
+        if (response.success && response.user) {
+          if (response.user.role === "admin") {
+            router.replace("/admin");
+          } else {
+            router.replace("/(tabs)");
+          }
+        } else {
+          Alert.alert(t("error"), response.message || "Invalid credentials");
+        }
       }
     } catch (error) {
-      Alert.alert(t("error"), t("loginFailed"));
+      console.error("💥 Login error:", error);
+      Alert.alert(t("error"), "Login failed. Please try again.");
     } finally {
+      console.log("🏁 Login process finished, setting loading to false");
       setLoading(false);
     }
   };
@@ -99,29 +169,104 @@ export default function LoginScreen() {
 
         <View style={styles.demo}>
           <Text style={styles.demoTitle}>Demo Accounts:</Text>
-          {demoCredentials.map((account, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.demoButton,
-                account.role === "admin" && styles.adminDemoButton,
-              ]}
-              onPress={() => {
-                setPhone("9876543210");
-                setPassword(account.password);
-              }}
-            >
-              <Text
-                style={[
-                  styles.demoText,
-                  account.role === "admin" && styles.adminDemoText,
-                ]}
-              >
-                {account.description}
-              </Text>
-              <Text style={styles.demoEmail}>+91-98765-43210</Text>
-            </TouchableOpacity>
-          ))}
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9876543210");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>⚖️ Senior Lawyer</Text>
+            <Text style={styles.demoEmail}>📱 9876543210 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9123456780");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>👨‍💼 Junior Lawyer</Text>
+            <Text style={styles.demoEmail}>📱 9123456780 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9234567890");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>📋 Legal Assistant</Text>
+            <Text style={styles.demoEmail}>📱 9234567890 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9333333333");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>⌨️ Legal Clerk/Typist</Text>
+            <Text style={styles.demoEmail}>📱 9333333333 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9345678901");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>🏢 Office Helper</Text>
+            <Text style={styles.demoEmail}>📱 9345678901 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9456789012");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>🎓 Law Student</Text>
+            <Text style={styles.demoEmail}>📱 9456789012 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.demoButton}
+            onPress={() => {
+              setPhone("9567890123");
+              setPassword("demo123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={styles.demoText}>👤 Regular User</Text>
+            <Text style={styles.demoEmail}>📱 9567890123 | 🔑 demo123</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.demoButton, styles.adminDemoButton]}
+            onPress={() => {
+              setPhone("9999999999");
+              setPassword("admin123");
+              setTimeout(() => handleLogin(), 100);
+            }}
+          >
+            <Text style={[styles.demoText, styles.adminDemoText]}>
+              🏛️ Admin Access
+            </Text>
+            <Text style={styles.demoEmail}>📱 9999999999 | 🔑 admin123</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>

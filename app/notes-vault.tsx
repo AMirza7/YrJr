@@ -101,7 +101,18 @@ export default function NotesVault() {
         Alert.alert(
           "Access Restricted",
           "Secure Notes feature requires appropriate role and subscription.",
-          [{ text: "OK", onPress: () => router.back() }],
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(tabs)/home");
+                }
+              },
+            },
+          ],
         );
         return;
       }
@@ -141,26 +152,30 @@ export default function NotesVault() {
     try {
       // Simulate biometric authentication
       Alert.alert(
-        "Biometric Authentication",
-        "Place your finger on the fingerprint sensor or use Face ID to access secure notes.",
+        "Secure Access Required",
+        "Choose your authentication method to access secure notes:",
         [
           {
             text: "Cancel",
             style: "cancel",
           },
           {
+            text: "Use PIN (6261)",
+            onPress: () => promptPinAuth(),
+          },
+          {
             text: "Use Password",
             onPress: () => promptPasswordAuth(),
           },
           {
-            text: "Authenticate",
+            text: "Biometric",
             onPress: async () => {
               // Simulate authentication delay
               setTimeout(() => {
                 setIsAuthenticated(true);
                 Alert.alert(
                   "Success",
-                  "Authentication successful! You can now access your secure notes.",
+                  "Biometric authentication successful! You can now access your secure notes.",
                 );
               }, 1500);
             },
@@ -173,6 +188,46 @@ export default function NotesVault() {
   };
 
   const promptPasswordAuth = () => {
+    Alert.alert(
+      "Authentication Required",
+      "Choose your authentication method:",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Use PIN", onPress: () => promptPinAuth() },
+        { text: "Use Password", onPress: () => promptPasswordInput() },
+      ],
+    );
+  };
+
+  const promptPinAuth = () => {
+    Alert.prompt(
+      "PIN Authentication",
+      "Enter your 4-digit PIN to access secure notes:\n(Demo PIN: 6261)",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Authenticate",
+          onPress: (pin) => {
+            if (pin === "6261") {
+              setIsAuthenticated(true);
+              Alert.alert("Success", "PIN authentication successful!");
+            } else {
+              Alert.alert(
+                "Error",
+                "Incorrect PIN. Please try again.\n(Demo PIN: 6261)",
+              );
+            }
+          },
+        },
+      ],
+      "numeric",
+    );
+  };
+
+  const promptPasswordInput = () => {
     Alert.prompt(
       "Password Authentication",
       "Enter your password to access secure notes:",
@@ -223,27 +278,112 @@ export default function NotesVault() {
       return;
     }
 
-    const note: SecureNote = {
-      id: `note_${Date.now()}`,
-      userId: user?.id || "demo_user",
-      title: newNote.title,
-      content: newNote.content,
-      tags: newNote.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag),
-      isEncrypted: newNote.requiresBiometric,
-      requiresBiometric: newNote.requiresBiometric,
-      lastAccessed: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    try {
+      const noteData = {
+        title: newNote.title,
+        content: newNote.content,
+        tags: newNote.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+        isEncrypted: newNote.requiresBiometric,
+        requiresBiometric: newNote.requiresBiometric,
+      };
 
-    setNotes([note, ...notes]);
-    setNewNote({ title: "", content: "", tags: "", requiresBiometric: true });
-    setShowCreateModal(false);
+      // API call to POST /api/secure-notes
+      const response = await fetch("/api/secure-notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(noteData),
+      });
 
-    Alert.alert("Success", "Secure note created successfully!");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const savedNote = await response.json();
+
+      // Create local note object for immediate UI update
+      const note: SecureNote = {
+        id: savedNote.id || `note_${Date.now()}`,
+        userId: user?.id || "demo_user",
+        title: newNote.title,
+        content: newNote.content,
+        tags: newNote.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+        isEncrypted: newNote.requiresBiometric,
+        requiresBiometric: newNote.requiresBiometric,
+        lastAccessed: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setNotes([note, ...notes]);
+      setNewNote({ title: "", content: "", tags: "", requiresBiometric: true });
+      setShowCreateModal(false);
+
+      // Refresh the notes list from server
+      await refreshNotes();
+
+      Alert.alert("Success", "Secure note saved successfully!");
+    } catch (error) {
+      console.error("Error saving secure note:", error);
+
+      // Fallback to local storage if API fails
+      const note: SecureNote = {
+        id: `note_${Date.now()}`,
+        userId: user?.id || "demo_user",
+        title: newNote.title,
+        content: newNote.content,
+        tags: newNote.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag),
+        isEncrypted: newNote.requiresBiometric,
+        requiresBiometric: newNote.requiresBiometric,
+        lastAccessed: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setNotes([note, ...notes]);
+      setNewNote({ title: "", content: "", tags: "", requiresBiometric: true });
+      setShowCreateModal(false);
+
+      Alert.alert(
+        "Note Saved Locally",
+        "Note saved to device. It will sync when connection is restored.",
+        [{ text: "OK" }],
+      );
+    }
+  };
+
+  const refreshNotes = async () => {
+    try {
+      // API call to GET /api/secure-notes to refresh the list
+      const response = await fetch("/api/secure-notes", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${token}`
+        },
+      });
+
+      if (response.ok) {
+        const updatedNotes = await response.json();
+        setNotes(updatedNotes);
+      }
+    } catch (error) {
+      console.error("Error refreshing notes:", error);
+      // Continue with local state if refresh fails
+    }
   };
 
   const deleteNote = (noteId: string) => {

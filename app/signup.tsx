@@ -28,6 +28,8 @@ import { useLocalization } from "@/contexts/LocalizationContext";
 import TermsCheckbox from "@/components/auth/TermsCheckbox";
 import PasswordInput from "@/components/ui/PasswordInput";
 import PhoneInput from "@/components/ui/PhoneInput";
+import StateDropdown from "@/components/ui/StateDropdown";
+import CityDropdown from "@/components/ui/CityDropdown";
 
 export default function SignupScreen() {
   const { theme } = useTheme();
@@ -43,9 +45,14 @@ export default function SignupScreen() {
     practiceYears: undefined,
     barCouncilNumber: "",
     officeAddress: "",
+    state: "",
+    city: "",
+    postalCode: "",
+    address: "",
   });
 
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedSpecializations, setSelectedSpecializations] = useState<
     string[]
@@ -55,14 +62,24 @@ export default function SignupScreen() {
 
   const roles: { value: UserRole; label: string; description: string }[] = [
     {
+      value: "general_user",
+      label: "General User",
+      description: "Regular user with basic access to legal resources",
+    },
+    {
       value: "law_student",
       label: t("lawStudent"),
-      description: "Currently studying law",
+      description: "Currently studying law or preparing for legal exams",
     },
     {
       value: "law_office_helper",
       label: t("lawOfficeHelper"),
-      description: "Administrative support",
+      description: "Administrative support in legal offices",
+    },
+    {
+      value: "legal_clerk_typist",
+      label: "Legal Clerk/Typist",
+      description: "Legal typing and clerical services",
     },
     {
       value: "lawyer_assistant",
@@ -72,12 +89,12 @@ export default function SignupScreen() {
     {
       value: "junior_lawyer",
       label: t("juniorLawyer"),
-      description: "Early career lawyer",
+      description: "Early career lawyer (0-5 years experience)",
     },
     {
       value: "lawyer",
       label: t("seniorLawyer"),
-      description: "Experienced legal practitioner",
+      description: "Experienced legal practitioner (5+ years)",
     },
   ];
 
@@ -127,6 +144,29 @@ export default function SignupScreen() {
       return false;
     }
 
+    // Required location fields validation
+    if (!formData.state?.trim()) {
+      Alert.alert("Error", "State is required");
+      return false;
+    }
+
+    if (!formData.city?.trim()) {
+      Alert.alert("Error", "City is required");
+      return false;
+    }
+
+    if (!formData.postalCode?.trim()) {
+      Alert.alert("Error", "Postal Code is required");
+      return false;
+    }
+
+    // Postal code validation (basic Indian postal code format)
+    const postalCodeRegex = /^[1-9][0-9]{5}$/;
+    if (!postalCodeRegex.test(formData.postalCode)) {
+      Alert.alert("Error", "Please enter a valid 6-digit postal code");
+      return false;
+    }
+
     // Check terms acceptance
     if (!termsAccepted) {
       setTermsError(true);
@@ -151,21 +191,28 @@ export default function SignupScreen() {
             : undefined,
       };
 
-      const result = await authService.signup(formData);
+      const result = await authService.signup(formData, referralCode);
 
       if (result.success) {
+        // Show referral code applied toast if referral code was provided
+        if (referralCode.trim()) {
+          Alert.alert(
+            "🎉 Success!",
+            "Referral code applied! You'll earn rewards when you subscribe.",
+          );
+        }
         // For lawyers, redirect to profile completion after email verification
         const isLawyer =
           formData.role === "lawyer" || formData.role === "junior_lawyer";
 
         Alert.alert(
-          t("success"),
+          "🎉 Account Created Successfully!",
           isLawyer
-            ? "Account created! Please verify your email, then complete your professional profile."
-            : "Let's verify your email and phone number to secure your account.",
+            ? `Welcome ${formData.name}! Your account has been created successfully. Please verify your email and complete your professional profile to get full access.`
+            : `Welcome ${formData.name}! Your account has been created successfully. Let's verify your email and phone number to secure your account.`,
           [
             {
-              text: "Verify Email First",
+              text: "Continue",
               onPress: () =>
                 router.push({
                   pathname: "/verify-email",
@@ -277,6 +324,21 @@ export default function SignupScreen() {
               />
             </View>
 
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Referral Code (Optional)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter referral code"
+                value={referralCode}
+                onChangeText={setReferralCode}
+                autoCapitalize="characters"
+                maxLength={20}
+              />
+              <Text style={styles.inputHint}>
+                Have a referral code? Enter it to get special benefits!
+              </Text>
+            </View>
+
             <PasswordInput
               label={t("password") + " *"}
               value={formData.password}
@@ -302,6 +364,62 @@ export default function SignupScreen() {
                   : undefined
               }
             />
+          </View>
+
+          {/* Location Information */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Location Information</Text>
+            <Text style={styles.sectionDescription}>
+              Your location helps connect you with relevant professionals and
+              services
+            </Text>
+
+            <StateDropdown
+              label="State *"
+              value={formData.state}
+              onValueChange={(state) => {
+                setFormData((prev) => ({ ...prev, state, city: "" }));
+              }}
+              placeholder="Select your state"
+            />
+
+            <CityDropdown
+              label="City *"
+              value={formData.city}
+              onValueChange={(city) =>
+                setFormData((prev) => ({ ...prev, city }))
+              }
+              selectedState={formData.state}
+              placeholder="Select your city"
+            />
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Postal Code *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter 6-digit postal code"
+                value={formData.postalCode}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, postalCode: text }))
+                }
+                keyboardType="numeric"
+                maxLength={6}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Address (Optional)</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Enter your complete address"
+                value={formData.address}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, address: text }))
+                }
+                multiline
+                numberOfLines={3}
+              />
+            </View>
           </View>
 
           {/* Role Selection */}
@@ -634,5 +752,11 @@ const styles = StyleSheet.create({
   loginLink: {
     color: "#1e40af",
     fontWeight: "500",
+  },
+  inputHint: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginTop: 4,
+    fontStyle: "italic",
   },
 });

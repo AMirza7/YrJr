@@ -37,6 +37,12 @@ const THEMES = [
   },
   { mode: "dark", name: "Dark", emoji: "🌙", description: "Easy on the eyes" },
   {
+    mode: "modern",
+    name: "Modern",
+    emoji: "✨",
+    description: "Sleek purple-themed design",
+  },
+  {
     mode: "system",
     name: "System",
     emoji: "📱",

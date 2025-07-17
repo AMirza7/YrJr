@@ -5,10 +5,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
-  Alert,
   TextInput,
 } from "react-native";
 import { biometricService, BiometricCapabilities } from "@/services/biometric";
+import { useModal } from "@/contexts/ModalContext";
 
 interface BiometricAuthProps {
   visible: boolean;
@@ -34,6 +34,7 @@ export default function BiometricAuth({
   const [confirmPin, setConfirmPin] = useState("");
   const [showPinInput, setShowPinInput] = useState(false);
   const [isEnabled, setIsEnabled] = useState(false);
+  const { showAlert, showError, showSuccess, showConfirm } = useModal();
 
   useEffect(() => {
     if (visible) {
@@ -58,16 +59,12 @@ export default function BiometricAuth({
     setLoading(true);
     try {
       if (!capabilities.hasHardware) {
-        Alert.alert(
-          "Not Available",
-          "Biometric hardware is not available on this device.",
-        );
+        showError("Biometric hardware is not available on this device.");
         return;
       }
 
       if (!capabilities.isEnrolled) {
-        Alert.alert(
-          "No Biometrics Enrolled",
+        showError(
           "Please enroll your fingerprint or face in device settings first.",
         );
         return;
@@ -80,7 +77,7 @@ export default function BiometricAuth({
       }
 
       if (mode === "setup" && pin !== confirmPin) {
-        Alert.alert("Error", "PINs do not match. Please try again.");
+        showError("PINs do not match. Please try again.");
         return;
       }
 
@@ -89,19 +86,15 @@ export default function BiometricAuth({
       );
 
       if (result.success) {
-        Alert.alert(
-          "Success!",
+        showSuccess(
           `${biometricService.getBiometricTypeString(result.authType!)} authentication has been enabled.`,
-          [{ text: "OK", onPress: onSuccess }],
+          onSuccess,
         );
       } else {
-        Alert.alert(
-          "Error",
-          result.error || "Failed to enable biometric authentication",
-        );
+        showError(result.error || "Failed to enable biometric authentication");
       }
     } catch (error) {
-      Alert.alert("Error", "An unexpected error occurred");
+      showError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -117,44 +110,30 @@ export default function BiometricAuth({
       if (result.success) {
         onSuccess();
       } else {
-        Alert.alert(
-          "Authentication Failed",
-          result.error || "Please try again",
-        );
+        showError(result.error || "Authentication Failed. Please try again");
       }
     } catch (error) {
-      Alert.alert("Error", "Authentication error occurred");
+      showError("Authentication error occurred");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDisableBiometric = async () => {
-    Alert.alert(
+    showConfirm(
       "Disable Biometric Authentication",
       "Are you sure you want to disable biometric authentication?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Disable",
-          style: "destructive",
-          onPress: async () => {
-            const success = await biometricService.disableBiometric();
-            if (success) {
-              setIsEnabled(false);
-              Alert.alert(
-                "Disabled",
-                "Biometric authentication has been disabled.",
-              );
-            } else {
-              Alert.alert(
-                "Error",
-                "Failed to disable biometric authentication",
-              );
-            }
-          },
-        },
-      ],
+      async () => {
+        const success = await biometricService.disableBiometric();
+        if (success) {
+          setIsEnabled(false);
+          showSuccess("Biometric authentication has been disabled.");
+        } else {
+          showError("Failed to disable biometric authentication");
+        }
+      },
+      "destructive",
+      "Disable",
     );
   };
 

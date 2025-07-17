@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { authService } from "@/services/auth";
+import BackButton from "@/components/navigation/BackButton";
 
 export default function VerifyEmailScreen() {
   const { email, phone, nextStep } = useLocalSearchParams<{
@@ -176,12 +177,7 @@ export default function VerifyEmailScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
+        <BackButton title="Login" color="#fff" />
         <Text style={styles.title}>Verify Email Address</Text>
         <Text style={styles.subtitle}>
           Enter the 6-digit code sent to{"\n"}

@@ -17,12 +17,24 @@ module.exports = {
       bundleIdentifier: "com.yrjr.legalassistant",
       supportsTablet: true,
       buildNumber: "1",
+      infoPlist: {
+        NSCameraUsageDescription:
+          "This app uses the camera to scan documents, barcodes, and QR codes for legal document processing.",
+        NSMicrophoneUsageDescription:
+          "This app may use the microphone for voice commands and audio recording in legal documentation.",
+      },
     },
 
     android: {
       package: "com.yrjr.legalassistant",
       versionCode: 1,
       enableHermes: true,
+      permissions: [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+      ],
     },
 
     web: {
@@ -30,7 +42,24 @@ module.exports = {
       favicon: "./assets/favicon.png",
     },
 
-    // Only essential plugins
-    plugins: ["expo-router"],
+    // Essential plugins
+    plugins: [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          cameraPermission:
+            "Allow access to camera for document scanning and barcode reading",
+          microphonePermission:
+            "Allow access to microphone for voice commands and audio recording",
+        },
+      ],
+      [
+        "expo-document-picker",
+        {
+          iCloudContainerEnvironment: "Production",
+        },
+      ],
+    ],
   },
 };

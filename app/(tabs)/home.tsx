@@ -116,6 +116,63 @@ export default function HomeScreen() {
       route: "/(tabs)/notes",
     },
     {
+      title: "Case Timeline",
+      icon: "📅",
+      available: true,
+      route: "/case-timeline",
+    },
+    {
+      title: "Professional Messaging",
+      icon: "💬",
+      available: true,
+      route: "/messaging",
+    },
+    {
+      title: "Legal Chat AI",
+      icon: "🤖",
+      available: true,
+      route: "/legal-chat",
+    },
+    {
+      title: "Case Folders",
+      icon: "📁",
+      available: true,
+      route: "/(tabs)/case-folders",
+    },
+    {
+      title: "Auto Drafter",
+      icon: "📝",
+      available: true,
+      route: "/auto-drafter",
+    },
+    {
+      title: "Find Lawyers",
+      icon: "⚖��",
+      available: true, // Available to all users
+      route: "/lawyer-directory",
+    },
+    {
+      title: "Clerks Directory",
+      icon: "⌨️",
+      available:
+        user?.role === "lawyer" ||
+        user?.role === "junior_lawyer" ||
+        user?.role === "admin",
+      route: "/clerks-directory",
+    },
+    {
+      title: "Clerk Marketplace",
+      icon: "🛒",
+      available: user?.role === "legal_clerk_typist",
+      route: "/clerk-marketplace",
+    },
+    {
+      title: "My Templates",
+      icon: "📄",
+      available: user?.role === "legal_clerk_typist",
+      route: "/clerk-templates",
+    },
+    {
       title: t("searchLegal"),
       icon: "🔍",
       available: true,
@@ -124,6 +181,13 @@ export default function HomeScreen() {
   ].filter((action) => action.available); // Only show available actions
 
   const advancedFeatures = [
+    {
+      title: "Legal Templates",
+      icon: "📚",
+      available: true,
+      route: "/legal-templates",
+      description: "Smart legal document templates",
+    },
     {
       title: t("aiComparator"),
       icon: "⚖️",
@@ -138,6 +202,7 @@ export default function HomeScreen() {
       route: "/templates",
       description: "Legal document templates",
     },
+
     {
       title: t("flashcards"),
       icon: "🧠",

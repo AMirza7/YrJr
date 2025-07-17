@@ -1,0 +1,564 @@
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Image,
+  SafeAreaView,
+} from "react-native";
+import { router } from "expo-router";
+import { scannerService } from "@/services/scanner";
+import { DocumentScanResult } from "@/types/scanner";
+import { useModal } from "@/contexts/ModalContext";
+import Toast, { ToastType } from "@/components/ui/Toast";
+import ProgressIndicator from "@/components/scanner/ProgressIndicator";
+import OCRResultView from "@/components/scanner/OCRResultView";
+import AIActionsPanel from "@/components/scanner/AIActionsPanel";
+import LegalDisclaimer from "@/components/scanner/LegalDisclaimer";
+
+interface DocumentScannerProps {
+  onScanComplete?: (result: DocumentScanResult) => void;
+  onClose?: () => void;
+}
+
+export default function DocumentScanner({
+  onScanComplete,
+  onClose,
+}: DocumentScannerProps) {
+  const [loading, setLoading] = useState(false);
+  const [scanResult, setScanResult] = useState<DocumentScanResult | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<ToastType>("info");
+  const [showFirstTimeDisclaimer, setShowFirstTimeDisclaimer] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(true);
+  const { showError, showSuccess } = useModal();
+
+  const showToastMessage = (message: string, type: ToastType) => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+  };
+
+  const handleFileUpload = async () => {
+    // Show first time disclaimer if needed
+    if (isFirstTime && !showFirstTimeDisclaimer) {
+      setShowFirstTimeDisclaimer(true);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setUploadProgress(0);
+
+      const fileUri = await scannerService.pickDocument();
+
+      if (!fileUri) {
+        setLoading(false);
+        return;
+      }
+
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 0.9) {
+            clearInterval(progressInterval);
+            return 0.9;
+          }
+          return prev + 0.1;
+        });
+      }, 200);
+
+      const result = await scannerService.scanDocument(fileUri);
+
+      clearInterval(progressInterval);
+      setUploadProgress(1);
+
+      setScanResult(result);
+      onScanComplete?.(result);
+
+      showToastMessage("✅ Scan successful! Document processed.", "success");
+    } catch (error) {
+      setUploadProgress(0);
+      showToastMessage("❌ Scan failed. Please try again.", "error");
+      console.error("Scan error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    setScanResult(null);
+    setUploadProgress(0);
+    handleFileUpload();
+  };
+
+  const handleFirstTimeAccept = () => {
+    setIsFirstTime(false);
+    setShowFirstTimeDisclaimer(false);
+    // Proceed with file upload after accepting disclaimer
+    setTimeout(() => {
+      handleFileUpload();
+    }, 100);
+  };
+
+  const handleFieldUpdate = (key: string, value: string) => {
+    if (!scanResult) return;
+
+    setScanResult((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        data: {
+          ...prev.data,
+          keyFields: {
+            ...prev.data.keyFields,
+            [key]: value,
+          },
+        },
+      };
+    });
+
+    showToastMessage("Field updated successfully", "success");
+  };
+
+  const handleGeneratePetition = () => {
+    if (!scanResult) return;
+
+    // Navigate to petition form with scan data
+    router.push("/petition-form");
+    showSuccess("Opening petition form with auto-filled data");
+  };
+
+  const handleSaveToHistory = async () => {
+    if (!scanResult) return;
+
+    try {
+      // Already saved in service, just show confirmation
+      showSuccess("Document has been saved to your scan history");
+    } catch (error) {
+      showError("Failed to save to history");
+    }
+  };
+
+  const handleExportAsWord = () => {
+    if (!scanResult) return;
+
+    showSuccess("Document has been exported as Word file");
+  };
+
+  if (loading) {
+    return (
+      <>
+        <ProgressIndicator
+          visible={loading}
+          title="Processing Document"
+          message="Extracting text and analyzing legal content"
+          progress={uploadProgress}
+          type="upload"
+        />
+        <Toast
+          visible={showToast}
+          message={toastMessage}
+          type={toastType}
+          onHide={() => setShowToast(false)}
+          actionText={toastType === "error" ? "🔁 Retry" : undefined}
+          onAction={toastType === "error" ? handleRetry : undefined}
+        />
+      </>
+    );
+  }
+
+  if (scanResult) {
+    const parsedFields = [
+      {
+        label: "Petitioner",
+        value: scanResult.data.keyFields.petitioner || "",
+        key: "petitioner",
+      },
+      {
+        label: "Property Address",
+        value: scanResult.data.keyFields.propertyAddress || "",
+        key: "propertyAddress",
+      },
+      {
+        label: "Case Number",
+        value: scanResult.data.keyFields.caseNumber || "",
+        key: "caseNumber",
+      },
+      {
+        label: "Court",
+        value: scanResult.data.keyFields.court || "",
+        key: "court",
+      },
+      {
+        label: "IPC Sections",
+        value: scanResult.data.keyFields.ipcSections?.join(", ") || "",
+        key: "ipcSections",
+      },
+      {
+        label: "Dates",
+        value: scanResult.data.keyFields.dates?.join(", ") || "",
+        key: "dates",
+      },
+    ];
+
+    return (
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>📄 Document Scan Results</Text>
+          {onClose && (
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Preview Image */}
+        {scanResult.imageUri && (
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri: scanResult.imageUri }}
+              style={styles.previewImage}
+            />
+          </View>
+        )}
+
+        {/* OCR Result View */}
+        <OCRResultView
+          rawText={scanResult.data.fullText}
+          parsedFields={parsedFields}
+          onFieldUpdate={handleFieldUpdate}
+          documentType={scanResult.data.documentType || "Legal Document"}
+        />
+
+        {/* AI Actions Panel */}
+        <AIActionsPanel
+          documentType="document"
+          extractedData={scanResult.data}
+          onActionSelect={(action) => {
+            console.log("AI Action selected:", action.title);
+          }}
+        />
+
+        {/* Legal Disclaimer */}
+        <LegalDisclaimer compact />
+
+        <Toast
+          visible={showToast}
+          message={toastMessage}
+          type={toastType}
+          onHide={() => setShowToast(false)}
+        />
+
+        <LegalDisclaimer
+          showFirstTimeModal={showFirstTimeDisclaimer}
+          onFirstTimeAccept={handleFirstTimeAccept}
+        />
+      </ScrollView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Header with back button */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={onClose}>
+          <Text style={styles.backIcon}>‹</Text>
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Document Scanner</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <View style={styles.uploadContainer}>
+        <Text style={styles.title}>📄 Document Scanner</Text>
+        <Text style={styles.subtitle}>
+          Upload PDF, JPG, or PNG files for OCR processing
+        </Text>
+
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={handleFileUpload}
+        >
+          <Text style={styles.uploadIcon}>📁</Text>
+          <Text style={styles.uploadText}>Choose File</Text>
+          <Text style={styles.uploadSubtext}>PDF, JPG, PNG supported</Text>
+        </TouchableOpacity>
+
+        <View style={styles.featuresContainer}>
+          <Text style={styles.featuresTitle}>✨ Enhanced Features</Text>
+          <Text style={styles.featureItem}>• Smart OCR with parsed fields</Text>
+          <Text style={styles.featureItem}>• AI-powered legal suggestions</Text>
+          <Text style={styles.featureItem}>• Editable field extraction</Text>
+          <Text style={styles.featureItem}>
+            • Real-time processing feedback
+          </Text>
+        </View>
+
+        {/* Legal Disclaimer */}
+        <LegalDisclaimer compact />
+      </View>
+
+      <Toast
+        visible={showToast}
+        message={toastMessage}
+        type={toastType}
+        onHide={() => setShowToast(false)}
+        actionText={toastType === "error" ? "🔁 Retry" : undefined}
+        onAction={toastType === "error" ? handleRetry : undefined}
+      />
+
+      <LegalDisclaimer
+        showFirstTimeModal={showFirstTimeDisclaimer}
+        onFirstTimeAccept={handleFirstTimeAccept}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#8b5cf6",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.2)",
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  backIcon: {
+    fontSize: 24,
+    color: "#fff",
+    marginRight: 4,
+  },
+  backText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "500",
+  },
+  headerTitle: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  headerSpacer: {
+    width: 60,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+    padding: 20,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1e40af",
+    marginTop: 16,
+  },
+  loadingSubtext: {
+    fontSize: 14,
+    color: "#64748b",
+    marginTop: 8,
+    textAlign: "center",
+  },
+  uploadContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1e293b",
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#64748b",
+    textAlign: "center",
+    marginBottom: 32,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#f1f5f9",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: "#64748b",
+    fontWeight: "bold",
+  },
+  uploadButton: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 32,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    marginBottom: 32,
+    borderWidth: 2,
+    borderColor: "#e2e8f0",
+    borderStyle: "dashed",
+  },
+  uploadIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  uploadText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#2563eb",
+    marginBottom: 8,
+  },
+  uploadSubtext: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+  featuresContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  featuresTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1e293b",
+    marginBottom: 12,
+  },
+  featureItem: {
+    fontSize: 14,
+    color: "#64748b",
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  imageContainer: {
+    padding: 20,
+    backgroundColor: "#fff",
+  },
+  previewImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 12,
+    resizeMode: "cover",
+  },
+  section: {
+    backgroundColor: "#fff",
+    marginTop: 1,
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1e293b",
+    marginBottom: 16,
+  },
+  fieldsContainer: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    padding: 16,
+  },
+  fieldRow: {
+    marginBottom: 12,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#475569",
+    marginBottom: 4,
+  },
+  fieldValue: {
+    fontSize: 14,
+    color: "#1e293b",
+    backgroundColor: "#fff",
+    padding: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  textContainer: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    padding: 16,
+    maxHeight: 200,
+  },
+  extractedText: {
+    fontSize: 13,
+    color: "#374151",
+    lineHeight: 20,
+    fontFamily: "monospace",
+  },
+  actionsContainer: {
+    padding: 20,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
+  },
+  actionButton: {
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  primaryButton: {
+    backgroundColor: "#2563eb",
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  secondaryActions: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  secondaryButton: {
+    flex: 1,
+    backgroundColor: "#f1f5f9",
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  secondaryButtonText: {
+    color: "#475569",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+});

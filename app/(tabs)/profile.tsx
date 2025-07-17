@@ -81,6 +81,43 @@ export default function ProfileScreen() {
   const permissions = getRolePermissions(user.role);
   const roleColor = getRoleColor(user.role);
 
+  const handleProfileImageUpdate = () => {
+    Alert.alert(
+      "Update Profile Picture",
+      "Choose how you'd like to update your profile picture:",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Take Photo",
+          onPress: () => {
+            Alert.alert(
+              "Coming Soon",
+              "Camera integration will be available soon!",
+            );
+          },
+        },
+        {
+          text: "Choose from Gallery",
+          onPress: () => {
+            Alert.alert(
+              "Coming Soon",
+              "Gallery selection will be available soon!",
+            );
+          },
+        },
+        {
+          text: "Use Initials",
+          onPress: () => {
+            Alert.alert(
+              "Profile Updated",
+              "Your profile is using initials avatar!",
+            );
+          },
+        },
+      ],
+    );
+  };
+
   const handleProfileAction = (actionTitle: string) => {
     switch (actionTitle) {
       case t("settings"):
@@ -117,7 +154,10 @@ export default function ProfileScreen() {
       {/* User Info */}
       <View style={styles.section}>
         <View style={styles.userCard}>
-          <View style={styles.avatarContainer}>
+          <TouchableOpacity
+            style={styles.avatarContainer}
+            onPress={() => handleProfileImageUpdate()}
+          >
             <Text style={styles.avatar}>
               {user.name
                 .split(" ")
@@ -125,7 +165,10 @@ export default function ProfileScreen() {
                 .join("")
                 .toUpperCase()}
             </Text>
-          </View>
+            <View style={styles.editImageBadge}>
+              <Text style={styles.editImageIcon}>📷</Text>
+            </View>
+          </TouchableOpacity>
           <Text style={styles.userName}>{user.name}</Text>
           <Text style={styles.userEmail}>{user.email}</Text>
           <View style={[styles.roleTag, { backgroundColor: roleColor + "20" }]}>
@@ -265,11 +308,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
+    position: "relative",
   },
   avatar: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#374151",
+  },
+  editImageBadge: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 24,
+    height: 24,
+    backgroundColor: "#1e40af",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
+  },
+  editImageIcon: {
+    fontSize: 10,
   },
   userName: {
     fontSize: 20,

@@ -20,10 +20,16 @@ export default function BackButton({
   const handlePress = () => {
     if (onPress) {
       onPress();
-    } else if (router.canGoBack()) {
-      router.back();
     } else {
-      router.replace("/(tabs)/home");
+      try {
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace("/(tabs)/home");
+        }
+      } catch (error) {
+        router.replace("/(tabs)/home");
+      }
     }
   };
 

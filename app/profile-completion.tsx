@@ -15,6 +15,9 @@ import { authService } from "@/services/auth";
 import { User } from "@/types";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import StateDropdown from "@/components/ui/StateDropdown";
+import CityDropdown from "@/components/ui/CityDropdown";
+import VerifyIdentity from "@/components/verification/VerifyIdentity";
 
 export default function ProfileCompletionScreen() {
   const { theme } = useTheme();
@@ -28,11 +31,16 @@ export default function ProfileCompletionScreen() {
     officeAddress: "",
     specialization: [] as string[],
     bio: "",
+    state: "",
+    city: "",
+    postalCode: "",
+    address: "",
   });
 
   const [selectedSpecializations, setSelectedSpecializations] = useState<
     string[]
   >([]);
+  const [showVerification, setShowVerification] = useState(false);
 
   const specializations = [
     "Civil Law",
@@ -72,6 +80,10 @@ export default function ProfileCompletionScreen() {
         officeAddress: currentUser.officeAddress || "",
         specialization: currentUser.specialization || [],
         bio: currentUser.bio || "",
+        state: currentUser.state || "",
+        city: currentUser.city || "",
+        postalCode: currentUser.postalCode || "",
+        address: currentUser.address || "",
       });
 
       setSelectedSpecializations(currentUser.specialization || []);
@@ -121,6 +133,10 @@ export default function ProfileCompletionScreen() {
             ? selectedSpecializations
             : undefined,
         bio: formData.bio || undefined,
+        state: formData.state || undefined,
+        city: formData.city || undefined,
+        postalCode: formData.postalCode || undefined,
+        address: formData.address || undefined,
       };
 
       const success = await authService.updateUser(updateData);
@@ -266,6 +282,18 @@ export default function ProfileCompletionScreen() {
       fontSize: 16,
       fontWeight: "600",
     },
+    verifyButton: {
+      flex: 1,
+      backgroundColor: "#8b5cf6",
+      padding: 16,
+      borderRadius: 12,
+      alignItems: "center",
+    },
+    verifyButtonText: {
+      color: "#fff",
+      fontSize: 14,
+      fontWeight: "600",
+    },
     completeButton: {
       flex: 2,
       backgroundColor: theme.colors.primary,
@@ -403,6 +431,62 @@ export default function ProfileCompletionScreen() {
             </View>
           </View>
 
+          {/* Location Information */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Location Information</Text>
+            <Text style={styles.sectionDescription}>
+              Your location helps connect you with relevant clients and
+              colleagues
+            </Text>
+
+            <StateDropdown
+              label="State"
+              value={formData.state}
+              onValueChange={(state) => {
+                setFormData((prev) => ({ ...prev, state, city: "" }));
+              }}
+              placeholder="Select your state"
+            />
+
+            <CityDropdown
+              label="City"
+              value={formData.city}
+              onValueChange={(city) =>
+                setFormData((prev) => ({ ...prev, city }))
+              }
+              selectedState={formData.state}
+              placeholder="Select your city"
+            />
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Postal Code</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter 6-digit postal code"
+                value={formData.postalCode}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, postalCode: text }))
+                }
+                keyboardType="numeric"
+                maxLength={6}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Complete Address</Text>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Enter your complete address"
+                value={formData.address}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, address: text }))
+                }
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+          </View>
+
           {/* Specializations */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Areas of Specialization</Text>
@@ -442,6 +526,13 @@ export default function ProfileCompletionScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
+              style={styles.verifyButton}
+              onPress={() => setShowVerification(true)}
+            >
+              <Text style={styles.verifyButtonText}>🔐 Verify Identity</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={[styles.completeButton, { opacity: loading ? 0.7 : 1 }]}
               onPress={handleComplete}
               disabled={loading}
@@ -452,6 +543,16 @@ export default function ProfileCompletionScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {showVerification && (
+          <VerifyIdentity
+            userType={user.role === "lawyer" ? "lawyer" : "clerk"}
+            onComplete={() => {
+              setShowVerification(false);
+            }}
+            onClose={() => setShowVerification(false)}
+          />
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );

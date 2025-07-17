@@ -20,33 +20,22 @@ const MOCK_USERS: User[] = [];
 
 // Generate demo users from DEMO_ACCOUNTS
 DEMO_ACCOUNTS.forEach((account, index) => {
-  MOCK_USERS.push({
+  const demoUser: User = {
     id: `demo_${account.role}_${index}`,
     email: account.email,
     name: account.name,
     role: account.role,
     isVerified: true,
-    isApproved:
-      account.role === "admin"
-        ? true
-        : account.role === "lawyer" || account.role === "junior_lawyer"
-          ? Math.random() > 0.3
-          : true,
+    isApproved: true, // All demo accounts should be approved
     hasVerificationBadge:
-      account.role === "lawyer" || account.role === "junior_lawyer"
-        ? Math.random() > 0.5
-        : false,
+      account.role === "lawyer" || account.role === "junior_lawyer",
     subscriptionTier:
-      account.role === "admin"
+      account.role === "lawyer"
         ? "premium"
-        : account.role === "lawyer"
-          ? "premium"
-          : account.role === "junior_lawyer"
-            ? "pro"
-            : "free",
-    createdAt: new Date(
-      Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000,
-    ).toISOString(),
+        : account.role === "junior_lawyer"
+          ? "pro"
+          : "free",
+    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
     lastActiveAt: new Date().toISOString(),
     preferences: {
       theme: "light",
@@ -64,7 +53,10 @@ DEMO_ACCOUNTS.forEach((account, index) => {
         showOnlineStatus: true,
       },
     },
-  });
+  };
+
+  MOCK_USERS.push(demoUser);
+  console.log(`📝 Created demo user: ${demoUser.email} - ${demoUser.role}`);
 });
 
 // Add admin account
@@ -98,18 +90,36 @@ MOCK_USERS.push({
 });
 
 export const authService = {
+  async loginWithPhone(phone: string, password: string): Promise<AuthResponse> {
+    try {
+      console.log(`📱 Phone login attempt: ${phone}`);
+
+      // For non-demo phone numbers, create a user account or validate
+      // This is a simplified implementation - in reality you'd have phone-based user accounts
+
+      return {
+        success: false,
+        message:
+          "Phone-based login not implemented yet. Please use demo account (9876543210).",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "Phone login failed. Please try again.",
+      };
+    }
+  },
+
   async login(email: string, password: string): Promise<AuthResponse> {
     try {
+      console.log(`🔑 Login attempt: ${email} with password: ${password}`);
+
       // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Check demo accounts first
-      const demoAccount = DEMO_ACCOUNTS.find(
-        (account) => account.email === email && password === "demo123",
-      );
-
-      // Check admin account
+      // Check admin account first
       if (email === "admin@yrjr.app" && password === "admin123") {
+        console.log("🏛️ Admin login detected");
         const adminUser = MOCK_USERS.find((u) => u.email === "admin@yrjr.app");
         if (adminUser) {
           const token = `token_${adminUser.id}_${Date.now()}`;
@@ -117,6 +127,7 @@ export const authService = {
           await AsyncStorage.setItem(KEYS.TOKEN, token);
           await AsyncStorage.setItem(KEYS.LAST_LOGIN, new Date().toISOString());
 
+          console.log("✅ Admin login successful");
           return {
             success: true,
             user: adminUser,
@@ -125,7 +136,13 @@ export const authService = {
         }
       }
 
-      if (demoAccount) {
+      // Check demo accounts
+      const demoAccount = DEMO_ACCOUNTS.find(
+        (account) => account.email === email,
+      );
+
+      if (demoAccount && password === "demo123") {
+        console.log(`👤 Demo account found: ${demoAccount.role}`);
         const user = MOCK_USERS.find((u) => u.email === email);
         if (user) {
           const token = `token_${user.id}_${Date.now()}`;
@@ -133,19 +150,24 @@ export const authService = {
           await AsyncStorage.setItem(KEYS.TOKEN, token);
           await AsyncStorage.setItem(KEYS.LAST_LOGIN, new Date().toISOString());
 
+          console.log(`✅ Demo login successful for ${user.role}`);
           return {
             success: true,
             user,
             token,
           };
+        } else {
+          console.error(`❌ Demo user not found in MOCK_USERS for ${email}`);
         }
       }
 
+      console.log("❌ Invalid credentials or user not found");
       return {
         success: false,
-        message: "Invalid credentials",
+        message: "Invalid email or password",
       };
     } catch (error) {
+      console.error("❌ Login error:", error);
       return {
         success: false,
         message: "Login failed. Please try again.",
@@ -153,7 +175,7 @@ export const authService = {
     }
   },
 
-  async signup(data: SignupData): Promise<AuthResponse> {
+  async signup(data: SignupData, referralCode?: string): Promise<AuthResponse> {
     try {
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -204,6 +226,15 @@ export const authService = {
 
       // Add to mock database
       MOCK_USERS.push(newUser);
+
+      // Handle referral code if provided
+      if (referralCode?.trim()) {
+        // Mock referral processing - in real app, this would be an API call
+        console.log(
+          `Processing referral code: ${referralCode} for user: ${newUser.id}`,
+        );
+        // Store referral relationship in database
+      }
 
       // For lawyers and junior lawyers, require approval
       const requiresApproval =
@@ -392,6 +423,22 @@ export const authService = {
       return true;
     } catch (error) {
       return false;
+    }
+  },
+
+  // Public method to get verified lawyers for directory
+  async getPublicLawyers(): Promise<User[]> {
+    try {
+      // Return only public information for verified lawyers
+      return MOCK_USERS.filter(
+        (user) =>
+          (user.role === "lawyer" || user.role === "junior_lawyer") &&
+          user.isVerified &&
+          user.isApproved,
+      );
+    } catch (error) {
+      console.error("Error getting public lawyers:", error);
+      return [];
     }
   },
 

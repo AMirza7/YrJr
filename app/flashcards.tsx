@@ -1,664 +1,221 @@
-import { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  Alert,
-  Animated,
-} from "react-native";
-import { dataService } from "@/services/dataService";
-import { Flashcard, FlashcardSession } from "@/types/features";
+import React, { useState } from "react";
+import { View, StyleSheet } from "react-native";
+import { router } from "expo-router";
+import BackButton from "@/components/navigation/BackButton";
+import AdvancedFlashcards from "@/components/learning/AdvancedFlashcards";
+
+// Mock flashcard data - in real app this would come from API
+const mockFlashcards = [
+  {
+    id: "1",
+    question: "What is the punishment for murder under IPC Section 302?",
+    answer:
+      "Death penalty or life imprisonment. Under Section 302 of the Indian Penal Code, whoever commits murder shall be punished with death, or imprisonment for life, and shall also be liable to fine.",
+    category: "Criminal Law",
+    difficulty: "medium" as const,
+    tags: ["IPC", "murder", "punishment"],
+    mastery: 65,
+  },
+  {
+    id: "2",
+    question: "Define 'consideration' in contract law.",
+    answer:
+      "Consideration is something of value given in exchange for a promise. It can be a benefit to the promisor or a detriment to the promisee. It must be real, lawful, and have some value in the eyes of law.",
+    category: "Contract Law",
+    difficulty: "easy" as const,
+    tags: ["contract", "consideration", "definition"],
+    mastery: 85,
+  },
+  {
+    id: "3",
+    question: "What are the essential elements of a valid contract?",
+    answer:
+      "1. Offer and Acceptance, 2. Intention to create legal relationship, 3. Lawful consideration and object, 4. Capacity of parties, 5. Free consent, 6. Certainty of terms, 7. Not expressly declared void.",
+    category: "Contract Law",
+    difficulty: "hard" as const,
+    tags: ["contract", "elements", "validity"],
+    mastery: 45,
+  },
+  {
+    id: "4",
+    question: "What is Article 21 of the Indian Constitution?",
+    answer:
+      "Article 21 states 'No person shall be deprived of his life or personal liberty except according to procedure established by law.' It is the most important fundamental right guaranteeing protection of life and personal liberty.",
+    category: "Constitutional Law",
+    difficulty: "medium" as const,
+    tags: ["constitution", "fundamental rights", "Article 21"],
+    mastery: 75,
+  },
+  {
+    id: "5",
+    question: "Explain the principle of 'Res Judicata'.",
+    answer:
+      "Res Judicata means 'a matter already judged'. It prevents the same dispute between the same parties from being litigated again. Once a court has decided a matter, it cannot be re-opened in another proceeding.",
+    category: "Civil Procedure",
+    difficulty: "hard" as const,
+    tags: ["res judicata", "civil procedure", "principle"],
+    mastery: 30,
+  },
+];
 
 export default function FlashcardsLearning() {
-  const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
-  const [sessions, setSessions] = useState<FlashcardSession[]>([]);
-  const [currentCard, setCurrentCard] = useState<Flashcard | null>(null);
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [isStudyMode, setIsStudyMode] = useState(false);
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [sessionStats, setSessionStats] = useState({
-    totalCards: 0,
-    correctAnswers: 0,
-    currentStreak: 0,
-  });
-  const [flipAnimation] = useState(new Animated.Value(0));
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-
-  const categories = [
-    "All",
-    "Criminal Law",
-    "Civil Law",
-    "Constitutional Law",
-    "Contract Law",
-  ];
-
-  useEffect(() => {
-    loadFlashcards();
-    loadSessions();
-  }, []);
-
-  useEffect(() => {
-    filterCards();
-  }, [flashcards, selectedCategory]);
-
-  const loadFlashcards = async () => {
+  const handleClose = () => {
     try {
-      const data = await dataService.getFlashcards();
-      setFlashcards(data);
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.push("/(tabs)/home");
+      }
     } catch (error) {
-      console.error("Error loading flashcards:", error);
+      router.push("/(tabs)/home");
     }
   };
 
-  const loadSessions = async () => {
-    try {
-      const data = await dataService.getFlashcardSessions();
-      setSessions(data);
-    } catch (error) {
-      console.error("Error loading sessions:", error);
-    }
-  };
-
-  const filterCards = () => {
-    let filtered = flashcards;
-    if (selectedCategory !== "all" && selectedCategory !== "All") {
-      filtered = flashcards.filter(
-        (card) => card.category === selectedCategory,
-      );
-    }
-
-    if (filtered.length > 0 && !isStudyMode) {
-      setCurrentCard(filtered[0]);
-      setCurrentCardIndex(0);
-    }
-  };
-
-  const startStudySession = () => {
-    const filteredCards =
-      selectedCategory === "all" || selectedCategory === "All"
-        ? flashcards
-        : flashcards.filter((card) => card.category === selectedCategory);
-
-    if (filteredCards.length === 0) {
-      Alert.alert(
-        "No Cards",
-        "No flashcards available for the selected category",
-      );
-      return;
-    }
-
-    setIsStudyMode(true);
-    setCurrentCard(filteredCards[0]);
-    setCurrentCardIndex(0);
-    setShowAnswer(false);
-    setSessionStats({
-      totalCards: filteredCards.length,
-      correctAnswers: 0,
-      currentStreak: 0,
-    });
-  };
-
-  const flipCard = () => {
-    Animated.timing(flipAnimation, {
-      toValue: showAnswer ? 0 : 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    setShowAnswer(!showAnswer);
-  };
-
-  const handleAnswer = (isCorrect: boolean) => {
-    if (!currentCard) return;
-
-    const newStats = {
-      ...sessionStats,
-      correctAnswers: isCorrect
-        ? sessionStats.correctAnswers + 1
-        : sessionStats.correctAnswers,
-      currentStreak: isCorrect ? sessionStats.currentStreak + 1 : 0,
-    };
-    setSessionStats(newStats);
-
-    // Update card statistics
-    const updatedCard = {
-      ...currentCard,
-      timesReviewed: currentCard.timesReviewed + 1,
-      correctAnswers: isCorrect
-        ? currentCard.correctAnswers + 1
-        : currentCard.correctAnswers,
-      lastReviewed: new Date(),
-    };
-
-    nextCard();
-  };
-
-  const nextCard = () => {
-    const filteredCards =
-      selectedCategory === "all" || selectedCategory === "All"
-        ? flashcards
-        : flashcards.filter((card) => card.category === selectedCategory);
-
-    if (currentCardIndex < filteredCards.length - 1) {
-      const nextIndex = currentCardIndex + 1;
-      setCurrentCardIndex(nextIndex);
-      setCurrentCard(filteredCards[nextIndex]);
-      setShowAnswer(false);
-      flipAnimation.setValue(0);
-    } else {
-      endStudySession();
-    }
-  };
-
-  const endStudySession = () => {
-    const score = Math.round(
-      (sessionStats.correctAnswers / sessionStats.totalCards) * 100,
-    );
-
-    Alert.alert(
-      "Session Complete! 🎉",
-      `Score: ${sessionStats.correctAnswers}/${sessionStats.totalCards} (${score}%)\nBest Streak: ${sessionStats.currentStreak}`,
-      [
-        { text: "Review Results", onPress: () => setIsStudyMode(false) },
-        { text: "Study Again", onPress: startStudySession },
-      ],
-    );
-
-    // Save session (simplified)
-    const newSession: FlashcardSession = {
-      id: Date.now().toString(),
-      userId: "current_user",
-      category: selectedCategory,
-      totalCards: sessionStats.totalCards,
-      correctAnswers: sessionStats.correctAnswers,
-      score: score,
-      timeSpent: 0, // Would track actual time in real implementation
-      completedAt: new Date(),
-    };
-
-    setSessions([newSession, ...sessions]);
-  };
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "easy":
-        return "#10b981";
-      case "medium":
-        return "#f59e0b";
-      case "hard":
-        return "#ef4444";
-      default:
-        return "#6b7280";
-    }
-  };
-
-  const getPerformanceColor = (percentage: number) => {
-    if (percentage >= 80) return "#10b981";
-    if (percentage >= 60) return "#f59e0b";
-    return "#ef4444";
-  };
-
-  const renderCategoryFilter = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      style={[
-        styles.categoryChip,
-        {
-          backgroundColor:
-            selectedCategory === item.toLowerCase() ? "#7c3aed" : "#f3f4f6",
-        },
-      ]}
-      onPress={() => setSelectedCategory(item.toLowerCase())}
-    >
-      <Text
-        style={[
-          styles.categoryChipText,
-          {
-            color: selectedCategory === item.toLowerCase() ? "#fff" : "#374151",
-          },
-        ]}
-      >
-        {item}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  const renderSession = ({ item }: { item: FlashcardSession }) => (
-    <View style={styles.sessionCard}>
-      <View style={styles.sessionHeader}>
-        <Text style={styles.sessionCategory}>{item.category}</Text>
-        <Text
-          style={[
-            styles.sessionScore,
-            { color: getPerformanceColor(item.score) },
-          ]}
-        >
-          {item.score}%
-        </Text>
-      </View>
-      <Text style={styles.sessionStats}>
-        {item.correctAnswers}/{item.totalCards} correct answers
-      </Text>
-      <Text style={styles.sessionDate}>
-        {new Date(item.completedAt).toLocaleDateString("en-IN")}
-      </Text>
-    </View>
-  );
-
-  if (isStudyMode && currentCard) {
-    return (
-      <View style={styles.studyContainer}>
-        {/* Study Header */}
-        <View style={styles.studyHeader}>
-          <TouchableOpacity
-            style={styles.exitButton}
-            onPress={() => setIsStudyMode(false)}
-          >
-            <Text style={styles.exitButtonText}>✕ Exit</Text>
-          </TouchableOpacity>
-          <Text style={styles.progressText}>
-            {currentCardIndex + 1} / {sessionStats.totalCards}
-          </Text>
-          <Text style={styles.scoreText}>
-            Score: {sessionStats.correctAnswers}/{currentCardIndex + 1}
-          </Text>
-        </View>
-
-        {/* Progress Bar */}
-        <View style={styles.progressBarContainer}>
-          <View
-            style={[
-              styles.progressBar,
-              {
-                width: `${((currentCardIndex + 1) / sessionStats.totalCards) * 100}%`,
-              },
-            ]}
-          />
-        </View>
-
-        {/* Flashcard */}
-        <View style={styles.cardContainer}>
-          <TouchableOpacity style={styles.flashcard} onPress={flipCard}>
-            <Animated.View
-              style={[
-                styles.cardSide,
-                {
-                  transform: [
-                    {
-                      rotateY: flipAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ["0deg", "180deg"],
-                      }),
-                    },
-                  ],
-                },
-              ]}
-            >
-              <Text style={styles.cardLabel}>
-                {showAnswer ? "ANSWER" : "QUESTION"}
-              </Text>
-              <Text style={styles.cardText}>
-                {showAnswer ? currentCard.answer : currentCard.question}
-              </Text>
-
-              <View style={styles.cardFooter}>
-                <View
-                  style={[
-                    styles.difficultyBadge,
-                    {
-                      backgroundColor: getDifficultyColor(
-                        currentCard.difficulty,
-                      ),
-                    },
-                  ]}
-                >
-                  <Text style={styles.difficultyText}>
-                    {currentCard.difficulty.toUpperCase()}
-                  </Text>
-                </View>
-                <Text style={styles.categoryText}>{currentCard.category}</Text>
-              </View>
-            </Animated.View>
-          </TouchableOpacity>
-
-          <Text style={styles.flipHint}>Tap card to flip</Text>
-        </View>
-
-        {/* Answer Buttons */}
-        {showAnswer && (
-          <View style={styles.answerButtons}>
-            <TouchableOpacity
-              style={[styles.answerButton, styles.incorrectButton]}
-              onPress={() => handleAnswer(false)}
-            >
-              <Text style={styles.answerButtonText}>❌ Incorrect</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.answerButton, styles.correctButton]}
-              onPress={() => handleAnswer(true)}
-            >
-              <Text style={styles.answerButtonText}>✅ Correct</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.screenTitle}>🧠 Flashcards Learning</Text>
-        <Text style={styles.subtitle}>{flashcards.length} cards available</Text>
-      </View>
-
-      {/* Category Filters */}
-      <View style={styles.filtersContainer}>
-        <FlatList
-          data={categories}
-          renderItem={renderCategoryFilter}
-          keyExtractor={(item) => item}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryFilters}
-        />
-      </View>
-
-      {/* Start Study Button */}
-      <View style={styles.startSection}>
-        <TouchableOpacity
-          style={styles.startButton}
-          onPress={startStudySession}
-        >
-          <Text style={styles.startButtonText}>🚀 Start Study Session</Text>
-        </TouchableOpacity>
-
-        {currentCard && (
-          <View style={styles.previewCard}>
-            <Text style={styles.previewLabel}>Next card preview:</Text>
-            <Text style={styles.previewText} numberOfLines={2}>
-              {currentCard.question}
-            </Text>
-          </View>
-        )}
-      </View>
-
-      {/* Recent Sessions */}
-      <View style={styles.sessionsContainer}>
-        <Text style={styles.sessionsTitle}>📊 Recent Sessions</Text>
-        <FlatList
-          data={sessions.slice(0, 5)}
-          renderItem={renderSession}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>
-              No study sessions yet. Start your first session!
-            </Text>
-          }
-        />
-      </View>
-    </View>
-  );
+  return <AdvancedFlashcards cards={mockFlashcards} onClose={handleClose} />;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9fafb",
+    backgroundColor: "#f8fafc",
   },
   header: {
-    backgroundColor: "#fff",
-    padding: 20,
-    paddingTop: 50,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
+    backgroundColor: "#8b5cf6",
+    paddingTop: 60,
+    paddingBottom: 16,
+    paddingHorizontal: 20,
   },
-  screenTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
+  content: {
+    flex: 1,
+    padding: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
     color: "#111827",
-    marginBottom: 4,
+    textAlign: "center",
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
-  },
-  filtersContainer: {
-    backgroundColor: "#fff",
-    paddingVertical: 12,
-  },
-  categoryFilters: {
-    paddingHorizontal: 16,
-  },
-  categoryChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  categoryChipText: {
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  startSection: {
-    padding: 20,
-    alignItems: "center",
-  },
-  startButton: {
-    backgroundColor: "#7c3aed",
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  startButtonText: {
-    color: "#fff",
     fontSize: 16,
-    fontWeight: "600",
-  },
-  previewCard: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    width: "100%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  previewLabel: {
-    fontSize: 12,
     color: "#6b7280",
-    marginBottom: 4,
-  },
-  previewText: {
-    fontSize: 14,
-    color: "#111827",
-  },
-  sessionsContainer: {
-    flex: 1,
-    padding: 20,
-  },
-  sessionsTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 16,
-  },
-  sessionCard: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  sessionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 4,
-  },
-  sessionCategory: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#111827",
-  },
-  sessionScore: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  sessionStats: {
-    fontSize: 12,
-    color: "#6b7280",
-    marginBottom: 4,
-  },
-  sessionDate: {
-    fontSize: 10,
-    color: "#9ca3af",
-  },
-  emptyText: {
     textAlign: "center",
-    color: "#6b7280",
-    fontStyle: "italic",
-    marginTop: 20,
+    marginBottom: 32,
   },
-  // Study Mode Styles
-  studyContainer: {
-    flex: 1,
-    backgroundColor: "#7c3aed",
-  },
-  studyHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
-  },
-  exitButton: {
-    backgroundColor: "rgba(255,255,255,0.2)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  exitButtonText: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  progressText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  scoreText: {
-    color: "#fff",
-    fontSize: 14,
-  },
-  progressBarContainer: {
-    height: 4,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    marginHorizontal: 20,
-    borderRadius: 2,
-  },
-  progressBar: {
-    height: "100%",
+  modeButton: {
     backgroundColor: "#fff",
-    borderRadius: 2,
-  },
-  cardContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    borderRadius: 16,
     padding: 20,
-  },
-  flashcard: {
-    width: "100%",
-    height: 300,
-    backgroundColor: "#fff",
-    borderRadius: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 4,
+    borderLeftWidth: 4,
+    borderLeftColor: "#8b5cf6",
   },
-  cardSide: {
+  modeIcon: {
+    fontSize: 32,
+    marginRight: 16,
+  },
+  modeInfo: {
     flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    alignItems: "center",
   },
-  cardLabel: {
-    fontSize: 12,
-    color: "#7c3aed",
-    fontWeight: "600",
-    marginBottom: 16,
-    letterSpacing: 1,
-  },
-  cardText: {
+  modeTitle: {
     fontSize: 18,
-    color: "#111827",
-    textAlign: "center",
-    lineHeight: 26,
-    flex: 1,
-    textAlignVertical: "center",
-  },
-  cardFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  difficultyBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  difficultyText: {
-    color: "#fff",
-    fontSize: 8,
     fontWeight: "600",
+    color: "#111827",
+    marginBottom: 4,
   },
-  categoryText: {
-    fontSize: 10,
+  modeDescription: {
+    fontSize: 14,
+    color: "#6b7280",
+    lineHeight: 20,
+  },
+  arrow: {
+    fontSize: 24,
+    color: "#8b5cf6",
+  },
+  statsContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statsTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 12,
+  },
+  statsGrid: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  statItem: {
+    alignItems: "center",
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#8b5cf6",
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
     color: "#6b7280",
     fontWeight: "500",
   },
-  flipHint: {
-    color: "rgba(255,255,255,0.8)",
-    fontSize: 12,
-    marginTop: 16,
-    textAlign: "center",
-  },
-  answerButtons: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-    gap: 12,
-  },
-  answerButton: {
-    flex: 1,
-    paddingVertical: 16,
+  previewContainer: {
+    backgroundColor: "#fff",
     borderRadius: 12,
-    alignItems: "center",
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  incorrectButton: {
-    backgroundColor: "#ef4444",
-  },
-  correctButton: {
-    backgroundColor: "#10b981",
-  },
-  answerButtonText: {
-    color: "#fff",
+  previewTitle: {
     fontSize: 16,
     fontWeight: "600",
+    color: "#111827",
+    marginBottom: 12,
+  },
+  previewCard: {
+    backgroundColor: "#f9fafb",
+    borderRadius: 8,
+    padding: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: "#8b5cf6",
+  },
+  previewQuestion: {
+    fontSize: 16,
+    color: "#374151",
+    lineHeight: 24,
+    marginBottom: 12,
+  },
+  previewFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  previewCategory: {
+    fontSize: 12,
+    color: "#8b5cf6",
+    fontWeight: "500",
+  },
+  previewMastery: {
+    fontSize: 12,
+    color: "#059669",
+    fontWeight: "500",
   },
 });

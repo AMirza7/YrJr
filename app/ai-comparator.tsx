@@ -174,7 +174,18 @@ export default function AIComparator() {
         Alert.alert(
           "Access Restricted",
           "AI Comparator is available for Lawyers, Junior Lawyers, and Law Students only.",
-          [{ text: "OK", onPress: () => router.back() }],
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(tabs)/home");
+                }
+              },
+            },
+          ],
         );
         return;
       }

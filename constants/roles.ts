@@ -10,6 +10,7 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
   lawyer: 90,
   junior_lawyer: 80,
   lawyer_assistant: 70,
+  legal_clerk_typist: 65,
   law_office_helper: 60,
   law_student: 50,
 };
@@ -21,6 +22,7 @@ export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
   junior_lawyer:
     "Junior legal practitioner with comprehensive legal tool access",
   lawyer_assistant: "Legal support professional with case management access",
+  legal_clerk_typist: "Legal clerk providing typing and clerical services",
   law_office_helper: "Office support staff with limited administrative access",
   law_student: "Law student with educational and learning focused access",
 };
@@ -116,6 +118,18 @@ export const getRolePermissions = (role: UserRole): NavigationPermissions => {
         canAccessSettings: true,
       };
 
+    case "legal_clerk_typist":
+      return {
+        ...basePermissions,
+        canAccessSecureNotes: true,
+        canAccessTemplates: true,
+        canAccessFlashcards: true,
+        canAccessDocumentScanner: true,
+        canAccessCalendar: true,
+        canAccessNotifications: true,
+        canAccessSettings: true,
+      };
+
     case "law_office_helper":
       return {
         ...basePermissions,
@@ -160,6 +174,7 @@ export const FEATURE_ACCESS: FeatureAccess = {
       "lawyer",
       "junior_lawyer",
       "lawyer_assistant",
+      "legal_clerk_typist",
       "law_office_helper",
     ],
   },
@@ -174,6 +189,7 @@ export const FEATURE_ACCESS: FeatureAccess = {
       "lawyer",
       "junior_lawyer",
       "lawyer_assistant",
+      "legal_clerk_typist",
       "law_office_helper",
       "law_student",
     ],
@@ -185,6 +201,7 @@ export const FEATURE_ACCESS: FeatureAccess = {
       "lawyer",
       "junior_lawyer",
       "lawyer_assistant",
+      "legal_clerk_typist",
       "law_office_helper",
       "law_student",
     ],
@@ -197,6 +214,7 @@ export const FEATURE_ACCESS: FeatureAccess = {
       "lawyer",
       "junior_lawyer",
       "lawyer_assistant",
+      "legal_clerk_typist",
       "law_office_helper",
     ],
   },
@@ -291,6 +309,8 @@ export const getRoleColor = (role: UserRole): string => {
       return "#06B6D4";
     case "lawyer_assistant":
       return "#10B981";
+    case "legal_clerk_typist":
+      return "#8B5A3F";
     case "law_office_helper":
       return "#F59E0B";
     case "law_student":
@@ -310,6 +330,8 @@ export const getRoleIcon = (role: UserRole): string => {
       return "📚";
     case "lawyer_assistant":
       return "📋";
+    case "legal_clerk_typist":
+      return "⌨️";
     case "law_office_helper":
       return "🏢";
     case "law_student":

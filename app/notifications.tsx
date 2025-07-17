@@ -58,7 +58,17 @@ export default function NotificationCenter() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            try {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.replace("/(tabs)/home");
+              }
+            } catch (error) {
+              router.replace("/(tabs)/home");
+            }
+          }}
         >
           <Text style={styles.backText}>← Back</Text>
         </TouchableOpacity>
@@ -66,33 +76,37 @@ export default function NotificationCenter() {
       </View>
 
       {/* Categories */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesContainer}
-      >
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.value}
-            style={[
-              styles.categoryChip,
-              selectedCategory === category.value && styles.activeCategoryChip,
-            ]}
-            onPress={() => setSelectedCategory(category.value)}
-          >
-            <Text style={styles.categoryIcon}>{category.icon}</Text>
-            <Text
+      <View style={styles.categoriesContainer}>
+        <FlatList
+          data={categories}
+          numColumns={3}
+          keyExtractor={(item) => item.value}
+          renderItem={({ item: category }) => (
+            <TouchableOpacity
               style={[
-                styles.categoryText,
+                styles.categoryChip,
                 selectedCategory === category.value &&
-                  styles.activeCategoryText,
+                  styles.activeCategoryChip,
               ]}
+              onPress={() => setSelectedCategory(category.value)}
             >
-              {category.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Text style={styles.categoryIcon}>{category.icon}</Text>
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === category.value &&
+                    styles.activeCategoryText,
+                ]}
+                numberOfLines={1}
+              >
+                {category.label}
+              </Text>
+            </TouchableOpacity>
+          )}
+          scrollEnabled={false}
+          contentContainerStyle={styles.categoryGrid}
+        />
+      </View>
 
       {/* Notifications List */}
       <FlatList
@@ -146,29 +160,37 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     backgroundColor: "#fff",
     paddingVertical: 16,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
   },
+  categoryGrid: {
+    justifyContent: "space-between",
+  },
   categoryChip: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
     backgroundColor: "#f1f5f9",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginHorizontal: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    margin: 4,
+    flex: 1,
+    maxWidth: "30%",
+    minHeight: 70,
   },
   activeCategoryChip: {
     backgroundColor: "#1e40af",
   },
   categoryIcon: {
-    fontSize: 16,
-    marginRight: 6,
+    fontSize: 20,
+    marginBottom: 4,
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
     color: "#64748b",
+    textAlign: "center",
   },
   activeCategoryText: {
     color: "#fff",

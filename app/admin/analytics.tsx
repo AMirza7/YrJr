@@ -10,6 +10,7 @@ import {
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { useLocalization } from "@/contexts/LocalizationContext";
+import EnhancedDataExport from "@/components/admin/EnhancedDataExport";
 
 interface AnalyticsData {
   totalUsers: number;
@@ -26,6 +27,7 @@ export default function AdminAnalyticsScreen() {
   const { t } = useLocalization();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     checkAdminAccess();
@@ -121,7 +123,13 @@ export default function AdminAnalyticsScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/admin");
+            }
+          }}
         >
           <Text style={styles.backButtonText}>← {t("back")}</Text>
         </TouchableOpacity>
@@ -216,13 +224,20 @@ export default function AdminAnalyticsScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() =>
-            Alert.alert("Coming Soon", "Export feature coming soon")
-          }
+          onPress={() => setShowExportModal(true)}
         >
           <Text style={styles.actionButtonText}>📊 Export Data</Text>
         </TouchableOpacity>
       </View>
+
+      <EnhancedDataExport
+        visible={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={(config) => {
+          console.log("Exporting data with config:", config);
+          setShowExportModal(false);
+        }}
+      />
     </ScrollView>
   );
 }

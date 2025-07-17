@@ -100,6 +100,13 @@ export default function AdminDashboard() {
       description: `${pendingUsers.length} pending approvals`,
     },
     {
+      title: "Templates Approval",
+      icon: "📄",
+      color: "#7c3aed",
+      route: "/admin/templates-approval",
+      description: "Review submitted templates",
+    },
+    {
       title: "Analytics",
       icon: "📊",
       color: "#10b981",

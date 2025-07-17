@@ -7,13 +7,13 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  Share,
 } from "react-native";
 import { router } from "expo-router";
 import { authService } from "@/services/auth";
 import { User, LegalTemplate } from "@/types";
 import { canAccessFeature } from "@/constants/roles";
 import BackButton from "@/components/navigation/BackButton";
+import { shareTemplate } from "@/utils/shareUtils";
 
 // Mock templates data
 const MOCK_TEMPLATES: LegalTemplate[] = [
@@ -174,7 +174,18 @@ export default function TemplatesHub() {
         Alert.alert(
           "Access Restricted",
           "Templates feature requires appropriate subscription level.",
-          [{ text: "OK", onPress: () => router.back() }],
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                if (router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace("/(tabs)/home");
+                }
+              },
+            },
+          ],
         );
         return;
       }
@@ -267,14 +278,32 @@ export default function TemplatesHub() {
   };
 
   const handleShare = async (template: LegalTemplate) => {
-    try {
-      await Share.share({
-        message: `Check out this legal template: ${template.title}\n\n${template.description}`,
-        title: template.title,
-      });
-    } catch (error) {
-      console.error("Error sharing:", error);
-    }
+    const shareText = `📄 ${template.title}\n\n📝 ${template.description}\n\n🏛️ Shared from YRJR Legal Assistant`;
+
+    Alert.alert(
+      "Share Template",
+      "Choose how you'd like to share this template:",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Copy to Clipboard",
+          onPress: async () => {
+            try {
+              if (typeof navigator !== "undefined" && navigator.clipboard) {
+                await navigator.clipboard.writeText(shareText);
+                Alert.alert("✅ Success", "Template copied to clipboard!");
+              } else {
+                Alert.alert("📋 Template Content", shareText, [
+                  { text: "Done" },
+                ]);
+              }
+            } catch (error) {
+              Alert.alert("📋 Template Content", shareText, [{ text: "Done" }]);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const TemplateCard = ({ template }: { template: LegalTemplate }) => (

@@ -164,7 +164,9 @@ export default function ThemeSelector({
                         ? "lightTheme"
                         : option.value === "dark"
                           ? "darkTheme"
-                          : "systemTheme",
+                          : option.value === "modern"
+                            ? "modernTheme"
+                            : "systemTheme",
                     )}
                   </Text>
                 </View>

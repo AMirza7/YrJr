@@ -52,34 +52,24 @@ export default function SubscriptionScreen() {
           { text: "Cancel", style: "cancel" },
           {
             text: "Continue",
-            onPress: async () => {
-              // Simulate payment process
-              Alert.alert(
-                "Payment",
-                "This will redirect to payment gateway in production",
-                [
-                  {
-                    text: "Simulate Success",
-                    onPress: async () => {
-                      try {
-                        await authService.updateUser({
-                          subscriptionTier: tier,
-                        });
-                        setUser((prev) =>
-                          prev ? { ...prev, subscriptionTier: tier } : null,
-                        );
-                        Alert.alert(
-                          "Success",
-                          `Successfully upgraded to ${tier} plan!`,
-                        );
-                      } catch (error) {
-                        Alert.alert("Error", "Failed to upgrade subscription");
-                      }
-                    },
+            onPress: () => {
+              try {
+                const amount =
+                  tier === "pro"
+                    ? SUBSCRIPTION_PRICING.pro.monthly
+                    : SUBSCRIPTION_PRICING.premium.monthly;
+                console.log("Navigating to payment with:", { amount, tier });
+                router.push({
+                  pathname: "/payment-options",
+                  params: {
+                    amount: amount.toString(),
+                    plan: tier.charAt(0).toUpperCase() + tier.slice(1),
                   },
-                  { text: "Cancel", style: "cancel" },
-                ],
-              );
+                });
+              } catch (error) {
+                console.error("Navigation error:", error);
+                Alert.alert("Error", "Unable to navigate to payment options");
+              }
             },
           },
         ],
@@ -178,7 +168,17 @@ export default function SubscriptionScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => {
+            try {
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.replace("/(tabs)/home");
+              }
+            } catch (error) {
+              router.replace("/(tabs)/home");
+            }
+          }}
         >
           <Text style={styles.backButtonText}>← {t("back")}</Text>
         </TouchableOpacity>
